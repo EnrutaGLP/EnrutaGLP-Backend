@@ -32,13 +32,10 @@ public class JDBCPedidoRepository implements PedidoRepository {
 		}catch(Exception e) {
 			System.out.println(e.getMessage());
 		}
-		
-		
 	}
 
 	@Override
 	public List<Pedido> listar() {
-		List<PedidoTable> listPed = (List<PedidoTable>)repo.findAll();
 		List<Pedido> pedidos = ((List<PedidoTable>)repo.findAll()).stream()
 				.map(pedidoTable -> pedidoTable.toModel()).collect(Collectors.toList());
 		return pedidos;
