@@ -9,7 +9,7 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import com.enrutaglp.backend.enums.EstadoPedido;
-import com.enrutaglp.backend.models.Pedido;
+import com.enrutaglp.backend.models.Camion;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,4 +34,19 @@ public class CamionTable {
 	private byte estado;
 	private byte tipo;
 	
+	public CamionTable(Camion camion, boolean isNew) {
+		this.codigo = camion.getCodigo(); 
+		this.placa = camion.getPlaca();
+		this.ubicacionActualX = camion.getUbicacionActualX();
+		this.ubicacionActualY = camion.getUbicacionActualY(); 
+		this.cargaActualGLP = camion.getCargaActualGLP(); 
+		this.cargaActualPetroleo = camion.getCargaActualPetroleo(); 
+		this.estado = camion.getEstado(); 
+		
+	}
+	
+	public Camion toModel() {
+		return new Camion(id,codigo,placa,ubicacionActualX,ubicacionActualY,cargaActualGLP,cargaActualPetroleo,
+				estado, tipo);
+	}
 }
