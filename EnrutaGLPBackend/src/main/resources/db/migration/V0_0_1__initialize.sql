@@ -23,7 +23,7 @@ CREATE TABLE tipo_mantenimiento (
 );
 
 CREATE TABLE usuario (
-	id INT NOT NULL,
+	id INT NOT NULL AUTO_INCREMENT,
 	nombre VARCHAR(100) NULL,
 	correo VARCHAR(100) NOT NULL,
 	id_perfil TINYINT NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE usuario (
 );
 
 CREATE TABLE planta (
-	id INT NOT NULL,
+	id INT NOT NULL AUTO_INCREMENT,
 	ubicacion_x INT NOT NULL,
 	ubicacion_y INT NOT NULL,
 	capacidad_petroleo DOUBLE NOT NULL,
@@ -88,7 +88,7 @@ CREATE TABLE camion (
 );
 
 CREATE TABLE averia (
-	id INT NOT NULL,
+	id INT NOT NULL AUTO_INCREMENT,
 	id_camion INT NOT NULL,
     fecha TIMESTAMP NOT NULL,
 	PRIMARY KEY (id),
@@ -96,7 +96,7 @@ CREATE TABLE averia (
 );
 
 CREATE TABLE mantenimiento (
-	id INT NOT NULL,
+	id INT NOT NULL AUTO_INCREMENT,
 	id_camion INT NOT NULL,
     fecha_inicio TIMESTAMP,
     fecha_fin TIMESTAMP,
@@ -107,14 +107,14 @@ CREATE TABLE mantenimiento (
 );
 
 CREATE TABLE bloqueo (
-	id INT NOT NULL,
+	id INT NOT NULL AUTO_INCREMENT,
 	fecha_inicio TIMESTAMP,
     fecha_fin TIMESTAMP,
 	PRIMARY KEY (id)
 );
 
 CREATE TABLE punto (
-	id INT NOT NULL,
+	id INT NOT NULL AUTO_INCREMENT,
 	ubicacion_x INT NOT NULL,
 	ubicacion_y INT NOT NULL,
     orden INT,
