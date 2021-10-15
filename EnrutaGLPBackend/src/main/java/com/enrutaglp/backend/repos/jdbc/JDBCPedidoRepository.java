@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import com.enrutaglp.backend.models.Pedido;
 import com.enrutaglp.backend.repos.crud.PedidoCrudRepository;
