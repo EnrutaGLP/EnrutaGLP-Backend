@@ -8,4 +8,6 @@ import com.enrutaglp.backend.models.Camion;
 public interface CamionRepository {
 
 	List<Camion> listar();
+	void registrar (Camion camion);
+	int listarIDporCodigo (String codigoCamion);
 }
