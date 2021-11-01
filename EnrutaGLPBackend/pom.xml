@@ -11,7 +11,7 @@
 	<groupId>com.enrutaglp.backend</groupId>
 	<artifactId>EnrutaGLPBackend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>EnrutaGLPBackend</name>
 	<description>EnrutaGLP Backend</description>
 	<properties>

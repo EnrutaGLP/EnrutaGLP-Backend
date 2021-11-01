@@ -37,4 +37,10 @@ public class PedidoController {
 		return new ResponseEntity<Response>(new Response(pedidos),HttpStatus.OK);
 	}
 	
+	@PostMapping("/registro-masivo")
+	public ResponseEntity<Response>registrarMasivo(@RequestBody List<Pedido>pedidos){
+		pedidoRepository.registrarMasivo(pedidos);
+		return new ResponseEntity<Response>(new Response(true),HttpStatus.OK);
+	}
+	
 }

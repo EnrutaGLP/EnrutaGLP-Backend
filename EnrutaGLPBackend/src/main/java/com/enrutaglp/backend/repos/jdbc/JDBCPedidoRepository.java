@@ -42,4 +42,11 @@ public class JDBCPedidoRepository implements PedidoRepository {
 		return pedidos;
 	}
 
+	@Override
+	public void registrarMasivo(List<Pedido> pedidos) {
+		List<PedidoTable>pedidosTable = pedidos.stream().map(p -> new PedidoTable(p,true))
+				.collect(Collectors.toList());
+		repo.saveAll(pedidosTable);
+	}	
+
 }
