@@ -1,3 +1,9 @@
+CREATE TABLE configuracion (
+	llave VARCHAR(100) NOT NULL,
+    valor VARCHAR(200),
+    PRIMARY KEY (llave)
+);
+
 CREATE TABLE perfil (
 	id TINYINT NOT NULL,
 	nombre VARCHAR(20) NOT NULL,
@@ -23,7 +29,7 @@ CREATE TABLE tipo_mantenimiento (
 );
 
 CREATE TABLE usuario (
-	id INT NOT NULL,
+	id INT NOT NULL AUTO_INCREMENT,
 	nombre VARCHAR(100) NULL,
 	correo VARCHAR(100) NOT NULL,
 	id_perfil TINYINT NOT NULL,
@@ -32,7 +38,7 @@ CREATE TABLE usuario (
 );
 
 CREATE TABLE planta (
-	id INT NOT NULL,
+	id INT NOT NULL AUTO_INCREMENT,
 	ubicacion_x INT NOT NULL,
 	ubicacion_y INT NOT NULL,
 	capacidad_petroleo DOUBLE NOT NULL,
@@ -88,7 +94,7 @@ CREATE TABLE camion (
 );
 
 CREATE TABLE averia (
-	id INT NOT NULL,
+	id INT NOT NULL AUTO_INCREMENT,
 	id_camion INT NOT NULL,
     fecha TIMESTAMP NOT NULL,
 	PRIMARY KEY (id),
@@ -96,7 +102,7 @@ CREATE TABLE averia (
 );
 
 CREATE TABLE mantenimiento (
-	id INT NOT NULL,
+	id INT NOT NULL AUTO_INCREMENT,
 	id_camion INT NOT NULL,
     fecha_inicio TIMESTAMP,
     fecha_fin TIMESTAMP,
@@ -107,14 +113,14 @@ CREATE TABLE mantenimiento (
 );
 
 CREATE TABLE bloqueo (
-	id INT NOT NULL,
+	id INT NOT NULL AUTO_INCREMENT,
 	fecha_inicio TIMESTAMP,
     fecha_fin TIMESTAMP,
 	PRIMARY KEY (id)
 );
 
 CREATE TABLE punto (
-	id INT NOT NULL,
+	id INT NOT NULL AUTO_INCREMENT,
 	ubicacion_x INT NOT NULL,
 	ubicacion_y INT NOT NULL,
     orden INT,
@@ -125,6 +131,8 @@ CREATE TABLE punto (
 
 
 -- Inserts:
+
+INSERT INTO configuracion VALUES ('CTE_VOLUMEN_CONSUMO','1') , ('ULTIMO_CHECKPOINT_PEDIDOS',NULL);
 
 INSERT INTO estado_pedido VALUES (1,'En cola'),(2,'En proceso'),(3,'Completado'); 
 

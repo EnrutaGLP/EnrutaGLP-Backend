@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import com.enrutaglp.backend.models.Pedido;
 import com.enrutaglp.backend.repos.crud.PedidoCrudRepository;
@@ -32,16 +33,20 @@ public class JDBCPedidoRepository implements PedidoRepository {
 		}catch(Exception e) {
 			System.out.println(e.getMessage());
 		}
-		
-		
 	}
 
 	@Override
 	public List<Pedido> listar() {
-		List<PedidoTable> listPed = (List<PedidoTable>)repo.findAll();
 		List<Pedido> pedidos = ((List<PedidoTable>)repo.findAll()).stream()
 				.map(pedidoTable -> pedidoTable.toModel()).collect(Collectors.toList());
 		return pedidos;
 	}
+
+	@Override
+	public void registrarMasivo(List<Pedido> pedidos) {
+		List<PedidoTable>pedidosTable = pedidos.stream().map(p -> new PedidoTable(p,true))
+				.collect(Collectors.toList());
+		repo.saveAll(pedidosTable);
+	}	
 
 }
