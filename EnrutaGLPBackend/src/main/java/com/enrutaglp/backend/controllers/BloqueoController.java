@@ -12,26 +12,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.enrutaglp.backend.dtos.Response;
-import com.enrutaglp.backend.repos.interfaces.CamionRepository;
-import com.enrutaglp.backend.models.Camion;
-import com.enrutaglp.backend.models.Pedido;
+import com.enrutaglp.backend.models.Bloqueo;
+import com.enrutaglp.backend.repos.interfaces.BloqueoRepository;
 
 @RestController
-@RequestMapping("/camiones")
-public class CamionController {
+@RequestMapping("/bloqueos")
+public class BloqueoController {
 	
 	@Autowired
-	private CamionRepository camionRepository; 
-	
-	@PostMapping("/registrar")
-	public ResponseEntity<Response> registrar(@RequestBody Camion camion) {
-		//camionRepository.registrar(camion);
+	private BloqueoRepository bloqueoRepository; 
+
+	@PostMapping("/registro-masivo")
+	public ResponseEntity<Response>registroMasivo(@RequestBody List<Bloqueo>bloqueos){
+		bloqueoRepository.registroMasivo(bloqueos);
 		return new ResponseEntity<Response>(new Response(true),HttpStatus.OK);
-	}
-	
-	@GetMapping("/ubicaciones-actuales")
-	public ResponseEntity<Response> listarUbicaciones(){
-		List<Camion>camiones = camionRepository.listar();
-		return new ResponseEntity<Response>(new Response(camiones),HttpStatus.OK);
 	}
 }

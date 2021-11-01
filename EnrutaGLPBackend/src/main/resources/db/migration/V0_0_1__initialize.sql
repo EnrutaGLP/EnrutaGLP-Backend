@@ -1,3 +1,9 @@
+CREATE TABLE configuracion (
+	llave VARCHAR(100) NOT NULL,
+    valor VARCHAR(200),
+    PRIMARY KEY (llave)
+);
+
 CREATE TABLE perfil (
 	id TINYINT NOT NULL,
 	nombre VARCHAR(20) NOT NULL,
@@ -125,6 +131,8 @@ CREATE TABLE punto (
 
 
 -- Inserts:
+
+INSERT INTO configuracion VALUES ('CTE_VOLUMEN_CONSUMO','1') , ('ULTIMO_CHECKPOINT_PEDIDOS',NULL);
 
 INSERT INTO estado_pedido VALUES (1,'En cola'),(2,'En proceso'),(3,'Completado'); 
 
