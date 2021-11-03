@@ -1,5 +1,6 @@
 package com.enrutaglp.backend.tables;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import javax.annotation.Generated;
@@ -32,11 +33,11 @@ public class PedidoTable {
 	@Column("ubicacion_y")
 	private int ubicacionY;
 	@Column("fecha_pedido")
-	private Date fechaPedido;
+	private LocalDateTime fechaPedido;
 	@Column("fecha_limite")
-	private Date fechaLimite;
+	private LocalDateTime fechaLimite;
 	@Column("fecha_completado")
-	private Date fechaCompletado;
+	private LocalDateTime fechaCompletado;
 	private byte estado;
 	
 	public PedidoTable(Pedido pedido, boolean isNew) {
