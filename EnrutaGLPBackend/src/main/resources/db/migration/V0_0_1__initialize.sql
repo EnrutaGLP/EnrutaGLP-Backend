@@ -138,6 +138,8 @@ INSERT INTO estado_pedido VALUES (1,'En cola'),(2,'En proceso'),(3,'Completado')
 
 INSERT INTO perfil VALUES(1,'Administrador'),(2,'Gestor de pedidos'),(3,'Gestor de rutas');
 
+INSERT INTO tipo_mantenimiento VALUES(1,'Preventivo'),(2,'Correctivo');
+
 INSERT INTO estado_camion VALUES(1,'En reposo'),(2,'En ruta'),(3,'Averiado'),(4,'En mantenimiento');
 
 INSERT INTO tipo_camion VALUES

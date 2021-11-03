@@ -1,5 +1,6 @@
 package com.enrutaglp.backend.tables;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -21,11 +22,10 @@ public class AveriaTable {
 	private int id;
 	@Column("id_camion")
 	private int idCamion;
-	private Date fecha;
+	private LocalDateTime fecha;
 	
 	
 	public AveriaTable (Averia averia, boolean isNew) {
-		
 		this.idCamion = averia.getIdCamion();
 		this.fecha = averia.getFecha();
 	}
