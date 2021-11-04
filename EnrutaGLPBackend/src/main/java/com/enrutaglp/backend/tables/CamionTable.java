@@ -47,6 +47,6 @@ public class CamionTable {
 	
 	public Camion toModel() {
 		return new Camion(id,codigo,placa,ubicacionActualX,ubicacionActualY,cargaActualGLP,cargaActualPetroleo,
-				estado, tipo);
+				estado);
 	}
 }

@@ -26,8 +26,7 @@ public class Camion {
 	private double cargaActualGLP;
 	private double cargaActualPetroleo;
 	private byte estado;
-	private byte tipo;
-	private TipoCamion tipoCamion;
+	private TipoCamion tipo;
 	private List<EntregaPedido>entregas;
 	private List<Punto>ruta;
 		
@@ -61,11 +60,12 @@ public class Camion {
 		this.cargaActualGLP = cargaActualGLP;
 		this.cargaActualPetroleo = cargaActualPetroleo;
 		this.ruta = new ArrayList<Punto>();
-		this.tipoCamion = tipo;
+		this.tipo = tipo;
 	}
 	
+	
 	public Camion(int id, String codigo, String placa, int ubicacionActualX, int ubicacionActualY,
-			double cargaActualGLP, double cargaActualPetroleo, byte estado, byte tipo) {
+			double cargaActualGLP, double cargaActualPetroleo, byte estado,TipoCamion tipoCamion) {
 		this.id = id;
 		this.codigo = codigo;
 		this.placa = placa;
@@ -75,6 +75,7 @@ public class Camion {
 		this.cargaActualPetroleo = cargaActualPetroleo;
 		this.estado = estado;
 		this.tipo = tipo;
+		this.tipo = tipoCamion;
 		this.ruta = new ArrayList<Punto>();
 	}
 	
@@ -87,9 +88,9 @@ public class Camion {
 		if(entregas.isEmpty()) {
 			ubicacionActualX = 0; 
 			ubicacionActualY = 0;
-			cargaActualGLP	= tipoCamion.getCapacidadGLP();
+			cargaActualGLP	= tipo.getCapacidadGLP();
 			distancia = Math.abs(pedido.getUbicacionX()-ubicacionActualX) + Math.abs(pedido.getUbicacionY()-ubicacionActualY);
-			tiempo = distancia/(int)tipoCamion.getVelocidadPromedio();
+			tiempo = distancia/(int)tipo.getVelocidadPromedio();
 			horaLlegada = horaSalida.plusHours(tiempo);
 			cantidadEntregada = (pedido.getCantidadGlp() > cargaActualGLP)? pedido.getCantidadGlp() : cargaActualGLP;
 			entregaPedido = new EntregaPedido(cantidadEntregada, horaLlegada, horaSalida, 
@@ -100,7 +101,21 @@ public class Camion {
 	}
 	
 	public double calcularConsumoPetroleo(double distancia) {
-		double peso = this.tipoCamion.getPesoBruto() + this.cargaActualGLP*0.5;
+		double peso = this.tipo.getPesoBruto() + this.cargaActualGLP*0.5;
 		return distancia*peso/150;
+	}
+
+
+	public Camion(int id, String codigo, String placa, int ubicacionActualX, int ubicacionActualY,
+			double cargaActualGLP, double cargaActualPetroleo, byte estado) {
+		super();
+		this.id = id;
+		this.codigo = codigo;
+		this.placa = placa;
+		this.ubicacionActualX = ubicacionActualX;
+		this.ubicacionActualY = ubicacionActualY;
+		this.cargaActualGLP = cargaActualGLP;
+		this.cargaActualPetroleo = cargaActualPetroleo;
+		this.estado = estado;
 	}
 }

@@ -10,11 +10,13 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.enrutaglp.backend.algorithm.Genetic;
 import com.enrutaglp.backend.algorithm.Individual;
+import com.enrutaglp.backend.events.UbicacionesActualizadasEvent;
 import com.enrutaglp.backend.models.Bloqueo;
 import com.enrutaglp.backend.models.Camion;
 import com.enrutaglp.backend.models.Mantenimiento;
@@ -34,6 +36,8 @@ public class ScheduledJobs {
 		System.out.println("Hello world" + " now is " + new Date());
 	}
 	*/
+	@Autowired
+	private ApplicationEventPublisher publisher;
 	
 	@Value("${datos-configuracion.const-vol-consumo.llave}")
 	private String llaveConstVC;
@@ -81,7 +85,7 @@ public class ScheduledJobs {
 	private CamionRepository camionRepository;
 	
 	@Scheduled(fixedDelayString = "${algorithm.delay}")
-	public void executeAlgorithm() {
+	public void ejecutarAlgoritmo() {
 		Map<String, String> configuracionCompleta = configuracionRepository.listarConfiguracionCompleta();
 		int k = Integer.valueOf(configuracionCompleta.get(llaveConstVC));
 		String strUltimaHora = configuracionCompleta.get(llaveUltimoCheck);
@@ -111,8 +115,14 @@ public class ScheduledJobs {
 		List<Planta> plantas = new ArrayList<Planta>();
 		Genetic genetic = new Genetic(pedidos, flota, bloqueos, mantenimientos,plantas);
 		
-		//Individual solution = genetic.run(maxIterNoImp, numChildrenToGenerate, wA, wB, wC, mu, epsilon, percentageGenesToMutate);
+		Individual solution = genetic.run(maxIterNoImp, numChildrenToGenerate, wA, wB, wC, mu, epsilon, percentageGenesToMutate);
+		solution.getRutas();
 		
+	}
+	
+	@Scheduled(fixedDelayString = "${actualizar-posiciones.delay}")
+	public void actualizarUbicaciones() {
+		publisher.publishEvent(new UbicacionesActualizadasEvent(this));
 	}
 	
 }

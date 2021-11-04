@@ -66,7 +66,7 @@ public class Ruta {
 	
 	public void calcularVariables() {
 		this.distanciaRecorrida = this.puntos.get(this.puntos.size()-2).calcularDistanciasNodos(this.puntos.get(this.puntos.size()-1));
-		int tiempo = (int) (this.distanciaRecorrida/this.camion.getTipoCamion().getVelocidadPromedio());
+		int tiempo = (int) (this.distanciaRecorrida/this.camion.getTipo().getVelocidadPromedio());
 		this.horaLlegada = this.horaSalida.plusHours(tiempo);
 	}
 	

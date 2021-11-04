@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.enrutaglp.backend.dtos.CamionTipoDTO;
 import com.enrutaglp.backend.models.Camion;
 import com.enrutaglp.backend.models.Pedido;
 import com.enrutaglp.backend.repos.crud.CamionCrudRepository;
@@ -46,8 +47,8 @@ public class JDBCCamionRepository implements CamionRepository {
 
 	@Override
 	public Map<String, Camion> listarDisponiblesParaEnrutamiento() {
-		List<Camion> camiones = ((List<CamionTable>)repo.findAll()).stream()
-				.map(camionTable -> camionTable.toModel()).collect(Collectors.toList());
+		List<Camion> camiones = ((List<CamionTipoDTO>)repo.listarCamionesTipoDTODisponibles()).stream()
+				.map(c -> c.toModel()).collect(Collectors.toList());
 		Map<String,Camion> camionesMapa = new HashMap<String, Camion>();
 		for(Camion c: camiones) {
 			camionesMapa.put(c.getCodigo(), c);
