@@ -28,7 +28,7 @@ public class JDBCPedidoRepository implements PedidoRepository {
 	public void registrar(Pedido pedido) {
 		PedidoTable pedidoTable = new PedidoTable(pedido, true);
 		String sql = "INSERT INTO pedido(codigo,cliente,cantidad_glp,cantidad_glp_atendida,cantidad_glp_por_planificar,ubicacion_x,ubicacion_y,"
-				+ "fecha_pedido,fecha_limite,estado) VALUES(?,?,?,?,?,?,?,?,?);";
+				+ "fecha_pedido,fecha_limite,estado) VALUES(?,?,?,?,?,?,?,?,?,?);";
 		try {
 			template.update(sql,pedidoTable.getCodigo(),pedidoTable.getCliente(),pedidoTable.getCantidadGlp(),pedidoTable.getCantidadGlpAtendida(),
 					pedidoTable.getCantidadGlpPorPlanificar(),pedidoTable.getUbicacionX(),pedidoTable.getUbicacionY(),pedidoTable.getFechaPedido(),
@@ -53,8 +53,8 @@ public class JDBCPedidoRepository implements PedidoRepository {
 	}
 
 	@Override
-	public Map<String, Pedido> listarPendientesMap() {
-		List<Pedido> pedidos = ((List<PedidoTable>)repo.listarPendientesPlanificacion()).stream()
+	public Map<String, Pedido> listarPendientesMap(String hasta) {
+		List<Pedido> pedidos = ((List<PedidoTable>)repo.listarPendientesPlanificacion(hasta)).stream()
 				.map(pedidoTable -> pedidoTable.toAlgorithmModel()).collect(Collectors.toList());
 		Map<String,Pedido> pedidosMapa = new HashMap<String, Pedido>();
 		for(Pedido p : pedidos) {

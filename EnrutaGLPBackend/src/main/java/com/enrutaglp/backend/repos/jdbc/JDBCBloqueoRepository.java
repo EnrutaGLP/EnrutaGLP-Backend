@@ -48,15 +48,29 @@ public class JDBCBloqueoRepository implements BloqueoRepository {
 
 	@Override
 	public List<Bloqueo> listarEnRango(Date fechaInicio, Date fechaFin) {
-		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
-		String desdeString = sdf.format(fechaInicio);
-		String hastaString = sdf.format(fechaFin);
-		List<Bloqueo> bloqueos = ((List<BloqueoTable>)repo.listarBloqueosEnRango(desdeString,hastaString)).stream()
-				.map(bloqueoTable -> bloqueoTable.toModel()).collect(Collectors.toList());
-		for(Bloqueo b: bloqueos) {
-			
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		String desdeString = null,hastaString = null;
+		if(fechaInicio!=null) {
+			desdeString = sdf.format(fechaInicio);
 		}
-		return null;
+		if(fechaFin!=null) {
+			hastaString = sdf.format(fechaFin);	
+		}
+		List<BloqueoTable> bloqueosBd; 
+		if(desdeString == null && hastaString != null) {
+			bloqueosBd = repo.listarBloqueosHasta(hastaString);
+		} else if(desdeString !=null && hastaString == null) {
+			bloqueosBd = repo.listarBloqueosDesde(desdeString);
+		} else {
+			bloqueosBd = repo.listarBloqueosEnRango(desdeString,hastaString);
+		}
+		
+		List<Bloqueo> bloqueos = bloqueosBd.stream().map(bloqueoTable -> bloqueoTable.toModel()).collect(Collectors.toList());
+		for(Bloqueo b: bloqueos) {
+			b.setPuntos(((List<PuntoTable>)puntoRepo.listarPuntosPorIdBloqueo(b.getId())).stream()
+					.map(puntoTable -> puntoTable.toModel()).collect(Collectors.toList()));
+		}
+		return bloqueos;
 	}
 	
 }

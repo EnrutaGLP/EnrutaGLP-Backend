@@ -9,6 +9,6 @@ import com.enrutaglp.backend.models.Pedido;
 public interface PedidoRepository {
 	void registrar(Pedido pedido);
 	List<Pedido> listar();
-	Map<String, Pedido> listarPendientesMap();
+	Map<String, Pedido> listarPendientesMap(String hasta);
 	void registrarMasivo(List<Pedido>pedidos);
 }

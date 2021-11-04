@@ -14,5 +14,10 @@ import com.enrutaglp.backend.tables.PuntoTable;
 @Repository
 public interface PuntoCrudRepository extends CrudRepository<PuntoTable, Integer>{
 	
-	
+	@Query("SELECT * "
+			+ "FROM punto "
+			+ "where "
+			+ "id_bloqueo = :idBloqueo"
+			)
+	List<PuntoTable>listarPuntosPorIdBloqueo(@Param("idBloqueo")int idBloqueo);
 }

@@ -25,6 +25,8 @@ public class Punto {
 		codigoPedido = null;
 	}
 	
+	
+	
 	public Punto clone() {
 		Punto p = new Punto(); 
 		p.ubicacionX = this.ubicacionX; 
@@ -85,6 +87,14 @@ public class Punto {
 			this.setPlanta(false);
 		}
 		
+	}
+
+	public Punto(int id, int ubicacionX, int ubicacionY, int orden, int idBloqueo) {
+		this.id = id;
+		this.ubicacionX = ubicacionX;
+		this.ubicacionY = ubicacionY;
+		this.orden = orden;
+		this.idBloqueo = idBloqueo;
 	}
 
 	
