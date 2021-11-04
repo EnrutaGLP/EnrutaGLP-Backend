@@ -115,7 +115,8 @@ public class ScheduledJobs {
 		List<Planta> plantas = new ArrayList<Planta>();
 		Genetic genetic = new Genetic(pedidos, flota, bloqueos, mantenimientos,plantas);
 		
-		//Individual solution = genetic.run(maxIterNoImp, numChildrenToGenerate, wA, wB, wC, mu, epsilon, percentageGenesToMutate);
+		Individual solution = genetic.run(maxIterNoImp, numChildrenToGenerate, wA, wB, wC, mu, epsilon, percentageGenesToMutate);
+		solution.getRutas();
 		
 	}
 	

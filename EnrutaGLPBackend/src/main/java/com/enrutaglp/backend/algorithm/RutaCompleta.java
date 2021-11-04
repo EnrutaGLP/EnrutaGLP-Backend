@@ -162,14 +162,14 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 			
 			Ruta rutaNueva = new Recarga(this.nodos.get(this.nodos.size()-2), punto, 
 					this.camion, this.fechaHoraTranscurrida, this.rutas.size(),
-					this.camion.getTipoCamion().getCapacidadGLP()-this.camion.getCargaActualGLP());
+					this.camion.getTipo().getCapacidadGLP()-this.camion.getCargaActualGLP());
 			double distanciaPuntos = rutaNueva.getDistanciaRecorrida();
 			
 			double consumoPetroleo = this.camion.calcularConsumoPetroleo(distanciaPuntos);
 			rutaNueva.setConsumoPetroleo(consumoPetroleo);
 
-			this.camion.setCargaActualGLP(this.camion.getTipoCamion().getCapacidadGLP());
-			this.camion.setCargaActualPetroleo(this.camion.getTipoCamion().getCapacidadTanque());
+			this.camion.setCargaActualGLP(this.camion.getTipo().getCapacidadGLP());
+			this.camion.setCargaActualPetroleo(this.camion.getTipo().getCapacidadTanque());
 			rutaNueva.setCamion(this.camion);
 			
 			this.petroleoConsumido += consumoPetroleo;
@@ -201,7 +201,7 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 		double consumoPetroleo = this.camion.calcularConsumoPetroleo(distanciaPuntosActualPedido+distanciaPuntosPedidoPlanta);
 		
 		//vdt = 
-		int tiempo = (int) (distanciaPuntosActualPedido/this.camion.getTipoCamion().getVelocidadPromedio());
+		int tiempo = (int) (distanciaPuntosActualPedido/this.camion.getTipo().getVelocidadPromedio());
 		
 		LocalDateTime fechaHoraEntrega = this.fechaHoraTranscurrida.plusHours(tiempo);
 		

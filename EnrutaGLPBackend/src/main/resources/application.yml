@@ -23,7 +23,7 @@ helloWorld:
 actualizar-posiciones:
   delay: PT5S
 algorithm: 
-  delay: PT15S 
+  delay: PT2M 
   params: 
     max-iter-no-imp: 5
     num-children-to-generate: 2
