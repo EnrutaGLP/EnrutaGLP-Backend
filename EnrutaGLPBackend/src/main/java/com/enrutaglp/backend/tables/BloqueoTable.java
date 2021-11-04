@@ -10,9 +10,11 @@ import org.springframework.data.relational.core.mapping.Table;
 import com.enrutaglp.backend.models.Bloqueo;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Table("bloqueo")
+@NoArgsConstructor
 public class BloqueoTable {
 	@Id
 	private int id;

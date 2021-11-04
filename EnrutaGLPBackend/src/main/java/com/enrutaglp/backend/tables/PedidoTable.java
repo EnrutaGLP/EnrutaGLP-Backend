@@ -11,6 +11,7 @@ import org.springframework.data.relational.core.mapping.Table;
 
 import com.enrutaglp.backend.enums.EstadoPedido;
 import com.enrutaglp.backend.models.Pedido;
+import com.enrutaglp.backend.utils.Utils;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -55,6 +56,9 @@ public class PedidoTable {
 			this.cantidadGlpAtendida = 0; 
 			this.cantidadGlpPorPlanificar = pedido.getCantidadGlp();
 			this.estado = EstadoPedido.EN_COLA.getValue();
+			if(codigo == null) {
+				this.codigo = Utils.generarCodigoAleatorio(8);
+			}
 		}else {
 			this.id = pedido.getId();
 			this.cantidadGlpAtendida = pedido.getCantidadGlpAtendida(); 

@@ -22,7 +22,9 @@ public interface PedidoCrudRepository extends CrudRepository<PedidoTable, Intege
 			+ "FROM pedido "
 			+ "where "
 			+ "pedido.cantidad_glp_por_planificar > 0 "
+			+ "and "
+			+ "pedido.fecha_pedido <= :hasta"
 			)
-	List<PedidoTable>listarPendientesPlanificacion(); 
+	List<PedidoTable>listarPendientesPlanificacion(@Param("hasta") String hasta); 
 	
 }

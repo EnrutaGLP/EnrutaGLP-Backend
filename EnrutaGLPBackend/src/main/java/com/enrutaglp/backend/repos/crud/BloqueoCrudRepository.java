@@ -19,4 +19,20 @@ public interface BloqueoCrudRepository extends CrudRepository<BloqueoTable, Inte
 			+ "and fecha_inicio <= :hasta " 
 			)
 	List<BloqueoTable>listarBloqueosEnRango(@Param("desde") String desde,@Param("hasta") String hasta );
+	
+	@Query(   "SELECT * "
+			+ "FROM bloqueo "
+			+ "where "
+			+ "fecha_fin >= :desde "
+			)
+	List<BloqueoTable>listarBloqueosDesde(@Param("desde") String desde);
+	
+	@Query(   "SELECT * "
+			+ "FROM bloqueo "
+			+ "where "
+			+ "fecha_inicio <= :hasta " 
+			)
+	List<BloqueoTable>listarBloqueosHasta(@Param("hasta") String hasta );
+	
+	
 }

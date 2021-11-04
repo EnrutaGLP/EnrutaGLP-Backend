@@ -33,4 +33,8 @@ public class PuntoTable {
 		this.ubicacionY = punto.getUbicacionY(); 
 		this.orden = punto.getOrden();
 	}
+	
+	public Punto toModel() {
+		return new Punto(id,ubicacionX,ubicacionY,orden,idBloqueo);
+	}
 }

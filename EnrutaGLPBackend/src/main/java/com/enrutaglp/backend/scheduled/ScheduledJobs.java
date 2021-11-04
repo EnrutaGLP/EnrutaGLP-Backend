@@ -20,6 +20,8 @@ import com.enrutaglp.backend.models.Camion;
 import com.enrutaglp.backend.models.Mantenimiento;
 import com.enrutaglp.backend.models.Pedido;
 import com.enrutaglp.backend.models.Planta;
+import com.enrutaglp.backend.repos.interfaces.BloqueoRepository;
+import com.enrutaglp.backend.repos.interfaces.CamionRepository;
 import com.enrutaglp.backend.repos.interfaces.ConfiguracionRepository;
 import com.enrutaglp.backend.repos.interfaces.PedidoRepository;
 import com.enrutaglp.backend.tables.ConfiguracionTable;
@@ -72,18 +74,25 @@ public class ScheduledJobs {
 	@Autowired
 	private PedidoRepository pedidoRepository; 
 	
+	@Autowired
+	private BloqueoRepository bloqueoRepository;
+
+	@Autowired
+	private CamionRepository camionRepository;
+	
 	@Scheduled(fixedDelayString = "${algorithm.delay}")
 	public void executeAlgorithm() {
 		Map<String, String> configuracionCompleta = configuracionRepository.listarConfiguracionCompleta();
 		int k = Integer.valueOf(configuracionCompleta.get(llaveConstVC));
 		String strUltimaHora = configuracionCompleta.get(llaveUltimoCheck);
 		Date nuevoCheckpoint = null;
+		Date horaZero = new Date();
 		if(strUltimaHora == null) {
 			nuevoCheckpoint = new Date();
 		}
 		else {
 			try {
-				Date ultimoCheckpoint = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").parse(strUltimaHora);
+				Date ultimoCheckpoint = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(strUltimaHora);
 				int sk = saltoAlgoritmo * k;
 				long segundos = ultimoCheckpoint.getTime();
 			    nuevoCheckpoint = new Date(segundos + sk*60*1000);
@@ -92,12 +101,12 @@ public class ScheduledJobs {
 			}
 		}
 		
-		String nuevoValorUltimoCheck = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(nuevoCheckpoint);
+		String nuevoValorUltimoCheck = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(nuevoCheckpoint);
 		configuracionRepository.actualizarLlave(llaveUltimoCheck, nuevoValorUltimoCheck);
 		
-		Map<String, Pedido>pedidos = pedidoRepository.listarPendientesMap(); 
-		Map<String, Camion>flota = new HashMap<String, Camion>(); 
-		List<Bloqueo>bloqueos = new ArrayList<Bloqueo>(); 
+		Map<String, Pedido>pedidos = pedidoRepository.listarPendientesMap(nuevoValorUltimoCheck); 
+		Map<String, Camion>flota = camionRepository.listarDisponiblesParaEnrutamiento(); 
+		List<Bloqueo>bloqueos = bloqueoRepository.listarEnRango(horaZero, null); 
 		Map<String, Mantenimiento>mantenimientos = new HashMap<String, Mantenimiento>(); 
 		List<Planta> plantas = new ArrayList<Planta>();
 		Genetic genetic = new Genetic(pedidos, flota, bloqueos, mantenimientos,plantas);
