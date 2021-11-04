@@ -20,6 +20,8 @@ datos-configuracion:
     llave: ULTIMO_CHECKPOINT_PEDIDOS
 helloWorld:
   delay: PT5S
+actualizar-posiciones:
+  delay: PT5S
 algorithm: 
   delay: PT15S 
   params: 
@@ -31,6 +33,8 @@ algorithm:
     population-mu: 10
     population-epsilon: 20
     percent-genes-mutate: 0.3
+notificaciones: 
+  ubicaciones-actualizadas: /topic/greetings
 #local: 
 #url: jdbc:mysql://localhost:3307/enrutaglp
 #username: root

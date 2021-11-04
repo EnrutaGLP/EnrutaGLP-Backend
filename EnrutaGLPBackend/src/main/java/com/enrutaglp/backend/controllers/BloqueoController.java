@@ -1,5 +1,6 @@
 package com.enrutaglp.backend.controllers;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,4 +28,11 @@ public class BloqueoController {
 		bloqueoRepository.registroMasivo(bloqueos);
 		return new ResponseEntity<Response>(new Response(true),HttpStatus.OK);
 	}
+	
+	@GetMapping("/actuales")
+	public ResponseEntity<Response>listarBloqueosActuales(){
+		List<Bloqueo>bloqueos = bloqueoRepository.listarEnRango(new Date(),new Date());
+		return new ResponseEntity<Response>(new Response(bloqueos),HttpStatus.OK);
+	}
+	
 }
