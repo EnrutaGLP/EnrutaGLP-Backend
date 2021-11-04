@@ -97,5 +97,13 @@ public class Punto {
 		this.idBloqueo = idBloqueo;
 	}
 
+	public double calcularDistanciasNodos(Punto puntoNodo) {
+		  double x1 = this.getUbicacionX(); 
+		  double y1 = this.getUbicacionY(); 
+		  double x2 = puntoNodo.getUbicacionX(); 
+		  double y2 = puntoNodo.getUbicacionY();
+		  
+		  return Math.abs(y2 - y1)+ Math.abs(x2 - x1);
+	}
 	
 }
