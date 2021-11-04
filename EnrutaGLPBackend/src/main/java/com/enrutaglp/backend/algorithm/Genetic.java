@@ -8,8 +8,11 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
+import com.enrutaglp.backend.models.Bloqueo;
 import com.enrutaglp.backend.models.Camion;
+import com.enrutaglp.backend.models.Mantenimiento;
 import com.enrutaglp.backend.models.Pedido;
+import com.enrutaglp.backend.models.Planta;
 
 public class Genetic {
 
@@ -17,33 +20,29 @@ public class Genetic {
 	Map<String,Pedido>pedidos; 
 	List<Pedido> listaPedidos;
 	Map<String,Camion>flota; 
-	int mapX; 
-	int mapY; 
+	List<Bloqueo>bloqueos;
+	Map<String,Mantenimiento>mantenimientos; 
+	List<Planta>plantas; 
 	
-	public Genetic(int mapX, int mapY, Map<String,Pedido>pedidos, Map<String,Camion>flota) {
-		this.mapX = mapX; 
-		this.mapY = mapY; 
+	
+	public Genetic(Map<String,Pedido>pedidos, Map<String,Camion>flota, List<Bloqueo>bloqueos,
+			Map<String,Mantenimiento>mantenimientos,List<Planta> plantas) {
+		this.plantas = plantas;
+		this.bloqueos = bloqueos; 
+		this.mantenimientos = mantenimientos; 
 		this.pedidos = pedidos; 
-		this.listaPedidos = pedidos.values().stream().collect(Collectors.toList());
 		this.flota = flota; 
+		this.listaPedidos = pedidos.values().stream().collect(Collectors.toList());
 	}
 	
-	public Individual run(int maxIterNoImp, int numChildrenToGenerate, double wA, double wB, double wC, String nombreArchivo) {
-		FileWriter fileWriter = null; 
-		PrintWriter printWriter = null;
-		try {
-			String nombreCompletoArchivo= new File("").getAbsolutePath().concat("//reportesAG//" +nombreArchivo);
-			fileWriter = new FileWriter(nombreCompletoArchivo);
-		    printWriter = new PrintWriter(fileWriter);
-		} catch(Exception e) {
-			System.out.println(e.getMessage());
-		}
+	public Individual run(int maxIterNoImp, int numChildrenToGenerate, double wA, double wB, double wC, int mu, int epsilon,
+			double percentGenesToMutate) {
 		
 		int nbIterNoImp = 1; 
-		double percentGenesToMutate = 0.3;
 		Individual childInd1,childInd2; 
+		
 		//Initialize population
-		population = new Population(10,20,pedidos,flota,wA,wB,wC);
+		population = new Population(mu,epsilon,pedidos,flota,wA,wB,wC);
 		
 		boolean genNewBest; 
 		for(int nbIter = 0; nbIterNoImp <= maxIterNoImp; nbIter++) {
@@ -52,7 +51,6 @@ public class Genetic {
 			for(int i=0;i<numChildrenToGenerate;i++) {
 				//Parent selection and crossover 
 				childInd1 = crossover(population.getBinaryTournament(wA, wB, wC),population.getBinaryTournament(wA, wB, wC));
-				
 				//Apply mutation
 				childInd2 = mutate(childInd1,percentGenesToMutate);
 				//Evaluate new individuals
@@ -65,8 +63,8 @@ public class Genetic {
 			if(genNewBest) nbIterNoImp = 1; 
 			else nbIterNoImp++; 
 		}
-	    printWriter.close();
 	    return population.getBest();
+	    
 	}
 	
 	public Individual crossover(Individual ind1, Individual ind2) {

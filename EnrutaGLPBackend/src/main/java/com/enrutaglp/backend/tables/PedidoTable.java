@@ -27,7 +27,9 @@ public class PedidoTable {
 	@Column("cantidad_glp")
 	private double cantidadGlp;
 	@Column("cantidad_glp_atendida")
-	private double cantidadGlpAtendida;	
+	private double cantidadGlpAtendida;
+	@Column("cantidad_glp_por_planificar")
+	private double cantidadGlpPorPlanificar;		
 	@Column("ubicacion_x")
 	private int ubicacionX;
 	@Column("ubicacion_y")
@@ -51,6 +53,7 @@ public class PedidoTable {
 		
 		if(isNew) {
 			this.cantidadGlpAtendida = 0; 
+			this.cantidadGlpPorPlanificar = pedido.getCantidadGlp();
 			this.estado = EstadoPedido.EN_COLA.getValue();
 		}else {
 			this.id = pedido.getId();
@@ -63,6 +66,11 @@ public class PedidoTable {
 	
 	public Pedido toModel() {
 		return new Pedido(id,codigo,cliente,cantidadGlp,cantidadGlpAtendida,ubicacionX,ubicacionY,
+				fechaPedido,fechaLimite,fechaCompletado,estado);
+	}
+	
+	public Pedido toAlgorithmModel() {
+		return new Pedido(id,codigo,cliente,cantidadGlpPorPlanificar,cantidadGlpAtendida,ubicacionX,ubicacionY,
 				fechaPedido,fechaLimite,fechaCompletado,estado);
 	}
 }

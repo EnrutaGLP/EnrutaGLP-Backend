@@ -55,6 +55,7 @@ CREATE TABLE pedido (
 	cliente VARCHAR(100),
     cantidad_glp DOUBLE NOT NULL,
     cantidad_glp_atendida DOUBLE NOT NULL,
+    cantidad_glp_por_planificar DOUBLE NOT NULL,
 	ubicacion_x INT NOT NULL,
 	ubicacion_y INT NOT NULL,
     fecha_pedido TIMESTAMP NOT NULL, 

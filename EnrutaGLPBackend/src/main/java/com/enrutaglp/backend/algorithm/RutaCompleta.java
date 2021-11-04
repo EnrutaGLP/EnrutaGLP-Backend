@@ -16,7 +16,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-public class Ruta implements Comparable<Ruta> {
+public class RutaCompleta implements Comparable<RutaCompleta> {
 	
 	private Map<String, Pedido> pedidos;
 	private List<Punto> nodos;
@@ -37,7 +37,7 @@ public class Ruta implements Comparable<Ruta> {
 	@Setter
 	private double distanciaRecorrida;
 	
-	public Ruta(Camion camion, String fechaActual, String horaActual) {
+	public RutaCompleta(Camion camion, String fechaActual, String horaActual) {
 		this.pedidos = new HashMap<String, Pedido>();
 		this.nodos = new ArrayList<Punto>();
 		this.costoRuta = 0;
@@ -74,7 +74,7 @@ public class Ruta implements Comparable<Ruta> {
 		
 	}
 
-	public void copiarRuta(Ruta ruta) {
+	public void copiarRuta(RutaCompleta ruta) {
 		this.camion = new Camion(ruta.getCamion());
 		this.fechaHoraTranscurrida = ruta.getFechaHoraTranscurrida();
 		this.setPedidos(ruta.getPedidos());
@@ -192,7 +192,7 @@ public class Ruta implements Comparable<Ruta> {
 	}
 
 	@Override
-	public int compareTo(Ruta o) {
+	public int compareTo(RutaCompleta o) {
 		if (this.getCostoRuta()>o.getCostoRuta()){
 			return 1;
 		}
