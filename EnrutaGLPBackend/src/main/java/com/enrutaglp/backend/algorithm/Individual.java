@@ -24,7 +24,7 @@ public class Individual implements Comparable<Individual> {
 	private Map<String, RutaCompleta> rutas;
 	private Map<String, Map<String, Pedido>> asignacionesCamiones;
 	private List<Camion> camiones;
-	private List<Ruta>rutasResultantes;
+	private Map<String, Ruta>rutasResultantes;
 	private double consumoTotalPetroleo = 0; // suma de consumo de todas las entregas
 	private int cantidadPedidosNoEntregados;
 	private double cantidadGlpNoEntregado;
@@ -37,7 +37,7 @@ public class Individual implements Comparable<Individual> {
 		this.chromosome = new HashMap<String, Map<String, Integer>>();
 		this.asignacionesCamiones = new HashMap<String, Map<String, Pedido>>();
 		this.rutas = new HashMap<String, RutaCompleta>();
-		this.rutasResultantes = new ArrayList<Ruta>();
+		this.rutasResultantes = new HashMap<String, Ruta>();
 	}
 
 	public Individual(Map<String, Pedido> pedidos, Map<String, Camion> flota) {
@@ -45,7 +45,7 @@ public class Individual implements Comparable<Individual> {
 		this.chromosome = new HashMap<String, Map<String, Integer>>();
 		this.asignacionesCamiones = new HashMap<String, Map<String, Pedido>>();
 		this.rutas = new HashMap<String, RutaCompleta>();
-		this.rutasResultantes = new ArrayList<Ruta>();
+		this.rutasResultantes = new HashMap<String, Ruta>();
 		this.generateRandomIndividual(pedidos, flota);
 	}
 
