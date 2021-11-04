@@ -1,5 +1,7 @@
 package com.enrutaglp.backend.repos.jdbc;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -8,10 +10,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import com.enrutaglp.backend.models.Bloqueo;
+import com.enrutaglp.backend.models.Pedido;
 import com.enrutaglp.backend.repos.crud.BloqueoCrudRepository;
 import com.enrutaglp.backend.repos.crud.PuntoCrudRepository;
 import com.enrutaglp.backend.repos.interfaces.BloqueoRepository;
 import com.enrutaglp.backend.tables.BloqueoTable;
+import com.enrutaglp.backend.tables.PedidoTable;
 import com.enrutaglp.backend.tables.PuntoTable;
 
 @Component
@@ -40,6 +44,19 @@ public class JDBCBloqueoRepository implements BloqueoRepository {
 			}
 			puntoRepo.saveAll(puntos);
 		}
+	}
+
+	@Override
+	public List<Bloqueo> listarEnRango(Date fechaInicio, Date fechaFin) {
+		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
+		String desdeString = sdf.format(fechaInicio);
+		String hastaString = sdf.format(fechaFin);
+		List<Bloqueo> bloqueos = ((List<BloqueoTable>)repo.listarBloqueosEnRango(desdeString,hastaString)).stream()
+				.map(bloqueoTable -> bloqueoTable.toModel()).collect(Collectors.toList());
+		for(Bloqueo b: bloqueos) {
+			
+		}
+		return null;
 	}
 	
 }

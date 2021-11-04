@@ -48,21 +48,21 @@ public class Grasp {
 		this.distanciaRecorrida = 0;
 	}
 
-	public Ruta construirSolucion() {	
+	public RutaCompleta construirSolucion() {	
 		
-		Ruta ruta = new Ruta(this.camion, fechaActual, horaActual);
+		RutaCompleta ruta = new RutaCompleta(this.camion, fechaActual, horaActual);
 		
 		Map<String, Pedido> pedidosSolucion = generarCopia(pedidos);
 		
 		while(true) {
 			
 			//generas N max candidatos aleatoriamente (nodosRecorridos)
-			List<Ruta> rutasCandidatos = this.generarCandidatos(ruta, pedidosSolucion);
+			List<RutaCompleta> rutasCandidatos = this.generarCandidatos(ruta, pedidosSolucion);
 			//seleccionas 1 de los X mejores candidatos de los N generados
 			assert rutasCandidatos.size() >0 : "Existe al menos una ruta de candidatos";
 			
 			
-			Ruta rutaSeleccionada = this.seleccionarCandidato(rutasCandidatos);
+			RutaCompleta rutaSeleccionada = this.seleccionarCandidato(rutasCandidatos);
 			
 			//si el ultimo punto era planta y el sigueinte tambien es planta entonces no hay mas solucionesfactibles
 			if((rutaSeleccionada.getNodos().get(rutaSeleccionada.getNodos().size()-1).isPlanta()) &&
@@ -122,12 +122,12 @@ public class Grasp {
 		return copia;
 	}
 	
-	public List<Ruta> generarCandidatos(Ruta ruta, Map<String, Pedido> pedidosCandidtos){
-		List<Ruta> rutasCandidatos = new ArrayList<Ruta>();
+	public List<RutaCompleta> generarCandidatos(RutaCompleta ruta, Map<String, Pedido> pedidosCandidtos){
+		List<RutaCompleta> rutasCandidatos = new ArrayList<RutaCompleta>();
 		Map<String,Pedido> pedidosCand = generarCopia(pedidosCandidtos);
 		 
 		for(int i=0; i<this.numCandidatos; i++) {
-			Ruta rutaGenerada = new Ruta(ruta.getCamion(), this.fechaActual, this.horaActual);
+			RutaCompleta rutaGenerada = new RutaCompleta(ruta.getCamion(), this.fechaActual, this.horaActual);
 			
 			rutaGenerada.copiarRuta(ruta);
 
@@ -165,7 +165,7 @@ public class Grasp {
 		return rutasCandidatos;
 	}
 
-	public Ruta seleccionarCandidato(List<Ruta> rutasCandidatos) {		
+	public RutaCompleta seleccionarCandidato(List<RutaCompleta> rutasCandidatos) {		
 		Collections.sort(rutasCandidatos); 
 		
 		int longitud = rutasCandidatos.size()>this.k? this.k : rutasCandidatos.size(); 
@@ -176,20 +176,20 @@ public class Grasp {
 			System.out.println(e.getMessage());
 		}
 		
-		Ruta rutaElegida = rutasCandidatos.get(random);
+		RutaCompleta rutaElegida = rutasCandidatos.get(random);
 		
 		return rutaElegida;
 	}
 	
 
-	public Ruta run(int maxIterNoImp) {
+	public RutaCompleta run(int maxIterNoImp) {
 		
 		double mejorCosto = 1000000000;
 		
 		int nbIterNoImp = 1; 
-		Ruta mejorRuta = null; 
+		RutaCompleta mejorRuta = null; 
 		while(nbIterNoImp<=maxIterNoImp) {
-			Ruta rutaSolucion = this.construirSolucion();
+			RutaCompleta rutaSolucion = this.construirSolucion();
 			//rutaSolucion = this.busquedaLocal(rutaSolucion);
 			double costoSolucion = rutaSolucion.calcularCostoRuta(this.pedidos, this.wa, this.wb, this.wc);
 			
@@ -213,8 +213,8 @@ public class Grasp {
 	
 
 	
-	public Ruta busquedaLocal() {
-		Ruta ruta = new Ruta(this.camion, this.fechaActual, this.horaActual);
+	public RutaCompleta busquedaLocal() {
+		RutaCompleta ruta = new RutaCompleta(this.camion, this.fechaActual, this.horaActual);
 		
 		return ruta;	
 	}

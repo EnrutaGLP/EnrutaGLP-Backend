@@ -1,5 +1,7 @@
 package com.enrutaglp.backend.models;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -14,9 +16,18 @@ public class Bloqueo {
 	private int id;
 	@JsonFormat(
 			  shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss", timezone="America/Lima")
-	private Date fechaInicio;
+	private LocalDateTime fechaInicio;
 	@JsonFormat(
 			  shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss", timezone="America/Lima")
-	private Date fechaFin;
+	private LocalDateTime fechaFin;
 	private List<Punto>puntos;
+	
+	public Bloqueo(int id, LocalDateTime fechaInicio, LocalDateTime fechaFin) {
+		this.id = id;
+		this.fechaInicio = fechaInicio;
+		this.fechaFin = fechaFin;
+		this.puntos = new ArrayList<Punto>();
+	}
+	
+	
 }

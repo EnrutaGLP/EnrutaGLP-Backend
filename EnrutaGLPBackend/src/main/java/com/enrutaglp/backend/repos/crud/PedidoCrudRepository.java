@@ -17,5 +17,12 @@ public interface PedidoCrudRepository extends CrudRepository<PedidoTable, Intege
 			+ "where estado = :estado"
 			)
 	List<PedidoTable>listarPorEstado(@Param("estado") byte estado);
+
+	@Query(  "SELECT * "
+			+ "FROM pedido "
+			+ "where "
+			+ "pedido.cantidad_glp_por_planificar > 0 "
+			)
+	List<PedidoTable>listarPendientesPlanificacion(); 
 	
 }

@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import com.enrutaglp.backend.models.Camion;
 import com.enrutaglp.backend.models.EntregaPedido;
 import com.enrutaglp.backend.models.Pedido;
+import com.enrutaglp.backend.models.Ruta;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -20,28 +21,31 @@ public class Individual implements Comparable<Individual> {
 
 	private Map<String, List<EntregaPedido>> entregas;
 	private Map<String, Map<String, Integer>> chromosome;
-	private Map<String, Ruta> rutas;
+	private Map<String, RutaCompleta> rutas;
 	private Map<String, Map<String, Pedido>> asignacionesCamiones;
 	private List<Camion> camiones;
+	private List<Ruta>rutasResultantes;
 	private double consumoTotalPetroleo = 0; // suma de consumo de todas las entregas
 	private int cantidadPedidosNoEntregados;
 	private double cantidadGlpNoEntregado;
 	private byte seEstanEntregandoATiempo = 1; // 1 si todos se entregan a tiempo, 0 si no
 	private int minutosAdicional = 0; // suma de minutos en los que no se entregan a tiempo los pedido
 	private double fitness;
-
+	
 	public Individual() {
 		this.entregas = new HashMap<String, List<EntregaPedido>>();
 		this.chromosome = new HashMap<String, Map<String, Integer>>();
 		this.asignacionesCamiones = new HashMap<String, Map<String, Pedido>>();
-		this.rutas = new HashMap<String, Ruta>();
+		this.rutas = new HashMap<String, RutaCompleta>();
+		this.rutasResultantes = new ArrayList<Ruta>();
 	}
 
 	public Individual(Map<String, Pedido> pedidos, Map<String, Camion> flota) {
 		this.entregas = new HashMap<String, List<EntregaPedido>>();
 		this.chromosome = new HashMap<String, Map<String, Integer>>();
 		this.asignacionesCamiones = new HashMap<String, Map<String, Pedido>>();
-		this.rutas = new HashMap<String, Ruta>();
+		this.rutas = new HashMap<String, RutaCompleta>();
+		this.rutasResultantes = new ArrayList<Ruta>();
 		this.generateRandomIndividual(pedidos, flota);
 	}
 
@@ -133,12 +137,12 @@ public class Individual implements Comparable<Individual> {
 		this.fitness = 0.0;
 		this.cantidadPedidosNoEntregados = 0; 
 		this.consumoTotalPetroleo = 0.0; 
-		rutas = new HashMap<String, Ruta>();
+		rutas = new HashMap<String, RutaCompleta>();
 		for (Map.Entry<String, Map<String, Pedido>> entry : asignacionesCamiones.entrySet()) {
 			
 			Grasp grasp = new Grasp(entry.getValue(), flota.get(entry.getKey()), "12/09/2021", "20:00", wA, wB, wC);
 			
-			Ruta ruta = grasp.run(10);
+			RutaCompleta ruta = grasp.run(10);
 			
 			rutas.put(entry.getKey(), ruta);
 			
