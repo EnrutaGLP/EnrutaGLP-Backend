@@ -1,9 +1,43 @@
 spring:
+  task:    execution:      pool:        core-size: 2
   application:
     name: enrutaglp
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     password: enrutaglp.123
-    url: jdbc:mysql://localhost:3307/enrutaglp
+    url: jdbc:mysql://db-dp1-v1.ccgecdc5dy3r.us-east-1.rds.amazonaws.com:3306/enrutaglp
     username: root
   flyway:    locations:    - classpath:/db/migration
+server:  port: 8080
+datos-configuracion: 
+  const-vol-consumo:
+    llave: CTE_VOLUMEN_CONSUMO
+    sim-tres-dias: '14'
+    sim-colapso: '75' 
+    dia-a-dia: '1' 
+  salto-algoritmo: 5
+  ultimo-chk-pedidos:
+    llave: ULTIMO_CHECKPOINT_PEDIDOS
+helloWorld:
+  delay: PT5S
+actualizar-posiciones:
+  delay: PT5S
+algorithm: 
+  delay: PT2M 
+  params: 
+    max-iter-no-imp: 5
+    num-children-to-generate: 2
+    wA: 1
+    wB: 1000
+    wC: 1000
+    population-mu: 10
+    population-epsilon: 20
+    percent-genes-mutate: 0.3
+notificaciones: 
+  ubicaciones-actualizadas: /topic/greetings
+#local: 
+#url: jdbc:mysql://localhost:3307/enrutaglp
+#username: root
+
+#server: 
+#url: jdbc:mysql://db-dp1-v1.ccgecdc5dy3r.us-east-1.rds.amazonaws.com:3306/enrutaglp

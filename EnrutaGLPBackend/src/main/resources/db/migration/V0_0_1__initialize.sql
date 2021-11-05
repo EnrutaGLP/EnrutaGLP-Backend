@@ -1,3 +1,9 @@
+CREATE TABLE configuracion (
+	llave VARCHAR(100) NOT NULL,
+    valor VARCHAR(200),
+    PRIMARY KEY (llave)
+);
+
 CREATE TABLE perfil (
 	id TINYINT NOT NULL,
 	nombre VARCHAR(20) NOT NULL,
@@ -49,6 +55,7 @@ CREATE TABLE pedido (
 	cliente VARCHAR(100),
     cantidad_glp DOUBLE NOT NULL,
     cantidad_glp_atendida DOUBLE NOT NULL,
+    cantidad_glp_por_planificar DOUBLE NOT NULL,
 	ubicacion_x INT NOT NULL,
 	ubicacion_y INT NOT NULL,
     fecha_pedido TIMESTAMP NOT NULL, 
@@ -126,9 +133,13 @@ CREATE TABLE punto (
 
 -- Inserts:
 
+INSERT INTO configuracion VALUES ('CTE_VOLUMEN_CONSUMO','1') , ('ULTIMO_CHECKPOINT_PEDIDOS',NULL);
+
 INSERT INTO estado_pedido VALUES (1,'En cola'),(2,'En proceso'),(3,'Completado'); 
 
 INSERT INTO perfil VALUES(1,'Administrador'),(2,'Gestor de pedidos'),(3,'Gestor de rutas');
+
+INSERT INTO tipo_mantenimiento VALUES(1,'Preventivo'),(2,'Correctivo');
 
 INSERT INTO estado_camion VALUES(1,'En reposo'),(2,'En ruta'),(3,'Averiado'),(4,'En mantenimiento');
 

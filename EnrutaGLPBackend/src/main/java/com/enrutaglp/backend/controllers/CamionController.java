@@ -25,7 +25,7 @@ public class CamionController {
 	
 	@PostMapping("/registrar")
 	public ResponseEntity<Response> registrar(@RequestBody Camion camion) {
-		camionRepository.registrar(camion);
+		//camionRepository.registrar(camion);
 		return new ResponseEntity<Response>(new Response(true),HttpStatus.OK);
 	}
 	
