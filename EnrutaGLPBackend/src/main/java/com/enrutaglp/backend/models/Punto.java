@@ -1,5 +1,9 @@
 package com.enrutaglp.backend.models;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -104,6 +108,23 @@ public class Punto {
 		  double y2 = puntoNodo.getUbicacionY();
 		  
 		  return Math.abs(y2 - y1)+ Math.abs(x2 - x1);
+	}
+	
+	
+	public List<Punto> getPuntosIntermedios(Punto puntoFinal, List<Bloqueo> bloqueos, LocalDateTime fechaIni, Camion camion) {
+		
+		List<Punto> puntosIntemedios = new ArrayList<Punto>();
+		
+		/*
+		this.distanciaRecorrida = this.puntos.get(this.puntos.size()-2).calcularDistanciasNodos(this.puntos.get(this.puntos.size()-1));
+		int tiempo = (int) (this.distanciaRecorrida/this.camion.getTipo().getVelocidadPromedio());
+		fechafinal = fechaIni.plusHours(tiempo);
+		*/
+		//verificar fechaini y fechafin, si no hay bloqueos devolver listapuntos
+		
+		//si hay bloqueos A *
+		
+		return puntosIntemedios;
 	}
 	
 }
