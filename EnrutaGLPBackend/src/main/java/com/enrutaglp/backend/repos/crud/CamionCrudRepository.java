@@ -26,7 +26,7 @@ public interface CamionCrudRepository extends CrudRepository<CamionTable, Intege
 			+ "c.placa as placa, "
 			+ "c.ubicacion_actual_x , "
 			+ "c.ubicacion_actual_y ,"
-			+ "c.carga_actual_glp as cargaActualGLP, "
+			+ "c.carga_actual_glp, "
 			+ "c.carga_actual_petroleo, "
 			+ "c.estado as estado, "
 			+ "c.tipo as tipo, "
