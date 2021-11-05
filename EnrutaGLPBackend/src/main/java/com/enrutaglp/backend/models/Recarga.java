@@ -12,6 +12,10 @@ import lombok.Setter;
 public class Recarga extends Ruta{
 	private double cantidadRecargada;
 	
+	public Recarga() {
+		
+	}
+	
 	public Recarga(Punto pInicial, Punto pFinal, Camion camion, LocalDateTime horaSalida, int orden, double cantidadRecargada) {
 		super(pInicial,pFinal,camion,horaSalida,orden);
 		this.cantidadRecargada = 0;
@@ -28,9 +32,20 @@ public class Recarga extends Ruta{
 		cantidadRecargada = 0;
 	}
 	
+	@Override
 	public Recarga clone() {
-		Recarga p = (Recarga) super.clone();
+		Recarga p = new Recarga();
 
+		p.setConsumoPetroleo(this.getConsumoPetroleo());
+		p.setOrden(this.getOrden());
+		p.setPuntos(this.getPuntos());
+		p.setDistanciaRecorrida(this.getDistanciaRecorrida());
+		p.setCostoRuta(this.getCostoRuta());
+		p.setHoraLlegada(this.getHoraLlegada());
+		p.setHoraSalida(this.getHoraSalida());
+		p.setCamion(this.getCamion());
+		p.setTipo(this.getTipo());
+		
 		p.cantidadRecargada = this.cantidadRecargada;
 		return p; 
 	}
