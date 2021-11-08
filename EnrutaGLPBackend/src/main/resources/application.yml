@@ -5,7 +5,7 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     password: enrutaglp.123
-    url: jdbc:mysql://db-dp1-v1.ccgecdc5dy3r.us-east-1.rds.amazonaws.com:3306/enrutaglp
+    url: jdbc:mysql://localhost:3307/enrutaglp
     username: root
   flyway:    locations:    - classpath:/db/migration
 server:  port: 8080
@@ -37,7 +37,6 @@ notificaciones:
   ubicaciones-actualizadas: /topic/greetings
 #local: 
 #url: jdbc:mysql://localhost:3307/enrutaglp
-#username: root
 
 #server: 
 #url: jdbc:mysql://db-dp1-v1.ccgecdc5dy3r.us-east-1.rds.amazonaws.com:3306/enrutaglp

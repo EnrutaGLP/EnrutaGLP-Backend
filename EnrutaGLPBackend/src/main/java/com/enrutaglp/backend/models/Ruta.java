@@ -23,15 +23,7 @@ public class Ruta {
 	
 	public Ruta clone() {
 		Ruta p = new Ruta(); 
-		p.consumoPetroleo = this.consumoPetroleo; 
-		p.orden = this.orden; 
-		p.setPuntos(this.puntos);
-		p.distanciaRecorrida = this.distanciaRecorrida; 
-		p.costoRuta = this.costoRuta;
-		p.horaLlegada = this.horaLlegada;
-		p.horaSalida = this.horaSalida;
-		p.camion = this.camion;
-		p.tipo = this.tipo;
+
 		return p; 
 	}
 

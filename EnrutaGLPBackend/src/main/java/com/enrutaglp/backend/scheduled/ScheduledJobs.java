@@ -19,9 +19,11 @@ import com.enrutaglp.backend.algorithm.Individual;
 import com.enrutaglp.backend.events.UbicacionesActualizadasEvent;
 import com.enrutaglp.backend.models.Bloqueo;
 import com.enrutaglp.backend.models.Camion;
+import com.enrutaglp.backend.models.EntregaPedido;
 import com.enrutaglp.backend.models.Mantenimiento;
 import com.enrutaglp.backend.models.Pedido;
 import com.enrutaglp.backend.models.Planta;
+import com.enrutaglp.backend.models.Ruta;
 import com.enrutaglp.backend.repos.interfaces.BloqueoRepository;
 import com.enrutaglp.backend.repos.interfaces.CamionRepository;
 import com.enrutaglp.backend.repos.interfaces.ConfiguracionRepository;
@@ -86,6 +88,7 @@ public class ScheduledJobs {
 	
 	@Scheduled(fixedDelayString = "${algorithm.delay}")
 	public void ejecutarAlgoritmo() {
+		
 		Map<String, String> configuracionCompleta = configuracionRepository.listarConfiguracionCompleta();
 		int k = Integer.valueOf(configuracionCompleta.get(llaveConstVC));
 		String strUltimaHora = configuracionCompleta.get(llaveUltimoCheck);
@@ -117,12 +120,20 @@ public class ScheduledJobs {
 		
 		Individual solution = genetic.run(maxIterNoImp, numChildrenToGenerate, wA, wB, wC, mu, epsilon, percentageGenesToMutate);
 		solution.getRutas();
-		
+		//pruebas
+		/*List<Ruta>rutas = new ArrayList<Ruta>(); 
+		rutas.add(new EntregaPedido(100, null, null, 0));
+		EntregaPedido ep = null;
+		for(Ruta r: rutas) {
+			Object o = r; 
+		    ep = (EntregaPedido) o;
+		}
+		ep.setCantidadEntregada(0);*/
 	}
-	
+	/*
 	@Scheduled(fixedDelayString = "${actualizar-posiciones.delay}")
 	public void actualizarUbicaciones() {
 		publisher.publishEvent(new UbicacionesActualizadasEvent(this));
-	}
+	}*/
 	
 }
