@@ -1,5 +1,6 @@
 package com.enrutaglp.backend.algorithm;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -88,7 +89,7 @@ public class Population {
 		return isBest;
 	}
 	
-	public Individual getBinaryTournament(double wA, double wB, double wC, Map<String,List<Mantenimiento>>mantenimientos) {
+	public Individual getBinaryTournament(double wA, double wB, double wC, Map<String,List<Mantenimiento>>mantenimientos, LocalDateTime fechaHoraActual) {
 		int place1, place2; 
 		while(true) {
 			place1 = ThreadLocalRandom.current().nextInt(0, size);
@@ -100,10 +101,10 @@ public class Population {
 		Individual ind2 = individuals.get(place2); 
 		//return the one with the lowest fitness 
 		
-		double fitness1 = ind1.calcularFitness(wA, wB, wC,flota, mantenimientos);
+		double fitness1 = ind1.calcularFitness(wA, wB, wC,flota, mantenimientos,fechaHoraActual);
 		//System.out.println("Todo correcto hasta aqui fitness1");
 		
-		double fitness2 = ind2.calcularFitness(wA, wB, wC,flota, mantenimientos);
+		double fitness2 = ind2.calcularFitness(wA, wB, wC,flota, mantenimientos,fechaHoraActual);
 		//System.out.println("Todo correcto hasta aqui fitness2");
 		//System.out.println("Todo correcto hasta aqui");
 		//System.exit(0);	

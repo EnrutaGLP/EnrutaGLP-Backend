@@ -29,8 +29,6 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 	@Setter
 	private Camion camion;
 	@Setter
-	private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-	@Setter
 	private LocalDateTime fechaHoraTranscurrida; //inicializar con la fechahoraactual
 	@Setter
 	private int cantPedidosNoEntregados;
@@ -43,10 +41,10 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 	@Setter
 	private double distanciaRecorrida;
 	
-	public RutaCompleta(Camion camion, String fechaActual, String horaActual, List<Mantenimiento> mantenimientos) {
+	public RutaCompleta(Camion camion, LocalDateTime fechaHoraTranscurrida, List<Mantenimiento> mantenimientos) {
 		this.pedidos = new HashMap<String, Pedido>();
 		this.camion = new Camion(camion);
-		this.fechaHoraTranscurrida = LocalDateTime.parse(fechaActual + " " + horaActual,formatter);
+		this.fechaHoraTranscurrida = fechaHoraTranscurrida;
 		this.cantPedidosNoEntregados = 0;
 		this.glpNoEntregado = 0;
 		this.petroleoConsumido = 0;
