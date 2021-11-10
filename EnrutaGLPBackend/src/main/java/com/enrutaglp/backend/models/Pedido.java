@@ -60,12 +60,17 @@ public class Pedido {
 	}
 	
 	public Pedido(Pedido pedido) {
+		this.id = pedido.getId();
 		this.codigo = pedido.getCodigo(); 
 		this.cliente = pedido.getCliente(); 
+		this.cantidadGlpAtendida = pedido.getCantidadGlpAtendida();
 		this.cantidadGlp = pedido.getCantidadGlp(); 
 		this.ubicacionX = pedido.getUbicacionX(); 
 		this.ubicacionY = pedido.getUbicacionY(); 
 		this.fechaLimite = pedido.getFechaLimite();
+		this.fechaPedido = pedido.getFechaPedido();
+		this.fechaCompletado = pedido.getFechaCompletado();
+		this.estado = pedido.getEstado();
 	}
 	
 }
