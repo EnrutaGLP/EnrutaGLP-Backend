@@ -17,7 +17,7 @@ public class Recarga extends Ruta{
 	}
 	
 	public Recarga(Punto pInicial, Punto pFinal, Camion camion, LocalDateTime horaSalida, int orden, double cantidadRecargada) {
-		super(pInicial,pFinal,camion,horaSalida,orden);
+		super(pInicial,pFinal,camion,horaSalida,orden,TipoRuta.RECARGA.getValue());
 		this.cantidadRecargada = 0;
 	}
 	

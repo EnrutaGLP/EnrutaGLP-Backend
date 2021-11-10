@@ -29,6 +29,14 @@ public class Punto {
 		codigoPedido = null;
 	}
 	
+	public Punto(int id, int ubicacionX, int ubicacionY, int orden, int idBloqueo) {
+		this.id = id;
+		this.ubicacionX = ubicacionX;
+		this.ubicacionY = ubicacionY;
+		this.orden = orden;
+		this.idBloqueo = idBloqueo;
+	}
+	
 	
 	
 	public Punto clone() {
@@ -93,14 +101,6 @@ public class Punto {
 		
 	}
 
-	public Punto(int id, int ubicacionX, int ubicacionY, int orden, int idBloqueo) {
-		this.id = id;
-		this.ubicacionX = ubicacionX;
-		this.ubicacionY = ubicacionY;
-		this.orden = orden;
-		this.idBloqueo = idBloqueo;
-	}
-
 	public double calcularDistanciasNodos(Punto puntoNodo) {
 		  double x1 = this.getUbicacionX(); 
 		  double y1 = this.getUbicacionY(); 
@@ -126,5 +126,6 @@ public class Punto {
 		
 		return puntosIntemedios;
 	}
+
 	
 }
