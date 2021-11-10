@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 import com.enrutaglp.backend.models.Camion;
+import com.enrutaglp.backend.models.Mantenimiento;
 import com.enrutaglp.backend.models.Pedido;
 import com.enrutaglp.backend.models.Punto;
 
@@ -19,6 +20,7 @@ import lombok.Setter;
 public class Grasp {
 	private Map<String, Pedido> pedidos;
 	private List<Punto> nodosRecorridos;
+	private List<Mantenimiento> mantenimientos;
 	private int numCandidatos;
 	private int k;
 	private Camion camion;
@@ -32,7 +34,7 @@ public class Grasp {
 	private double petroleoConsumido;
 	private double distanciaRecorrida;
 	
-	public Grasp(Map<String, Pedido> pedidos, Camion camion, String fechaActual, String horaActual, double wa, double wb, double wc) {
+	public Grasp(Map<String, Pedido> pedidos, Camion camion, List<Mantenimiento> mantenimientos, String fechaActual, String horaActual, double wa, double wb, double wc) {
 		this.pedidos = generarCopia(pedidos);
 		this.camion = new Camion(camion);
 		this.fechaActual = fechaActual;
@@ -46,11 +48,12 @@ public class Grasp {
 		this.glpNoEntregado = 0;
 		this.petroleoConsumido = 0;
 		this.distanciaRecorrida = 0;
+		this.mantenimientos = mantenimientos;
 	}
 
 	public RutaCompleta construirSolucion() {	
 		
-		RutaCompleta ruta = new RutaCompleta(this.camion, fechaActual, horaActual);
+		RutaCompleta ruta = new RutaCompleta(this.camion, fechaActual, horaActual, this.mantenimientos);
 		
 		Map<String, Pedido> pedidosSolucion = generarCopia(pedidos);
 		
@@ -127,7 +130,7 @@ public class Grasp {
 		Map<String,Pedido> pedidosCand = generarCopia(pedidosCandidtos);
 		 
 		for(int i=0; i<this.numCandidatos; i++) {
-			RutaCompleta rutaGenerada = new RutaCompleta(ruta.getCamion(), this.fechaActual, this.horaActual);
+			RutaCompleta rutaGenerada = new RutaCompleta(ruta.getCamion(), this.fechaActual, this.horaActual, this.mantenimientos);
 			
 			rutaGenerada.copiarRuta(ruta);
 
@@ -214,7 +217,7 @@ public class Grasp {
 
 	
 	public RutaCompleta busquedaLocal() {
-		RutaCompleta ruta = new RutaCompleta(this.camion, this.fechaActual, this.horaActual);
+		RutaCompleta ruta = new RutaCompleta(this.camion, this.fechaActual, this.horaActual, this.mantenimientos);
 		
 		return ruta;	
 	}

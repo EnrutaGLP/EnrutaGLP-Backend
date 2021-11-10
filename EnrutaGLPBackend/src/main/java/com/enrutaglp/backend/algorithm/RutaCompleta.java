@@ -10,6 +10,7 @@ import java.util.Map;
 
 import com.enrutaglp.backend.models.Camion;
 import com.enrutaglp.backend.models.EntregaPedido;
+import com.enrutaglp.backend.models.Mantenimiento;
 import com.enrutaglp.backend.models.Pedido;
 import com.enrutaglp.backend.models.Punto;
 import com.enrutaglp.backend.models.Recarga;
@@ -24,6 +25,7 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 	private Map<String, Pedido> pedidos;
 	private List<Punto> nodos;
 	private List<Ruta> rutas;
+	private List<Mantenimiento> mantenimientos;
 	@Setter
 	private Camion camion;
 	@Setter
@@ -41,7 +43,7 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 	@Setter
 	private double distanciaRecorrida;
 	
-	public RutaCompleta(Camion camion, String fechaActual, String horaActual) {
+	public RutaCompleta(Camion camion, String fechaActual, String horaActual, List<Mantenimiento> mantenimientos) {
 		this.pedidos = new HashMap<String, Pedido>();
 		this.camion = new Camion(camion);
 		this.fechaHoraTranscurrida = LocalDateTime.parse(fechaActual + " " + horaActual,formatter);
@@ -58,6 +60,7 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 		this.nodos.add(planta);
 		
 		this.rutas = new ArrayList<Ruta>();
+		this.mantenimientos = mantenimientos;
 		//Ruta rutaIni = new Recarga(planta, this.fechaHoraTranscurrida, 0, this.camion);
 		//this.rutas.add(rutaIni);
 		
@@ -185,6 +188,12 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 	public boolean esFactible(Pedido pedido) {
 		//boolean factible;
 		
+		//el pedido debio haberse hech o antes de la hora actual 
+		if((this.fechaHoraTranscurrida.isBefore(pedido.getFechaPedido())) ||
+				(this.camion.getCargaActualGLP()<pedido.getCantidadGlp())) {
+			return false;
+		}
+
 		//el camion debe tener combustible para ir al pedido y regresar a la planta
 		//el camion debe tener GLP para el pedido
 		//el camion debe entregar antes de la hora maxima
@@ -205,9 +214,18 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 		
 		LocalDateTime fechaHoraEntrega = this.fechaHoraTranscurrida.plusHours(tiempo);
 		
-		if((this.camion.getCargaActualGLP()>=pedido.getCantidadGlp()) &&
-				(this.camion.getCargaActualPetroleo()>=consumoPetroleo) &&
+		
+		
+		if( (this.camion.getCargaActualPetroleo()>=consumoPetroleo) &&
 				(fechaHoraEntrega.isBefore(pedido.getFechaLimite()))) {
+			
+			for (int i = 0; i < this.mantenimientos.size(); i++) {
+					if(this.mantenimientos.get(i).getFechaInicio().isBefore(fechaHoraEntrega) || 
+							this.fechaHoraTranscurrida.isBefore(this.mantenimientos.get(i).getFechaFin())) {
+						return false;
+					}
+			}
+			
 			return true;
 		}
 		
