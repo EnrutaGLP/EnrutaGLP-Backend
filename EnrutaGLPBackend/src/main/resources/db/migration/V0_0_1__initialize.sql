@@ -28,6 +28,12 @@ CREATE TABLE tipo_mantenimiento (
 	PRIMARY KEY (id)
 );
 
+CREATE TABLE tipo_ruta (
+	id TINYINT NOT NULL,
+	nombre VARCHAR(20) NOT NULL,
+	PRIMARY KEY (id)
+);
+
 CREATE TABLE usuario (
 	id INT NOT NULL AUTO_INCREMENT,
 	nombre VARCHAR(100) NULL,
@@ -120,15 +126,50 @@ CREATE TABLE bloqueo (
 	PRIMARY KEY (id)
 );
 
+
+CREATE TABLE ruta (
+	id INT NOT NULL AUTO_INCREMENT,
+	consumo_petroleo DOUBLE,
+    hora_llegada TIMESTAMP,
+    hora_salida TIMESTAMP,
+    id_camion INT NOT NULL,
+    orden INT,
+    tipo TINYINT NOT NULL,
+	PRIMARY KEY (id),
+    FOREIGN KEY (id_camion) REFERENCES camion(id),
+	FOREIGN KEY (tipo) REFERENCES tipo_ruta(id)
+);
+
+CREATE TABLE entrega_pedido (
+	id_ruta INT NOT NULL,
+	cantidad_entregada DOUBLE,
+    id_pedido INT NOT NULL,
+	PRIMARY KEY (id_ruta),
+    FOREIGN KEY (id_pedido) REFERENCES pedido(id),
+    FOREIGN KEY (id_ruta) REFERENCES ruta(id)
+);
+
+CREATE TABLE recarga (
+	id_ruta INT NOT NULL,
+	cantidad_recargada DOUBLE,
+    id_planta INT,
+	PRIMARY KEY (id_ruta),
+    FOREIGN KEY (id_planta) REFERENCES planta(id),
+    FOREIGN KEY (id_ruta) REFERENCES ruta(id)
+);
+
 CREATE TABLE punto (
 	id INT NOT NULL AUTO_INCREMENT,
 	ubicacion_x INT NOT NULL,
 	ubicacion_y INT NOT NULL,
     orden INT,
-    id_bloqueo INT NOT NULL,
+    id_bloqueo INT,
+    id_ruta INT,
 	PRIMARY KEY (id),
-    FOREIGN KEY (id_bloqueo) REFERENCES bloqueo(id)
+    FOREIGN KEY (id_bloqueo) REFERENCES bloqueo(id),
+    FOREIGN KEY (id_ruta) REFERENCES ruta(id)
 );
+
 
 
 -- Inserts:
@@ -140,6 +181,8 @@ INSERT INTO estado_pedido VALUES (1,'En cola'),(2,'En proceso'),(3,'Completado')
 INSERT INTO perfil VALUES(1,'Administrador'),(2,'Gestor de pedidos'),(3,'Gestor de rutas');
 
 INSERT INTO tipo_mantenimiento VALUES(1,'Preventivo'),(2,'Correctivo');
+
+INSERT INTO tipo_ruta VALUES (1,'Entrega'),(2,'Recarga'); 
 
 INSERT INTO estado_camion VALUES(1,'En reposo'),(2,'En ruta'),(3,'Averiado'),(4,'En mantenimiento');
 

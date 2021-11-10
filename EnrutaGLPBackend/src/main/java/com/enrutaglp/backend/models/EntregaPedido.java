@@ -18,7 +18,7 @@ public class EntregaPedido extends Ruta{
 	}
 	
 	public EntregaPedido(Punto pInicial, Punto pFinal, Camion camion, LocalDateTime horaSalida, int orden, double cantidadEntregada, Pedido pedido) {
-		super(pInicial,pFinal,camion,horaSalida,orden);
+		super(pInicial,pFinal,camion,horaSalida,orden,TipoRuta.ENTREGA.getValue());
 		this.cantidadEntregada = cantidadEntregada;
 		this.pedido = pedido;
 	}

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import com.enrutaglp.backend.algorithm.Genetic;
 import com.enrutaglp.backend.algorithm.Individual;
+import com.enrutaglp.backend.algorithm.RutaCompleta;
 import com.enrutaglp.backend.events.UbicacionesActualizadasEvent;
 import com.enrutaglp.backend.models.Bloqueo;
 import com.enrutaglp.backend.models.Camion;
@@ -28,6 +29,7 @@ import com.enrutaglp.backend.repos.interfaces.BloqueoRepository;
 import com.enrutaglp.backend.repos.interfaces.CamionRepository;
 import com.enrutaglp.backend.repos.interfaces.ConfiguracionRepository;
 import com.enrutaglp.backend.repos.interfaces.PedidoRepository;
+import com.enrutaglp.backend.repos.interfaces.RutaRepository;
 import com.enrutaglp.backend.tables.ConfiguracionTable;
 @Component
 public class ScheduledJobs {
@@ -86,6 +88,9 @@ public class ScheduledJobs {
 	@Autowired
 	private CamionRepository camionRepository;
 	
+	@Autowired
+	private RutaRepository rutaRepository; 
+	
 	@Scheduled(fixedDelayString = "${algorithm.delay}")
 	public void ejecutarAlgoritmo() {
 		
@@ -119,7 +124,14 @@ public class ScheduledJobs {
 		Genetic genetic = new Genetic(pedidos, flota, bloqueos, mantenimientos,plantas);
 		
 		Individual solution = genetic.run(maxIterNoImp, numChildrenToGenerate, wA, wB, wC, mu, epsilon, percentageGenesToMutate);
-		solution.getRutas();
+		
+		Map<String, RutaCompleta>rutasCompletas =  solution.getRutas();
+		
+		/*
+		for(RutaCompleta rc : rutasCompletas.values()) {
+			rutaRepository.registroMasivo(rc.getRutas());
+		}
+		*/
 		//pruebas
 		/*List<Ruta>rutas = new ArrayList<Ruta>(); 
 		rutas.add(new EntregaPedido(100, null, null, 0));
@@ -130,10 +142,11 @@ public class ScheduledJobs {
 		}
 		ep.setCantidadEntregada(0);*/
 	}
+	
 	/*
 	@Scheduled(fixedDelayString = "${actualizar-posiciones.delay}")
 	public void actualizarUbicaciones() {
 		publisher.publishEvent(new UbicacionesActualizadasEvent(this));
-	}*/
-	
+	}
+	*/
 }

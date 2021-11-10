@@ -41,7 +41,7 @@ public class Ruta {
 
 	}
 	
-	public Ruta(Punto pInicial, Punto pFinal, Camion camion, LocalDateTime horaSalida, int orden) {
+	public Ruta(Punto pInicial, Punto pFinal, Camion camion, LocalDateTime horaSalida, int orden, byte tipo) {
 		this.puntos = new ArrayList<Punto>();
 		this.puntos.add(pInicial);
 		this.puntos.add(pFinal);
@@ -53,6 +53,7 @@ public class Ruta {
 		this.distanciaRecorrida = 0;
 		this.costoRuta = 0;
 		
+		this.tipo = tipo;
 		this.calcularVariables();
 	}
 	
