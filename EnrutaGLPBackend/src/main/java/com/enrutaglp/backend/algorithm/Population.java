@@ -88,7 +88,7 @@ public class Population {
 		return isBest;
 	}
 	
-	public Individual getBinaryTournament(double wA, double wB, double wC, Map<String,Mantenimiento>mantenimientos) {
+	public Individual getBinaryTournament(double wA, double wB, double wC, Map<String,List<Mantenimiento>>mantenimientos) {
 		int place1, place2; 
 		while(true) {
 			place1 = ThreadLocalRandom.current().nextInt(0, size);
