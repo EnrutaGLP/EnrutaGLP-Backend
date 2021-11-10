@@ -2,6 +2,8 @@ package com.enrutaglp.backend.scheduled;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -121,7 +123,8 @@ public class ScheduledJobs {
 		List<Bloqueo>bloqueos = bloqueoRepository.listarEnRango(horaZero, null); 
 		Map<String, List<Mantenimiento>>mantenimientos = new HashMap<String, List<Mantenimiento>>(); 
 		List<Planta> plantas = new ArrayList<Planta>();
-		Genetic genetic = new Genetic(pedidos, flota, bloqueos, mantenimientos,plantas);
+		Genetic genetic = new Genetic(pedidos, flota, bloqueos, mantenimientos,plantas, LocalDateTime.ofInstant(horaZero.toInstant(), 
+				ZoneId.systemDefault()));
 		
 		Individual solution = genetic.run(maxIterNoImp, numChildrenToGenerate, wA, wB, wC, mu, epsilon, percentageGenesToMutate);
 		

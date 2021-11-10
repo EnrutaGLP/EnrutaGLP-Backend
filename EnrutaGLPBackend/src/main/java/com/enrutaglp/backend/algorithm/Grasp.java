@@ -1,5 +1,7 @@
 package com.enrutaglp.backend.algorithm;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,8 +26,7 @@ public class Grasp {
 	private int numCandidatos;
 	private int k;
 	private Camion camion;
-	private String fechaActual; 
-	private String horaActual;
+	private LocalDateTime fechaHoraActual;
 	private double wa;
 	private double wb;
 	private double wc;
@@ -33,12 +34,12 @@ public class Grasp {
 	private double glpNoEntregado;
 	private double petroleoConsumido;
 	private double distanciaRecorrida;
+	private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 	
-	public Grasp(Map<String, Pedido> pedidos, Camion camion, List<Mantenimiento> mantenimientos, String fechaActual, String horaActual, double wa, double wb, double wc) {
+	public Grasp(Map<String, Pedido> pedidos, Camion camion, List<Mantenimiento> mantenimientos, LocalDateTime fechaHoraActual, double wa, double wb, double wc) {
 		this.pedidos = generarCopia(pedidos);
 		this.camion = new Camion(camion);
-		this.fechaActual = fechaActual;
-		this.horaActual = horaActual;
+		this.fechaHoraActual = fechaHoraActual;
 		this.numCandidatos = this.pedidos.size();
 		this.k = (int) Math.ceil(0.45*this.numCandidatos);
 		this.wa = wa;
@@ -53,7 +54,7 @@ public class Grasp {
 
 	public RutaCompleta construirSolucion() {	
 		
-		RutaCompleta ruta = new RutaCompleta(this.camion, fechaActual, horaActual, this.mantenimientos);
+		RutaCompleta ruta = new RutaCompleta(this.camion, this.fechaHoraActual, this.mantenimientos);
 		
 		Map<String, Pedido> pedidosSolucion = generarCopia(pedidos);
 		
@@ -130,7 +131,7 @@ public class Grasp {
 		Map<String,Pedido> pedidosCand = generarCopia(pedidosCandidtos);
 		 
 		for(int i=0; i<this.numCandidatos; i++) {
-			RutaCompleta rutaGenerada = new RutaCompleta(ruta.getCamion(), this.fechaActual, this.horaActual, this.mantenimientos);
+			RutaCompleta rutaGenerada = new RutaCompleta(ruta.getCamion(), this.fechaHoraActual, this.mantenimientos);
 			
 			rutaGenerada.copiarRuta(ruta);
 
@@ -217,7 +218,7 @@ public class Grasp {
 
 	
 	public RutaCompleta busquedaLocal() {
-		RutaCompleta ruta = new RutaCompleta(this.camion, this.fechaActual, this.horaActual, this.mantenimientos);
+		RutaCompleta ruta = new RutaCompleta(this.camion, this.fechaHoraActual, this.mantenimientos);
 		
 		return ruta;	
 	}
