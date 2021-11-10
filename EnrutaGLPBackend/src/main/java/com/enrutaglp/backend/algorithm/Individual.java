@@ -134,7 +134,7 @@ public class Individual implements Comparable<Individual> {
 
 	}
 
-	public double calcularFitness(double wA, double wB, double wC, Map<String, Camion> flota, Map<String,Mantenimiento>mantenimientos) {
+	public double calcularFitness(double wA, double wB, double wC, Map<String, Camion> flota, Map<String,List<Mantenimiento>>mantenimientos) {
 		this.fitness = 0.0;
 		this.cantidadPedidosNoEntregados = 0; 
 		this.consumoTotalPetroleo = 0.0; 

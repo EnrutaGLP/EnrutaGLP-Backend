@@ -21,12 +21,12 @@ public class Genetic {
 	List<Pedido> listaPedidos;
 	Map<String,Camion>flota; 
 	List<Bloqueo>bloqueos;
-	Map<String,Mantenimiento>mantenimientos; 
+	Map<String,List<Mantenimiento>>mantenimientos; 
 	List<Planta>plantas; 
 	
 	
 	public Genetic(Map<String,Pedido>pedidos, Map<String,Camion>flota, List<Bloqueo>bloqueos,
-			Map<String,Mantenimiento>mantenimientos,List<Planta> plantas) {
+			Map<String,List<Mantenimiento>>mantenimientos,List<Planta> plantas) {
 		this.plantas = plantas;
 		this.bloqueos = bloqueos; 
 		this.mantenimientos = mantenimientos; 
@@ -46,16 +46,15 @@ public class Genetic {
 		
 		boolean genNewBest; 
 		for(int nbIter = 0; nbIterNoImp <= maxIterNoImp; nbIter++) {
- 			//System.out.println("Generacion " + nbIter);
 			genNewBest = false;
 			for(int i=0;i<numChildrenToGenerate;i++) {
 				//Parent selection and crossover 
-				childInd1 = crossover(population.getBinaryTournament(wA, wB, wC),population.getBinaryTournament(wA, wB, wC, this.mantenimientos));
+				childInd1 = crossover(population.getBinaryTournament(wA, wB, wC,mantenimientos),population.getBinaryTournament(wA, wB, wC, mantenimientos));
 				//Apply mutation
 				childInd2 = mutate(childInd1,percentGenesToMutate);
 				//Evaluate new individuals
-				childInd1.calcularFitness(wA, wB, wC,flota, this.mantenimientos);
-				childInd2.calcularFitness(wA, wB, wC,flota, this.mantenimientos);
+				childInd1.calcularFitness(wA, wB, wC,flota, mantenimientos);
+				childInd2.calcularFitness(wA, wB, wC,flota, mantenimientos);
 				boolean isNewBest = population.addIndividual(childInd1) || population.addIndividual(childInd2);
 				genNewBest = (isNewBest)? isNewBest:genNewBest;
 			}

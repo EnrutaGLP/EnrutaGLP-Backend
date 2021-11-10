@@ -119,7 +119,7 @@ public class ScheduledJobs {
 		Map<String, Pedido>pedidos = pedidoRepository.listarPendientesMap(nuevoValorUltimoCheck); 
 		Map<String, Camion>flota = camionRepository.listarDisponiblesParaEnrutamiento(); 
 		List<Bloqueo>bloqueos = bloqueoRepository.listarEnRango(horaZero, null); 
-		Map<String, Mantenimiento>mantenimientos = new HashMap<String, Mantenimiento>(); 
+		Map<String, List<Mantenimiento>>mantenimientos = new HashMap<String, List<Mantenimiento>>(); 
 		List<Planta> plantas = new ArrayList<Planta>();
 		Genetic genetic = new Genetic(pedidos, flota, bloqueos, mantenimientos,plantas);
 		
@@ -127,11 +127,13 @@ public class ScheduledJobs {
 		
 		Map<String, RutaCompleta>rutasCompletas =  solution.getRutas();
 		
-		/*
+		
 		for(RutaCompleta rc : rutasCompletas.values()) {
-			rutaRepository.registroMasivo(rc.getRutas());
+			if(rc.getRutas() != null && rc.getRutas().size()>0) {
+				rutaRepository.registroMasivo(rc.getRutas());
+			}
 		}
-		*/
+		
 		//pruebas
 		/*List<Ruta>rutas = new ArrayList<Ruta>(); 
 		rutas.add(new EntregaPedido(100, null, null, 0));
