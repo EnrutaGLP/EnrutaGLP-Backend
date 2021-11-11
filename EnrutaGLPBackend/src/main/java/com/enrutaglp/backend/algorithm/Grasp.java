@@ -103,7 +103,7 @@ public class Grasp {
 					int it=0;
 					for(String key: pedidosSolucion.keySet()) {
 						//si es planta y hay al menos uno factible, continua
-						if(ruta.esFactible(pedidosSolucion.get(key))) {
+						if(ruta.esFactible(pedidosSolucion.get(key)).size()>0) {
 							break;
 						}
 						//si ningun pedido es factible, retorna la ruta que ya termina en la planta
@@ -138,10 +138,11 @@ public class Grasp {
 			Map<String, Pedido> pedidosSolucion = generarCopia(pedidosCand);
 			int j = 0;
 			for(String key: pedidosSolucion.keySet()) {
-				boolean esFactible = rutaGenerada.esFactible(pedidosSolucion.get(key));
+				List<Punto> puntosTotales = rutaGenerada.esFactible(pedidosSolucion.get(key));
+				boolean esFactible = puntosTotales.size()>0 ? true: false;
 				
 				if(esFactible) {
-					rutaGenerada.insertarPedido(new Pedido(pedidosSolucion.get(key)));
+					rutaGenerada.insertarPedido(new Pedido(pedidosSolucion.get(key)), puntosTotales);
 					pedidosCand.remove(key);
 					j++;
 					break;

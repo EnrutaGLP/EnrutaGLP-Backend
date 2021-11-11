@@ -15,6 +15,7 @@ import com.enrutaglp.backend.models.Pedido;
 import com.enrutaglp.backend.models.Punto;
 import com.enrutaglp.backend.models.Recarga;
 import com.enrutaglp.backend.models.Ruta;
+import com.enrutaglp.backend.utils.Utils;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -59,8 +60,6 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 		
 		this.rutas = new ArrayList<Ruta>();
 		this.mantenimientos = mantenimientos;
-		//Ruta rutaIni = new Recarga(planta, this.fechaHoraTranscurrida, 0, this.camion);
-		//this.rutas.add(rutaIni);
 		
 	}
 
@@ -128,14 +127,14 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 		this.pedidos = copia;
 	}
 
-	public void insertarPedido(Pedido pedido) {
+	public void insertarPedido(Pedido pedido, List<Punto> puntosTotales) {
 		pedidos.put(pedido.getCodigo(), new Pedido(pedido));
 		Punto punto = new Punto(pedido.getUbicacionX(),
 				pedido.getUbicacionY(), this.nodos.size(),pedido.getCodigo());
 		this.nodos.add(punto);		
 		
 		
-		Ruta rutaNueva = new EntregaPedido(this.nodos.get(this.nodos.size()-2), punto, 
+		Ruta rutaNueva = new EntregaPedido(puntosTotales, 
 								this.camion, this.fechaHoraTranscurrida, this.rutas.size(), 
 								pedido.getCantidadGlp(), pedido);
 		double distanciaPuntos = rutaNueva.getDistanciaRecorrida();
@@ -161,7 +160,12 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 			Punto punto = new Punto(12,8, this.nodos.size());
 			this.nodos.add(punto);
 			
-			Ruta rutaNueva = new Recarga(this.nodos.get(this.nodos.size()-2), punto, 
+			List<Punto> puntosTotales = this.nodos.get(this.nodos.size()-2).getPuntosIntermedios(punto, this.fechaHoraTranscurrida, this.camion);
+			puntosTotales.add(0, this.nodos.get(this.nodos.size()-2));
+			puntosTotales.add(puntosTotales.size(), punto);
+			
+			
+			Ruta rutaNueva = new Recarga(puntosTotales, 
 					this.camion, this.fechaHoraTranscurrida, this.rutas.size(),
 					this.camion.getTipo().getCapacidadGLP()-this.camion.getCargaActualGLP());
 			double distanciaPuntos = rutaNueva.getDistanciaRecorrida();
@@ -183,13 +187,14 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 	}
 
 	
-	public boolean esFactible(Pedido pedido) {
+	public List<Punto> esFactible(Pedido pedido) {
 		//boolean factible;
-		
-		//el pedido debio haberse hech o antes de la hora actual 
+		List<Punto> puntosTotales = new ArrayList<Punto>();
+		//el pedido debio haberse hech o antes de la hora actual y la carga actual de glp debe ser mayor o igual a la del pedido
 		if((this.fechaHoraTranscurrida.isBefore(pedido.getFechaPedido())) ||
 				(this.camion.getCargaActualGLP()<pedido.getCantidadGlp())) {
-			return false;
+			//vacio
+			return puntosTotales;
 		}
 
 		//el camion debe tener combustible para ir al pedido y regresar a la planta
@@ -200,17 +205,33 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 		
 		Punto planta = new Punto(12, 8, 5000);
 		
-		double distanciaPuntosActualPedido = this.nodos.get(this.nodos.size()-1).calcularDistanciasNodos(punto);
-		
-		double distanciaPuntosPedidoPlanta = planta.calcularDistanciasNodos(punto);
-		
-		
-		double consumoPetroleo = this.camion.calcularConsumoPetroleo(distanciaPuntosActualPedido+distanciaPuntosPedidoPlanta);
-		
-		//vdt = 
+		//empiezo
+		List<Punto> puntosIntemediosAB = this.nodos.get(this.nodos.size()-1).getPuntosIntermedios(punto, this.fechaHoraTranscurrida, this.camion);
+		puntosIntemediosAB.add(0, this.nodos.get(this.nodos.size()-1));
+		puntosIntemediosAB.add(puntosIntemediosAB.size(), punto);
+		double distanciaPuntosActualPedido = Utils.calcularDistanciaTodosPuntos(puntosIntemediosAB);
 		int tiempo = (int) (distanciaPuntosActualPedido/this.camion.getTipo().getVelocidadPromedio());
 		
 		LocalDateTime fechaHoraEntrega = this.fechaHoraTranscurrida.plusHours(tiempo);
+		List<Punto> puntosIntemediosBC = punto.getPuntosIntermedios(planta, fechaHoraEntrega, this.camion);
+		puntosIntemediosBC.add(0, punto);
+		puntosIntemediosBC.add(puntosIntemediosBC.size(), planta);
+		double distanciaPuntosPedidoPlanta = Utils.calcularDistanciaTodosPuntos(puntosIntemediosBC);
+		
+		double consumoPetroleo = this.camion.calcularConsumoPetroleo(distanciaPuntosActualPedido+distanciaPuntosPedidoPlanta);
+		//termino
+		
+		
+		//double distanciaPuntosActualPedido = this.nodos.get(this.nodos.size()-1).calcularDistanciasNodos(punto);
+		//double distanciaPuntosPedidoPlanta = planta.calcularDistanciasNodos(punto);
+		
+		
+		//double consumoPetroleo = this.camion.calcularConsumoPetroleo(distanciaPuntosActualPedido+distanciaPuntosPedidoPlanta);
+		
+		//vdt = 
+		//int tiempo = (int) (distanciaPuntosActualPedido/this.camion.getTipo().getVelocidadPromedio());
+		
+		//LocalDateTime fechaHoraEntrega = this.fechaHoraTranscurrida.plusHours(tiempo);
 		
 		
 		
@@ -220,27 +241,25 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 			for (int i = 0; i < this.mantenimientos.size(); i++) {
 					if(this.mantenimientos.get(i).getFechaInicio().isBefore(fechaHoraEntrega) || 
 							this.fechaHoraTranscurrida.isBefore(this.mantenimientos.get(i).getFechaFin())) {
-						return false;
+						
+						if(this.nodos.get(this.nodos.size()-1).isPlanta()) {
+							this.fechaHoraTranscurrida = this.mantenimientos.get(i).getFechaFin();
+						}
+						
+						return puntosTotales;
 					}
 			}
 			
-			return true;
+			return puntosIntemediosAB;
 		}
 		
 		
-		return false;
+		return puntosTotales;
 			
 
 	}
 	
-	//public double calcularDistanciaPuntos(Punto i, Punto j) {
-	 // double x1 = i.getUbicacionX(); 
-	 // double y1 = i.getUbicacionY(); 
-	 // double x2 = j.getUbicacionX(); 
-	 // double y2 = j.getUbicacionY();
-	  
-	  //return Math.abs(y2 - y1)+ Math.abs(x2 - x1);
-	//}
+
 
 	@Override
 	public int compareTo(RutaCompleta o) {
