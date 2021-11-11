@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.enrutaglp.backend.utils.Utils;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -41,10 +43,12 @@ public class Ruta {
 
 	}
 	
-	public Ruta(Punto pInicial, Punto pFinal, Camion camion, LocalDateTime horaSalida, int orden) {
-		this.puntos = new ArrayList<Punto>();
-		this.puntos.add(pInicial);
-		this.puntos.add(pFinal);
+	public Ruta(List<Punto> puntosTotales, Camion camion, LocalDateTime horaSalida, int orden, byte tipo) {
+		this.puntos = puntosTotales;
+		for (int i = 0; i < puntosTotales.size(); i++) {
+			puntosTotales.get(i).setOrden(i);
+		}
+		
 		this.camion = camion;
 		this.horaSalida = horaSalida;
 		this.orden = orden;
@@ -53,11 +57,13 @@ public class Ruta {
 		this.distanciaRecorrida = 0;
 		this.costoRuta = 0;
 		
+		this.tipo = tipo;
 		this.calcularVariables();
 	}
 	
 	public void calcularVariables() {
-		this.distanciaRecorrida = this.puntos.get(this.puntos.size()-2).calcularDistanciasNodos(this.puntos.get(this.puntos.size()-1));
+		//this.distanciaRecorrida = this.puntos.get(this.puntos.size()-2).calcularDistanciasNodos(this.puntos.get(this.puntos.size()-1));
+		this.distanciaRecorrida = Utils.calcularDistanciaTodosPuntos(this.puntos);
 		int tiempo = (int) (this.distanciaRecorrida/this.camion.getTipo().getVelocidadPromedio());
 		this.horaLlegada = this.horaSalida.plusHours(tiempo);
 	}

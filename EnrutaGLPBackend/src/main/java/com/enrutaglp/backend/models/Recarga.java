@@ -1,6 +1,7 @@
 package com.enrutaglp.backend.models;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.enrutaglp.backend.enums.TipoRuta;
 
@@ -16,8 +17,8 @@ public class Recarga extends Ruta{
 		
 	}
 	
-	public Recarga(Punto pInicial, Punto pFinal, Camion camion, LocalDateTime horaSalida, int orden, double cantidadRecargada) {
-		super(pInicial,pFinal,camion,horaSalida,orden);
+	public Recarga(List<Punto> puntosTotales, Camion camion, LocalDateTime horaSalida, int orden, double cantidadRecargada) {
+		super(puntosTotales,camion,horaSalida,orden,TipoRuta.RECARGA.getValue());
 		this.cantidadRecargada = 0;
 	}
 	

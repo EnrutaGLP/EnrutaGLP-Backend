@@ -23,9 +23,11 @@ public class PuntoTable {
 	@Id
 	private int id;
 	@Column("id_bloqueo")
-	private int idBloqueo;
+	private Integer idBloqueo;
 	private int ubicacionX; 
 	private int ubicacionY;
+	@Column("id_ruta")
+	private int idRuta;
 	private int orden; 
 	
 	public PuntoTable(Punto punto) {

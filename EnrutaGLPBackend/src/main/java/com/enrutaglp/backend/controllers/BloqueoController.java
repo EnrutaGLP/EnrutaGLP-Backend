@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.enrutaglp.backend.dtos.Response;
 import com.enrutaglp.backend.models.Bloqueo;
 import com.enrutaglp.backend.repos.interfaces.BloqueoRepository;
+import com.enrutaglp.backend.utils.Utils;
 
 @RestController
 @RequestMapping("/bloqueos")
@@ -31,7 +32,7 @@ public class BloqueoController {
 	
 	@GetMapping("/actuales")
 	public ResponseEntity<Response>listarBloqueosActuales(){
-		List<Bloqueo>bloqueos = bloqueoRepository.listarEnRango(new Date(),new Date());
+		List<Bloqueo>bloqueos = bloqueoRepository.listarEnRango(Utils.obtenerFechaHoraActual(),Utils.obtenerFechaHoraActual());
 		return new ResponseEntity<Response>(new Response(bloqueos),HttpStatus.OK);
 	}
 	

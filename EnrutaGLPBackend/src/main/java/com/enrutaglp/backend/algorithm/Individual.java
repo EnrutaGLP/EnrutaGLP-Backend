@@ -1,5 +1,6 @@
 package com.enrutaglp.backend.algorithm;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.stream.Collectors;
 
 import com.enrutaglp.backend.models.Camion;
 import com.enrutaglp.backend.models.EntregaPedido;
+import com.enrutaglp.backend.models.Mantenimiento;
 import com.enrutaglp.backend.models.Pedido;
 import com.enrutaglp.backend.models.Ruta;
 
@@ -133,14 +135,14 @@ public class Individual implements Comparable<Individual> {
 
 	}
 
-	public double calcularFitness(double wA, double wB, double wC, Map<String, Camion> flota) {
+	public double calcularFitness(double wA, double wB, double wC, Map<String, Camion> flota, Map<String,List<Mantenimiento>>mantenimientos, LocalDateTime fechaHoraActual) {
 		this.fitness = 0.0;
 		this.cantidadPedidosNoEntregados = 0; 
 		this.consumoTotalPetroleo = 0.0; 
 		rutas = new HashMap<String, RutaCompleta>();
 		for (Map.Entry<String, Map<String, Pedido>> entry : asignacionesCamiones.entrySet()) {
 			
-			Grasp grasp = new Grasp(entry.getValue(), flota.get(entry.getKey()), "12/09/2021", "20:00", wA, wB, wC);
+			Grasp grasp = new Grasp(entry.getValue(), flota.get(entry.getKey()), mantenimientos.get(entry.getKey()),fechaHoraActual, wA, wB, wC);
 			
 			RutaCompleta ruta = grasp.run(10);
 			

@@ -5,7 +5,7 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     password: enrutaglp.123
-    url: jdbc:mysql://localhost:3307/enrutaglp
+    url: jdbc:mysql://db-dp1-v1.ccgecdc5dy3r.us-east-1.rds.amazonaws.com:3306/enrutaglp
     username: root
   flyway:    locations:    - classpath:/db/migration
 server:  port: 8080
@@ -23,7 +23,8 @@ helloWorld:
 actualizar-posiciones:
   delay: PT5S
 algorithm: 
-  delay: PT2M 
+  delay: PT5M 
+  tiempo-aprox-ejecucion: 3
   params: 
     max-iter-no-imp: 5
     num-children-to-generate: 2
@@ -35,6 +36,8 @@ algorithm:
     percent-genes-mutate: 0.3
 notificaciones: 
   ubicaciones-actualizadas: /topic/greetings
+camiones: 
+  segundos-entre-movimiento: 80
 #local: 
 #url: jdbc:mysql://localhost:3307/enrutaglp
 

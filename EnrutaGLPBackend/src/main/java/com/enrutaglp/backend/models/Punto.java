@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -34,6 +35,14 @@ public class Punto {
 	
 	public Punto() {
 		codigoPedido = null;
+	}
+	
+	public Punto(int id, int ubicacionX, int ubicacionY, int orden, int idBloqueo) {
+		this.id = id;
+		this.ubicacionX = ubicacionX;
+		this.ubicacionY = ubicacionY;
+		this.orden = orden;
+		this.idBloqueo = idBloqueo;
 	}
 	
 	
@@ -100,14 +109,7 @@ public class Punto {
 		
 	}
 
-	public Punto(int id, int ubicacionX, int ubicacionY, int orden, int idBloqueo) {
-		this.id = id;
-		this.ubicacionX = ubicacionX;
-		this.ubicacionY = ubicacionY;
-		this.orden = orden;
-		this.idBloqueo = idBloqueo;
-	}
-	
+
 	public double calcularDistanciasNodos(Punto puntoNodo) {
 		  double x1 = this.getUbicacionX(); 
 		  double y1 = this.getUbicacionY(); 
@@ -134,7 +136,7 @@ public class Punto {
 		int y2 = p2.getUbicacionY();
 		return x1 == x2 && y1 == y2; 
 	}
-	private Punto getPuntoMenorF (Punto puntoABuscar, List<Punto> lista) {
+	private Punto buscarPuntoConMenorF (Punto puntoABuscar, List<Punto> lista) {
 		/*
 		 * Se asume que lista esta ordenada de menor a mayor según el atributo astarF de cada punto
 		 */
@@ -160,54 +162,104 @@ public class Punto {
 		return lista;
 	}
 	
-	private List<Punto> obtenerSucesores (Punto p){
+	private boolean estaBloqueado (Punto pVerif, List<Bloqueo> bloqueos) {
+		
+		
+		for (Bloqueo bloqueo: bloqueos) {
+			for (Punto pBloqueado: bloqueo.getPuntos()) {
+				if (mismaPosicion(pVerif, pBloqueado)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	private boolean esPosicionValida(Punto p) {
+		int x = p.getUbicacionX();
+		int y= p.getUbicacionY();
+		return x >= 0 && y >= 0;
+	}
+	private List<Punto> obtenerSucesores (Punto p, List<Bloqueo> bloqueos){
 		
 		List<Punto> sucesores = new ArrayList<Punto>();
-		sucesores.add(new Punto(p.getUbicacionX() + 1, p.getUbicacionY(), p.getOrden()));
-		sucesores.add(new Punto(p.getUbicacionX() - 1, p.getUbicacionY(), p.getOrden()));
-		sucesores.add(new Punto(p.getUbicacionX(), p.getUbicacionY() + 1, p.getOrden()));
-		sucesores.add(new Punto(p.getUbicacionX(), p.getUbicacionY() - 1, p.getOrden()));
+		List<Punto> lAux = new ArrayList<Punto>();
+		int x = p.getUbicacionX();
+		int y= p.getUbicacionY();
+		lAux.add(new Punto(x + 1, y, p.getOrden()));
+		lAux.add(new Punto(x - 1, y, p.getOrden()));
+		lAux.add(new Punto(x, y + 1, p.getOrden()));
+		lAux.add(new Punto(x, y - 1, p.getOrden()));
+		
+		for (Punto pAux: lAux) {
+			if (esPosicionValida(pAux) && !estaBloqueado(pAux, bloqueos)) {
+				sucesores.add(pAux);
+			}
+		}
 		return sucesores;
+	}
+	
+	private boolean esEsquina (Punto p1, Punto p2, Punto p3) {
+		int x1 = p1.getUbicacionX();
+		int y1 = p1.getUbicacionY();
+		int x2 = p2.getUbicacionX();
+		int y2 = p2.getUbicacionY();
+		int x3 = p3.getUbicacionX();
+		int y3 = p3.getUbicacionY();
+		
+		
+		return (x1 != x2 && y2 != y3) || (y1 != y2 && x2 != x3);
+	}
+	private List<Punto> obtenerPuntosEsquina(List<Punto> lista) {
+		
+		List<Punto> lEsquinas = new ArrayList<Punto>();
+		for (int i = 1; i < lista.size() - 1; i ++) {
+			if (esEsquina(lista.get(i - 1), lista.get(i), lista.get(i + 1))) {
+				lEsquinas.add(lista.get(i));
+			}
+		}
+		return lEsquinas;
 	}
 	
 	private List<Punto> astarAlgoritmo(Punto puntoIni, Punto puntoFin, List<Bloqueo> bloqueos, LocalDateTime fechaIni, Camion camion) {
 		
-		List<Punto> listaA = new ArrayList<Punto>();
-		List<Punto> listaB = new ArrayList<Punto>();
+		List<Punto> lAbierta = new ArrayList<Punto>();
+		List<Punto> lCerrada = new ArrayList<Punto>();
 		puntoIni.setAstarF(0);
-		listaA.add(puntoIni);
+		lAbierta.add(puntoIni);
 		
-		while (!listaA.isEmpty()) {
-			Punto q = listaA.remove(0);//Se asume que listaA esta ordenada de menor a mayor según el atributo astarF de cada punto
-			for (Punto sucesor: obtenerSucesores(q)) {
+		while (!lAbierta.isEmpty()) {
+			Punto Q = lAbierta.remove(0);//Se asume que lAbierta esta ordenada de menor a mayor según el atributo astarF de cada punto
+			for (Punto sucesor: obtenerSucesores(Q, bloqueos)) {
 				
-				if (mismaPosicion(sucesor,q)) {
+				if (mismaPosicion(sucesor,Q)) {
 					return null;
 				}
-				sucesor.setAstarG(q.getAstarG() + calcularDistanciasNodos(sucesor, q));
-				sucesor.setAstarH(calcularDistanciasNodos(sucesor, puntoFin));
+				
+				sucesor.setAstarG(Q.getAstarG() + calcularDistanciasNodos(sucesor, Q)); //G(S) = G(Q) + DISTANCIA(Q, S)
+				sucesor.setAstarH(calcularDistanciasNodos(sucesor, puntoFin)); //H(S) = DISTANCIA (S, Z)
 				sucesor.setAstarF(sucesor.getAstarG() + sucesor.getAstarH());
 				
-				Punto puntoAuxA = getPuntoMenorF(sucesor, listaA);
-				Punto puntoAuxB = getPuntoMenorF(sucesor, listaB);
+				Punto pMenorFenA = buscarPuntoConMenorF(sucesor, lAbierta);
+				Punto pMenorFenC = buscarPuntoConMenorF(sucesor, lCerrada);
 				
-				if (puntoAuxA != null && puntoAuxA.getAstarF() < sucesor.getAstarF()) {
+				if (pMenorFenA != null && pMenorFenA.getAstarF() < sucesor.getAstarF()) {
 					continue;
 				}
-				if (puntoAuxB != null && puntoAuxB.getAstarF() < sucesor.getAstarF()) {
+				if (pMenorFenC != null && pMenorFenC.getAstarF() < sucesor.getAstarF()) {
 					continue;
 				}
-				agregarYOrdenar (listaA, sucesor);
+				lAbierta = agregarYOrdenar (lAbierta, sucesor);
 			}
-			listaB.add(q);
+			lCerrada.add(Q);
 		}
-		return null;
+		lCerrada = obtenerPuntosEsquina(lCerrada);
+		lCerrada.remove(0);
+		return lCerrada;
 	}
 	
 	
 	private boolean hayBloqueosEntre (Punto puntoInicial, Punto puntoFinal, List<Bloqueo> bloqueos, LocalDateTime fechaIni, Camion camion) {
 		
-		List<Punto> parBloqueados = new ArrayList<Punto>(); //Par de puntos que forman un bloqueo
 		
 		for (Bloqueo bloqueo: bloqueos) {
 			for (int i = 0; i < bloqueo.getPuntos().size() - 1; i ++) {
@@ -240,6 +292,7 @@ public class Punto {
 		 * 
 		 */
 		List<Punto> puntosIntemedios = new ArrayList<Punto>();
+
 		
 		/*
 		this.distanciaRecorrida = this.puntos.get(this.puntos.size()-2).calcularDistanciasNodos(this.puntos.get(this.puntos.size()-1));
@@ -262,7 +315,30 @@ public class Punto {
 			return puntosIntemedios;
 		}
 		
+
 		return astarAlgoritmo(this, puntoFinal, bloqueos, fechaIni, camion);
+
 	}
+	
+	public List<Punto> getPuntosIntermedios(Punto puntoFinal, LocalDateTime fechaIni, Camion camion){
+		List<Punto> puntosIntemedios = new ArrayList<Punto>();
+		
+		int sentido = ThreadLocalRandom.current().nextInt(0, 2);
+		
+		if(sentido==0) {
+			//eje x primero
+			
+			Punto nuevoPunto = new Punto(this.ubicacionX, puntoFinal.getUbicacionY(), this.orden + 1, this.codigoPedido);
+			puntosIntemedios.add(nuevoPunto);
+		}
+		else {
+			//eje y primero
+			Punto nuevoPunto = new Punto(puntoFinal.getUbicacionX(), this.ubicacionY, this.orden + 1, this.codigoPedido);
+			puntosIntemedios.add(nuevoPunto);
+		}
+		
+		return puntosIntemedios;
+	}
+
 	
 }

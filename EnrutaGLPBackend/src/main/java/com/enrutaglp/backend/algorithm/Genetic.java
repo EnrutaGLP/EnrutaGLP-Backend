@@ -3,6 +3,7 @@ package com.enrutaglp.backend.algorithm;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -21,18 +22,19 @@ public class Genetic {
 	List<Pedido> listaPedidos;
 	Map<String,Camion>flota; 
 	List<Bloqueo>bloqueos;
-	Map<String,Mantenimiento>mantenimientos; 
+	Map<String,List<Mantenimiento>>mantenimientos; 
 	List<Planta>plantas; 
-	
+	LocalDateTime fechaHoraActual; 
 	
 	public Genetic(Map<String,Pedido>pedidos, Map<String,Camion>flota, List<Bloqueo>bloqueos,
-			Map<String,Mantenimiento>mantenimientos,List<Planta> plantas) {
+			Map<String,List<Mantenimiento>>mantenimientos,List<Planta> plantas, LocalDateTime fechaHoraActual) {
 		this.plantas = plantas;
 		this.bloqueos = bloqueos; 
 		this.mantenimientos = mantenimientos; 
 		this.pedidos = pedidos; 
 		this.flota = flota; 
 		this.listaPedidos = pedidos.values().stream().collect(Collectors.toList());
+		this.fechaHoraActual = fechaHoraActual;
 	}
 	
 	public Individual run(int maxIterNoImp, int numChildrenToGenerate, double wA, double wB, double wC, int mu, int epsilon,
@@ -46,16 +48,16 @@ public class Genetic {
 		
 		boolean genNewBest; 
 		for(int nbIter = 0; nbIterNoImp <= maxIterNoImp; nbIter++) {
- 			//System.out.println("Generacion " + nbIter);
 			genNewBest = false;
 			for(int i=0;i<numChildrenToGenerate;i++) {
 				//Parent selection and crossover 
-				childInd1 = crossover(population.getBinaryTournament(wA, wB, wC),population.getBinaryTournament(wA, wB, wC));
+				childInd1 = crossover(population.getBinaryTournament(wA, wB, wC,mantenimientos,fechaHoraActual),
+						population.getBinaryTournament(wA, wB, wC, mantenimientos,fechaHoraActual));
 				//Apply mutation
 				childInd2 = mutate(childInd1,percentGenesToMutate);
 				//Evaluate new individuals
-				childInd1.calcularFitness(wA, wB, wC,flota);
-				childInd2.calcularFitness(wA, wB, wC,flota);
+				childInd1.calcularFitness(wA, wB, wC,flota, mantenimientos,fechaHoraActual);
+				childInd2.calcularFitness(wA, wB, wC,flota, mantenimientos,fechaHoraActual);
 				boolean isNewBest = population.addIndividual(childInd1) || population.addIndividual(childInd2);
 				genNewBest = (isNewBest)? isNewBest:genNewBest;
 			}

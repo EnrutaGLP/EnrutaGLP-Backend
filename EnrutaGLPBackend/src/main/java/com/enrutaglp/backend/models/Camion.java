@@ -14,8 +14,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class Camion {
 
 	private int id; 
@@ -23,14 +21,17 @@ public class Camion {
 	private String placa; 
 	private int ubicacionActualX;
 	private int ubicacionActualY;	
+	private Integer idPuntoActual;
 	private double cargaActualGLP;
 	private double cargaActualPetroleo;
 	private byte estado;
 	private TipoCamion tipo;
+	private LocalDateTime siguienteMovimiento;
 	private List<EntregaPedido>entregas;
 	private List<Punto>ruta;
 		
 	public Camion(Camion camion) {
+		this.id = camion.getId();
 		this.codigo = camion.getCodigo(); 
 		this.placa = camion.getPlaca(); 
 		this.ubicacionActualX = camion.getUbicacionActualX();
@@ -74,7 +75,6 @@ public class Camion {
 		this.cargaActualGLP = cargaActualGLP;
 		this.cargaActualPetroleo = cargaActualPetroleo;
 		this.estado = estado;
-		this.tipo = tipo;
 		this.tipo = tipoCamion;
 		this.ruta = new ArrayList<Punto>();
 	}
@@ -107,8 +107,7 @@ public class Camion {
 
 
 	public Camion(int id, String codigo, String placa, int ubicacionActualX, int ubicacionActualY,
-			double cargaActualGLP, double cargaActualPetroleo, byte estado) {
-		super();
+			double cargaActualGLP, double cargaActualPetroleo, byte estado, LocalDateTime siguienteMovimiento) {
 		this.id = id;
 		this.codigo = codigo;
 		this.placa = placa;

@@ -1,5 +1,7 @@
 package com.enrutaglp.backend.algorithm;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -8,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 import com.enrutaglp.backend.models.Camion;
+import com.enrutaglp.backend.models.Mantenimiento;
 import com.enrutaglp.backend.models.Pedido;
 import com.enrutaglp.backend.models.Punto;
 
@@ -19,11 +22,11 @@ import lombok.Setter;
 public class Grasp {
 	private Map<String, Pedido> pedidos;
 	private List<Punto> nodosRecorridos;
+	private List<Mantenimiento> mantenimientos;
 	private int numCandidatos;
 	private int k;
 	private Camion camion;
-	private String fechaActual; 
-	private String horaActual;
+	private LocalDateTime fechaHoraActual;
 	private double wa;
 	private double wb;
 	private double wc;
@@ -31,12 +34,12 @@ public class Grasp {
 	private double glpNoEntregado;
 	private double petroleoConsumido;
 	private double distanciaRecorrida;
+	private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 	
-	public Grasp(Map<String, Pedido> pedidos, Camion camion, String fechaActual, String horaActual, double wa, double wb, double wc) {
+	public Grasp(Map<String, Pedido> pedidos, Camion camion, List<Mantenimiento> mantenimientos, LocalDateTime fechaHoraActual, double wa, double wb, double wc) {
 		this.pedidos = generarCopia(pedidos);
 		this.camion = new Camion(camion);
-		this.fechaActual = fechaActual;
-		this.horaActual = horaActual;
+		this.fechaHoraActual = fechaHoraActual;
 		this.numCandidatos = this.pedidos.size();
 		this.k = (int) Math.ceil(0.45*this.numCandidatos);
 		this.wa = wa;
@@ -46,11 +49,12 @@ public class Grasp {
 		this.glpNoEntregado = 0;
 		this.petroleoConsumido = 0;
 		this.distanciaRecorrida = 0;
+		this.mantenimientos = mantenimientos;
 	}
 
 	public RutaCompleta construirSolucion() {	
 		
-		RutaCompleta ruta = new RutaCompleta(this.camion, fechaActual, horaActual);
+		RutaCompleta ruta = new RutaCompleta(this.camion, this.fechaHoraActual, this.mantenimientos);
 		
 		Map<String, Pedido> pedidosSolucion = generarCopia(pedidos);
 		
@@ -99,7 +103,7 @@ public class Grasp {
 					int it=0;
 					for(String key: pedidosSolucion.keySet()) {
 						//si es planta y hay al menos uno factible, continua
-						if(ruta.esFactible(pedidosSolucion.get(key))) {
+						if(ruta.esFactible(pedidosSolucion.get(key)).size()>0) {
 							break;
 						}
 						//si ningun pedido es factible, retorna la ruta que ya termina en la planta
@@ -127,17 +131,18 @@ public class Grasp {
 		Map<String,Pedido> pedidosCand = generarCopia(pedidosCandidtos);
 		 
 		for(int i=0; i<this.numCandidatos; i++) {
-			RutaCompleta rutaGenerada = new RutaCompleta(ruta.getCamion(), this.fechaActual, this.horaActual);
+			RutaCompleta rutaGenerada = new RutaCompleta(ruta.getCamion(), this.fechaHoraActual, this.mantenimientos);
 			
 			rutaGenerada.copiarRuta(ruta);
 
 			Map<String, Pedido> pedidosSolucion = generarCopia(pedidosCand);
 			int j = 0;
 			for(String key: pedidosSolucion.keySet()) {
-				boolean esFactible = rutaGenerada.esFactible(pedidosSolucion.get(key));
+				List<Punto> puntosTotales = rutaGenerada.esFactible(pedidosSolucion.get(key));
+				boolean esFactible = puntosTotales.size()>0 ? true: false;
 				
 				if(esFactible) {
-					rutaGenerada.insertarPedido(new Pedido(pedidosSolucion.get(key)));
+					rutaGenerada.insertarPedido(new Pedido(pedidosSolucion.get(key)), puntosTotales);
 					pedidosCand.remove(key);
 					j++;
 					break;
@@ -214,7 +219,7 @@ public class Grasp {
 
 	
 	public RutaCompleta busquedaLocal() {
-		RutaCompleta ruta = new RutaCompleta(this.camion, this.fechaActual, this.horaActual);
+		RutaCompleta ruta = new RutaCompleta(this.camion, this.fechaHoraActual, this.mantenimientos);
 		
 		return ruta;	
 	}

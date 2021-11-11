@@ -2,6 +2,8 @@ package com.enrutaglp.backend.scheduled;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import com.enrutaglp.backend.algorithm.Genetic;
 import com.enrutaglp.backend.algorithm.Individual;
+import com.enrutaglp.backend.algorithm.RutaCompleta;
 import com.enrutaglp.backend.events.UbicacionesActualizadasEvent;
 import com.enrutaglp.backend.models.Bloqueo;
 import com.enrutaglp.backend.models.Camion;
@@ -27,8 +30,11 @@ import com.enrutaglp.backend.models.Ruta;
 import com.enrutaglp.backend.repos.interfaces.BloqueoRepository;
 import com.enrutaglp.backend.repos.interfaces.CamionRepository;
 import com.enrutaglp.backend.repos.interfaces.ConfiguracionRepository;
+import com.enrutaglp.backend.repos.interfaces.MantenimientoRepository;
 import com.enrutaglp.backend.repos.interfaces.PedidoRepository;
+import com.enrutaglp.backend.repos.interfaces.RutaRepository;
 import com.enrutaglp.backend.tables.ConfiguracionTable;
+import com.enrutaglp.backend.utils.Utils;
 @Component
 public class ScheduledJobs {
 	
@@ -74,6 +80,12 @@ public class ScheduledJobs {
 	@Value("${algorithm.params.percent-genes-mutate}")
 	private double percentageGenesToMutate;
 	
+	@Value("${algorithm.tiempo-aprox-ejecucion}")
+	private int tiempoEjecucionAproximado;
+	
+	@Value("${camiones.segundos-entre-movimiento}")
+	private int segundosEntreMovimiento;
+	
 	@Autowired
 	private ConfiguracionRepository configuracionRepository;
 	
@@ -86,40 +98,52 @@ public class ScheduledJobs {
 	@Autowired
 	private CamionRepository camionRepository;
 	
+	@Autowired
+	private RutaRepository rutaRepository; 
+	
+	@Autowired
+	private MantenimientoRepository mantenimientoRepository; 
+	
 	@Scheduled(fixedDelayString = "${algorithm.delay}")
 	public void ejecutarAlgoritmo() {
 		
 		Map<String, String> configuracionCompleta = configuracionRepository.listarConfiguracionCompleta();
 		int k = Integer.valueOf(configuracionCompleta.get(llaveConstVC));
 		String strUltimaHora = configuracionCompleta.get(llaveUltimoCheck);
-		Date nuevoCheckpoint = null;
-		Date horaZero = new Date();
+		LocalDateTime nuevoCheckpoint = null;
+		LocalDateTime horaActual = Utils.obtenerFechaHoraActual();
+		LocalDateTime horaZero = horaActual.plusMinutes(tiempoEjecucionAproximado);
+		
 		if(strUltimaHora == null) {
-			nuevoCheckpoint = new Date();
+			nuevoCheckpoint = horaActual;
 		}
 		else {
-			try {
-				Date ultimoCheckpoint = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(strUltimaHora);
-				int sk = saltoAlgoritmo * k;
-				long segundos = ultimoCheckpoint.getTime();
-			    nuevoCheckpoint = new Date(segundos + sk*60*1000);
-			} catch (ParseException e) {
-				e.printStackTrace();
-			}
+			LocalDateTime ultimoCheckpoint = LocalDateTime.parse(strUltimaHora, Utils.formatter);;
+			int sk = saltoAlgoritmo * k;
+			nuevoCheckpoint = ultimoCheckpoint.plusMinutes(sk);
 		}
 		
-		String nuevoValorUltimoCheck = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(nuevoCheckpoint);
+		String nuevoValorUltimoCheck = nuevoCheckpoint.format(Utils.formatter);
 		configuracionRepository.actualizarLlave(llaveUltimoCheck, nuevoValorUltimoCheck);
 		
 		Map<String, Pedido>pedidos = pedidoRepository.listarPendientesMap(nuevoValorUltimoCheck); 
 		Map<String, Camion>flota = camionRepository.listarDisponiblesParaEnrutamiento(); 
 		List<Bloqueo>bloqueos = bloqueoRepository.listarEnRango(horaZero, null); 
-		Map<String, Mantenimiento>mantenimientos = new HashMap<String, Mantenimiento>(); 
+		Map<String, List<Mantenimiento>>mantenimientos = mantenimientoRepository.obtenerMapaDeMantenimientos(horaZero,null); 
 		List<Planta> plantas = new ArrayList<Planta>();
-		Genetic genetic = new Genetic(pedidos, flota, bloqueos, mantenimientos,plantas);
+		Genetic genetic = new Genetic(pedidos, flota, bloqueos, mantenimientos,plantas, horaZero);
 		
 		Individual solution = genetic.run(maxIterNoImp, numChildrenToGenerate, wA, wB, wC, mu, epsilon, percentageGenesToMutate);
-		solution.getRutas();
+		
+		Map<String, RutaCompleta>rutasCompletas =  solution.getRutas();
+		
+		
+		for(RutaCompleta rc : rutasCompletas.values()) {
+			if(rc.getRutas() != null && rc.getRutas().size()>0) {
+				rutaRepository.registroMasivo(rc.getRutas());
+			}
+		}
+		
 		//pruebas
 		/*List<Ruta>rutas = new ArrayList<Ruta>(); 
 		rutas.add(new EntregaPedido(100, null, null, 0));
@@ -130,10 +154,17 @@ public class ScheduledJobs {
 		}
 		ep.setCantidadEntregada(0);*/
 	}
-	/*
+	
+	
 	@Scheduled(fixedDelayString = "${actualizar-posiciones.delay}")
 	public void actualizarUbicaciones() {
+		//En verdad deberian ser solo los que estan en ruta:
+		List<Camion>camiones = camionRepository.listar();
+		LocalDateTime horaActual = Utils.obtenerFechaHoraActual();
+		for(Camion c: camiones) {
+			
+		}
 		publisher.publishEvent(new UbicacionesActualizadasEvent(this));
-	}*/
+	}
 	
 }
