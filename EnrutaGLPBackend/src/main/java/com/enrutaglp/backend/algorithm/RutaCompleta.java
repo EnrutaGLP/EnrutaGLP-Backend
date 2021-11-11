@@ -210,9 +210,9 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 		puntosIntemediosAB.add(0, this.nodos.get(this.nodos.size()-1));
 		puntosIntemediosAB.add(puntosIntemediosAB.size(), punto);
 		double distanciaPuntosActualPedido = Utils.calcularDistanciaTodosPuntos(puntosIntemediosAB);
-		int tiempo = (int) (distanciaPuntosActualPedido/this.camion.getTipo().getVelocidadPromedio());
+		long tiempo = (long) (distanciaPuntosActualPedido/this.camion.getTipo().getVelocidadPromedio() * 3600);
 		
-		LocalDateTime fechaHoraEntrega = this.fechaHoraTranscurrida.plusHours(tiempo);
+		LocalDateTime fechaHoraEntrega = this.fechaHoraTranscurrida.plusSeconds(tiempo);
 		List<Punto> puntosIntemediosBC = punto.getPuntosIntermedios(planta, fechaHoraEntrega, this.camion);
 		puntosIntemediosBC.add(0, punto);
 		puntosIntemediosBC.add(puntosIntemediosBC.size(), planta);
