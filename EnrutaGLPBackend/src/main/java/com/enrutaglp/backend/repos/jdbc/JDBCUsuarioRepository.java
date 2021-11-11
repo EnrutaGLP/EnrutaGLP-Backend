@@ -12,6 +12,6 @@ public class JDBCUsuarioRepository implements UsuarioRepository{
 	@Override
 	public boolean validar (Usuario usuario) {
 		
-		return usuario.getCorreo().equals(repo.listarPorCorreo(usuario.getCorreo()).get(0).getCorreo())
+		return usuario.getCorreo().equals(repo.listarPorCorreo(usuario.getCorreo()).get(0).getCorreo());
 	}
 }
