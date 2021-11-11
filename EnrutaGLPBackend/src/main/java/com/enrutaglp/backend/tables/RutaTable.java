@@ -40,6 +40,7 @@ public class RutaTable {
 		this.horaLlegada = ruta.getHoraLlegada(); 
 		this.horaSalida = ruta.getHoraSalida(); 
 		this.idCamion = ruta.getCamion().getId();
+		this.orden = ruta.getOrden();
 		this.tipo = ruta.getTipo();
 	}
 	

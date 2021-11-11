@@ -1,5 +1,6 @@
 package com.enrutaglp.backend.tables;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import javax.annotation.Generated;
@@ -31,6 +32,10 @@ public class CamionTable {
 	private double cargaActualGLP; 
 	@Column("carga_actual_petroleo")
 	private double cargaActualPetroleo; 
+	@Column("siguiente_movimiento")
+	private LocalDateTime siguienteMovimiento;
+	@Column("id_punto_actual")
+	private Integer idPuntoActual; 
 	private byte estado;
 	private byte tipo;
 	
@@ -42,11 +47,10 @@ public class CamionTable {
 		this.cargaActualGLP = camion.getCargaActualGLP(); 
 		this.cargaActualPetroleo = camion.getCargaActualPetroleo(); 
 		this.estado = camion.getEstado(); 
-		
 	}
 	
 	public Camion toModel() {
 		return new Camion(id,codigo,placa,ubicacionActualX,ubicacionActualY,cargaActualGLP,cargaActualPetroleo,
-				estado);
+				estado, siguienteMovimiento);
 	}
 }

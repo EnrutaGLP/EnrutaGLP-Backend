@@ -47,4 +47,5 @@ public interface CamionCrudRepository extends CrudRepository<CamionTable, Intege
 			+ "tc.id = c.tipo"
 			)
 	List<CamionTipoDTO> listarCamionesTipoDTODisponibles();
+	
 }
