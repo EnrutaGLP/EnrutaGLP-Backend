@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.enrutaglp.backend.models.Bloqueo;
 import com.enrutaglp.backend.models.Camion;
 import com.enrutaglp.backend.models.EntregaPedido;
 import com.enrutaglp.backend.models.Mantenimiento;
@@ -27,6 +28,7 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 	private List<Punto> nodos;
 	private List<Ruta> rutas;
 	private List<Mantenimiento> mantenimientos;
+	private List<Bloqueo> bloqueos;
 	@Setter
 	private Camion camion;
 	@Setter
@@ -42,7 +44,7 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 	@Setter
 	private double distanciaRecorrida;
 	
-	public RutaCompleta(Camion camion, LocalDateTime fechaHoraTranscurrida, List<Mantenimiento> mantenimientos) {
+	public RutaCompleta(Camion camion, LocalDateTime fechaHoraTranscurrida, List<Mantenimiento> mantenimientos, List<Bloqueo> bloqueos) {
 		this.pedidos = new HashMap<String, Pedido>();
 		this.camion = new Camion(camion);
 		this.fechaHoraTranscurrida = fechaHoraTranscurrida;
@@ -60,6 +62,7 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 		
 		this.rutas = new ArrayList<Ruta>();
 		this.mantenimientos = mantenimientos;
+		this.bloqueos = bloqueos;
 		
 	}
 
@@ -160,7 +163,7 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 			Punto punto = new Punto(12,8, this.nodos.size());
 			this.nodos.add(punto);
 			
-			List<Punto> puntosTotales = this.nodos.get(this.nodos.size()-2).getPuntosIntermedios(punto, this.fechaHoraTranscurrida, this.camion);
+			List<Punto> puntosTotales = this.nodos.get(this.nodos.size()-2).getPuntosIntermedios(punto, this.fechaHoraTranscurrida, this.camion, this.bloqueos);
 			puntosTotales.add(0, this.nodos.get(this.nodos.size()-2));
 			puntosTotales.add(puntosTotales.size(), punto);
 			
@@ -206,14 +209,14 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 		Punto planta = new Punto(12, 8, 5000);
 		
 		//empiezo
-		List<Punto> puntosIntemediosAB = this.nodos.get(this.nodos.size()-1).getPuntosIntermedios(punto, this.fechaHoraTranscurrida, this.camion);
+		List<Punto> puntosIntemediosAB = this.nodos.get(this.nodos.size()-1).getPuntosIntermedios(punto, this.fechaHoraTranscurrida, this.camion, this.bloqueos);
 		puntosIntemediosAB.add(0, this.nodos.get(this.nodos.size()-1));
 		puntosIntemediosAB.add(puntosIntemediosAB.size(), punto);
 		double distanciaPuntosActualPedido = Utils.calcularDistanciaTodosPuntos(puntosIntemediosAB);
 		long tiempo = (long) (distanciaPuntosActualPedido/this.camion.getTipo().getVelocidadPromedio() * 3600);
 		
 		LocalDateTime fechaHoraEntrega = this.fechaHoraTranscurrida.plusSeconds(tiempo);
-		List<Punto> puntosIntemediosBC = punto.getPuntosIntermedios(planta, fechaHoraEntrega, this.camion);
+		List<Punto> puntosIntemediosBC = punto.getPuntosIntermedios(planta, fechaHoraEntrega, this.camion, this.bloqueos);
 		puntosIntemediosBC.add(0, punto);
 		puntosIntemediosBC.add(puntosIntemediosBC.size(), planta);
 		double distanciaPuntosPedidoPlanta = Utils.calcularDistanciaTodosPuntos(puntosIntemediosBC);
@@ -239,7 +242,7 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 				(fechaHoraEntrega.isBefore(pedido.getFechaLimite()))) {
 			
 			for (int i = 0; i < this.mantenimientos.size(); i++) {
-					if(this.mantenimientos.get(i).getFechaInicio().isBefore(fechaHoraEntrega) || 
+					if(this.mantenimientos.get(i).getFechaInicio().isBefore(fechaHoraEntrega) && 
 							this.fechaHoraTranscurrida.isBefore(this.mantenimientos.get(i).getFechaFin())) {
 						
 						if(this.nodos.get(this.nodos.size()-1).isPlanta()) {
