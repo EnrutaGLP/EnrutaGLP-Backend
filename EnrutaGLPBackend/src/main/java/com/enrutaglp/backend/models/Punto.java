@@ -3,6 +3,7 @@ package com.enrutaglp.backend.models;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -111,9 +112,9 @@ public class Punto {
 	}
 	
 	
-	public List<Punto> getPuntosIntermedios(Punto puntoFinal, List<Bloqueo> bloqueos, LocalDateTime fechaIni, Camion camion) {
+	//public List<Punto> getPuntosIntermedios(Punto puntoFinal, List<Bloqueo> bloqueos, LocalDateTime fechaIni, Camion camion) {
 		
-		List<Punto> puntosIntemedios = new ArrayList<Punto>();
+		//List<Punto> puntosIntemedios = new ArrayList<Punto>();
 		
 		/*
 		this.distanciaRecorrida = this.puntos.get(this.puntos.size()-2).calcularDistanciasNodos(this.puntos.get(this.puntos.size()-1));
@@ -123,6 +124,26 @@ public class Punto {
 		//verificar fechaini y fechafin, si no hay bloqueos devolver listapuntos
 		
 		//si hay bloqueos A *
+		
+		//return puntosIntemedios;
+	//}
+	
+	public List<Punto> getPuntosIntermedios(Punto puntoFinal, LocalDateTime fechaIni, Camion camion){
+		List<Punto> puntosIntemedios = new ArrayList<Punto>();
+		
+		int sentido = ThreadLocalRandom.current().nextInt(0, 2);
+		
+		if(sentido==0) {
+			//eje x primero
+			
+			Punto nuevoPunto = new Punto(this.ubicacionX, puntoFinal.getUbicacionY(), this.orden + 1, this.codigoPedido);
+			puntosIntemedios.add(nuevoPunto);
+		}
+		else {
+			//eje y primero
+			Punto nuevoPunto = new Punto(puntoFinal.getUbicacionX(), this.ubicacionY, this.orden + 1, this.codigoPedido);
+			puntosIntemedios.add(nuevoPunto);
+		}
 		
 		return puntosIntemedios;
 	}
