@@ -85,6 +85,13 @@ CREATE TABLE tipo_camion (
 	PRIMARY KEY (id)
 );
 
+CREATE TABLE bloqueo (
+	id INT NOT NULL AUTO_INCREMENT,
+	fecha_inicio TIMESTAMP,
+    fecha_fin TIMESTAMP,
+	PRIMARY KEY (id)
+);
+
 CREATE TABLE camion (
 	id INT NOT NULL,
 	codigo CHAR(4) NOT NULL,
@@ -101,6 +108,7 @@ CREATE TABLE camion (
 	FOREIGN KEY (estado) REFERENCES estado_camion(id),
 	FOREIGN KEY (tipo) REFERENCES tipo_camion(id)
 );
+
 
 CREATE TABLE averia (
 	id INT NOT NULL AUTO_INCREMENT,
@@ -120,14 +128,6 @@ CREATE TABLE mantenimiento (
     FOREIGN KEY (id_camion) REFERENCES camion(id),
 	FOREIGN KEY (tipo) REFERENCES tipo_mantenimiento(id)
 );
-
-CREATE TABLE bloqueo (
-	id INT NOT NULL AUTO_INCREMENT,
-	fecha_inicio TIMESTAMP,
-    fecha_fin TIMESTAMP,
-	PRIMARY KEY (id)
-);
-
 
 CREATE TABLE ruta (
 	id INT NOT NULL AUTO_INCREMENT,
@@ -171,6 +171,7 @@ CREATE TABLE punto (
     FOREIGN KEY (id_bloqueo) REFERENCES bloqueo(id),
     FOREIGN KEY (id_ruta) REFERENCES ruta(id)
 );
+
 
 -- Inserts:
 
