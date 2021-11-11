@@ -172,6 +172,7 @@ CREATE TABLE punto (
     FOREIGN KEY (id_ruta) REFERENCES ruta(id)
 );
 
+ALTER TABLE camion ADD FOREIGN KEY (id_punto_actual) REFERENCES punto(id);
 
 -- Inserts:
 

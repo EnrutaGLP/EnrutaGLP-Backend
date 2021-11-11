@@ -140,31 +140,24 @@ public class ScheduledJobs {
 		
 		for(RutaCompleta rc : rutasCompletas.values()) {
 			if(rc.getRutas() != null && rc.getRutas().size()>0) {
-				rutaRepository.registroMasivo(rc.getRutas());
+				rutaRepository.registroMasivo(rc.getCamion().getId(),rc.getRutas());
 			}
 		}
-		
-		//pruebas
-		/*List<Ruta>rutas = new ArrayList<Ruta>(); 
-		rutas.add(new EntregaPedido(100, null, null, 0));
-		EntregaPedido ep = null;
-		for(Ruta r: rutas) {
-			Object o = r; 
-		    ep = (EntregaPedido) o;
-		}
-		ep.setCantidadEntregada(0);*/
 	}
 	
 	
 	@Scheduled(fixedDelayString = "${actualizar-posiciones.delay}")
 	public void actualizarUbicaciones() {
-		//En verdad deberian ser solo los que estan en ruta:
 		List<Camion>camiones = camionRepository.listar();
 		LocalDateTime horaActual = Utils.obtenerFechaHoraActual();
 		for(Camion c: camiones) {
 			
+			if(c.getSiguienteMovimiento()!= null &&
+					horaActual.isAfter(c.getSiguienteMovimiento()) || horaActual.isEqual(c.getSiguienteMovimiento())) {
+				c.setSiguienteMovimiento(c.getSiguienteMovimiento().plusSeconds(segundosEntreMovimiento));
+			}
 		}
-		publisher.publishEvent(new UbicacionesActualizadasEvent(this));
+		//publisher.publishEvent(new UbicacionesActualizadasEvent(this));
 	}
 	
 }
