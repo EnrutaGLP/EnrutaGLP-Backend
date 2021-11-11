@@ -47,10 +47,10 @@ CREATE TABLE planta (
 	id INT NOT NULL AUTO_INCREMENT,
 	ubicacion_x INT NOT NULL,
 	ubicacion_y INT NOT NULL,
-	capacidad_petroleo DOUBLE NOT NULL,
-    capacidad_glp DOUBLE NOT NULL,
-    carga_actual_glp DOUBLE NOT NULL,
-    carga_actual_petroleo DOUBLE NOT NULL,
+	capacidad_petroleo DOUBLE,
+    capacidad_glp DOUBLE,
+    carga_actual_glp DOUBLE,
+    carga_actual_petroleo DOUBLE,
     es_principal TINYINT NOT NULL,
 	PRIMARY KEY (id)
 );
@@ -95,6 +95,8 @@ CREATE TABLE camion (
     carga_actual_petroleo DOUBLE,
     estado TINYINT,
     tipo INT NOT NULL,
+    siguiente_movimiento TIMESTAMP,
+    id_punto_actual INT,
 	PRIMARY KEY (id),
 	FOREIGN KEY (estado) REFERENCES estado_camion(id),
 	FOREIGN KEY (tipo) REFERENCES tipo_camion(id)
@@ -170,8 +172,6 @@ CREATE TABLE punto (
     FOREIGN KEY (id_ruta) REFERENCES ruta(id)
 );
 
-
-
 -- Inserts:
 
 INSERT INTO configuracion VALUES ('CTE_VOLUMEN_CONSUMO','1') , ('ULTIMO_CHECKPOINT_PEDIDOS',NULL);
@@ -193,26 +193,31 @@ INSERT INTO tipo_camion VALUES
 (4,'TD',1.0,5,2.5,3.5,25,50,10);
 
 INSERT INTO camion VALUES 
-(1,'TA01','ABC-100',12,8,25,25,1,1),
-(2,'TA02','ABC-101',12,8,25,25,1,1),
-(3,'TB01','ABC-102',12,8,15,25,1,2),
-(4,'TB02','ABC-103',12,8,15,25,1,2),
-(5,'TB03','ABC-104',12,8,15,25,1,2),
-(6,'TB04','ABC-105',12,8,15,25,1,2),
-(7,'TC01','ABC-106',12,8,10,25,1,3),
-(8,'TC02','ABC-107',12,8,10,25,1,3),
-(9,'TC03','ABC-108',12,8,10,25,1,3),
-(10,'TC04','ABC-109',12,8,10,25,1,3),
-(11,'TD01','ABC-110',12,8,5,25,1,4),
-(12,'TD02','ABC-111',12,8,5,25,1,4),
-(13,'TD03','ABC-112',12,8,5,25,1,4),
-(14,'TD04','ABC-113',12,8,5,25,1,4),
-(15,'TD05','ABC-114',12,8,5,25,1,4),
-(16,'TD06','ABC-115',12,8,5,25,1,4),
-(17,'TD07','ABC-116',12,8,5,25,1,4),
-(18,'TD08','ABC-117',12,8,5,25,1,4),
-(19,'TD09','ABC-118',12,8,5,25,1,4),
-(20,'TD10','ABC-119',12,8,5,25,1,4);
+(1,'TA01','ABC-100',12,8,25,25,1,1,null,null),
+(2,'TA02','ABC-101',12,8,25,25,1,1,null,null),
+(3,'TB01','ABC-102',12,8,15,25,1,2,null,null),
+(4,'TB02','ABC-103',12,8,15,25,1,2,null,null),
+(5,'TB03','ABC-104',12,8,15,25,1,2,null,null),
+(6,'TB04','ABC-105',12,8,15,25,1,2,null,null),
+(7,'TC01','ABC-106',12,8,10,25,1,3,null,null),
+(8,'TC02','ABC-107',12,8,10,25,1,3,null,null),
+(9,'TC03','ABC-108',12,8,10,25,1,3,null,null),
+(10,'TC04','ABC-109',12,8,10,25,1,3,null,null),
+(11,'TD01','ABC-110',12,8,5,25,1,4,null,null),
+(12,'TD02','ABC-111',12,8,5,25,1,4,null,null),
+(13,'TD03','ABC-112',12,8,5,25,1,4,null,null),
+(14,'TD04','ABC-113',12,8,5,25,1,4,null,null),
+(15,'TD05','ABC-114',12,8,5,25,1,4,null,null),
+(16,'TD06','ABC-115',12,8,5,25,1,4,null,null),
+(17,'TD07','ABC-116',12,8,5,25,1,4,null,null),
+(18,'TD08','ABC-117',12,8,5,25,1,4,null,null),
+(19,'TD09','ABC-118',12,8,5,25,1,4,null,null),
+(20,'TD10','ABC-119',12,8,5,25,1,4,null,null);
+
+INSERT INTO planta VALUES
+(1,12,8,null,null,null,null,true),
+(2,42,42,null,null,null,null,false),
+(3,63,3,null,null,null,null,false);
 
 
 

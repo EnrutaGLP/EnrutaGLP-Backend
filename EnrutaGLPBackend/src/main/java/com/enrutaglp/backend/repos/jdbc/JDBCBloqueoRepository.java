@@ -1,6 +1,7 @@
 package com.enrutaglp.backend.repos.jdbc;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,6 +18,7 @@ import com.enrutaglp.backend.repos.interfaces.BloqueoRepository;
 import com.enrutaglp.backend.tables.BloqueoTable;
 import com.enrutaglp.backend.tables.PedidoTable;
 import com.enrutaglp.backend.tables.PuntoTable;
+import com.enrutaglp.backend.utils.Utils;
 
 @Component
 public class JDBCBloqueoRepository implements BloqueoRepository {
@@ -47,14 +49,14 @@ public class JDBCBloqueoRepository implements BloqueoRepository {
 	}
 
 	@Override
-	public List<Bloqueo> listarEnRango(Date fechaInicio, Date fechaFin) {
+	public List<Bloqueo> listarEnRango(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 		String desdeString = null,hastaString = null;
 		if(fechaInicio!=null) {
-			desdeString = sdf.format(fechaInicio);
+			desdeString = fechaInicio.format(Utils.formatter);
 		}
 		if(fechaFin!=null) {
-			hastaString = sdf.format(fechaFin);	
+			hastaString = fechaFin.format(Utils.formatter);	
 		}
 		List<BloqueoTable> bloqueosBd; 
 		if(desdeString == null && hastaString != null) {

@@ -6,6 +6,8 @@ import java.util.List;
 
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -22,7 +24,7 @@ import lombok.Setter;
 @Setter
 @Table("entrega_pedido")
 @NoArgsConstructor
-public class EntregaPedidoTable {
+public class EntregaPedidoTable implements Persistable<Integer>{
 	@Id
 	@Column("id_ruta")
 	private int idRuta;
@@ -31,9 +33,25 @@ public class EntregaPedidoTable {
 	@Column("id_pedido")
 	private int idPedido;
 	
-	public EntregaPedidoTable(int idRuta,EntregaPedido ep) {
+	public EntregaPedidoTable(int idRuta,EntregaPedido ep, boolean isNew) {
 		this.idRuta = idRuta;
 		this.cantidadEntregada = ep.getCantidadEntregada();
 		this.idPedido = ep.getPedido().getId();
+		this.isNew = isNew;
+	}
+
+	@Transient
+	private boolean isNew;
+	
+
+	@Override
+	public boolean isNew() {
+		return isNew;
+	}
+
+
+	@Override
+	public Integer getId() {
+		return idRuta;
 	}
 }

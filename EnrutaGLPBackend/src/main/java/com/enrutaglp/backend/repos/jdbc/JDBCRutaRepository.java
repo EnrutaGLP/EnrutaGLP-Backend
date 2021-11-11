@@ -71,10 +71,10 @@ public class JDBCRutaRepository implements RutaRepository {
 			Object o = rutas.get(i); 
 			if(rutas.get(i).getTipo()==TipoRuta.ENTREGA.getValue()) {
 				EntregaPedido ep = (EntregaPedido) o; 
-				entregas.add(new EntregaPedidoTable(rutasTable.get(i).getId(),ep));
+				entregas.add(new EntregaPedidoTable(rutasTable.get(i).getId(),ep, true));
 			} else if(rutas.get(i).getTipo()==TipoRuta.RECARGA.getValue()){
 				Recarga r = (Recarga) o; 
-				recargas.add(new RecargaTable(rutasTable.get(i).getId(),r));
+				recargas.add(new RecargaTable(rutasTable.get(i).getId(),r,true));
 			}
 			puntos = Stream.concat(puntos.stream(), puntosDeLaRuta.stream()).collect(Collectors.toList());
 		}

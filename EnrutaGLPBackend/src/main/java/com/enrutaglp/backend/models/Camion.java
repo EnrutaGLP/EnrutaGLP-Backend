@@ -14,8 +14,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class Camion {
 
 	private int id; 
@@ -23,10 +21,12 @@ public class Camion {
 	private String placa; 
 	private int ubicacionActualX;
 	private int ubicacionActualY;	
+	private Integer idPuntoActual;
 	private double cargaActualGLP;
 	private double cargaActualPetroleo;
 	private byte estado;
 	private TipoCamion tipo;
+	private LocalDateTime siguienteMovimiento;
 	private List<EntregaPedido>entregas;
 	private List<Punto>ruta;
 		
@@ -107,7 +107,7 @@ public class Camion {
 
 
 	public Camion(int id, String codigo, String placa, int ubicacionActualX, int ubicacionActualY,
-			double cargaActualGLP, double cargaActualPetroleo, byte estado) {
+			double cargaActualGLP, double cargaActualPetroleo, byte estado, LocalDateTime siguienteMovimiento) {
 		this.id = id;
 		this.codigo = codigo;
 		this.placa = placa;
