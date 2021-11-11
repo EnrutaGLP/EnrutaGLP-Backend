@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
+import com.enrutaglp.backend.models.Bloqueo;
 import com.enrutaglp.backend.models.Camion;
 import com.enrutaglp.backend.models.EntregaPedido;
 import com.enrutaglp.backend.models.Mantenimiento;
@@ -135,14 +136,14 @@ public class Individual implements Comparable<Individual> {
 
 	}
 
-	public double calcularFitness(double wA, double wB, double wC, Map<String, Camion> flota, Map<String,List<Mantenimiento>>mantenimientos, LocalDateTime fechaHoraActual) {
+	public double calcularFitness(double wA, double wB, double wC, Map<String, Camion> flota, Map<String,List<Mantenimiento>>mantenimientos, List<Bloqueo> bloqueos, LocalDateTime fechaHoraActual) {
 		this.fitness = 0.0;
 		this.cantidadPedidosNoEntregados = 0; 
 		this.consumoTotalPetroleo = 0.0; 
 		rutas = new HashMap<String, RutaCompleta>();
 		for (Map.Entry<String, Map<String, Pedido>> entry : asignacionesCamiones.entrySet()) {
 			
-			Grasp grasp = new Grasp(entry.getValue(), flota.get(entry.getKey()), mantenimientos.get(entry.getKey()),fechaHoraActual, wA, wB, wC);
+			Grasp grasp = new Grasp(entry.getValue(), flota.get(entry.getKey()), mantenimientos.get(entry.getKey()), bloqueos, fechaHoraActual, wA, wB, wC);
 			
 			RutaCompleta ruta = grasp.run(10);
 			

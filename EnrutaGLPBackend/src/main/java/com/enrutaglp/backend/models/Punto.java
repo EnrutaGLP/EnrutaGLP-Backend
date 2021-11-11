@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+import com.enrutaglp.backend.algorithm.AStar;
+import com.enrutaglp.backend.utils.Utils;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -133,23 +136,82 @@ public class Punto {
 		//return puntosIntemedios;
 	//}
 	
-	public List<Punto> getPuntosIntermedios(Punto puntoFinal, LocalDateTime fechaIni, Camion camion){
+	public List<Punto> getPuntosIntermedios(Punto puntoFinal, LocalDateTime fechaIni, Camion camion, List<Bloqueo> bloqueos){
 		List<Punto> puntosIntemedios = new ArrayList<Punto>();
 		
-		int sentido = ThreadLocalRandom.current().nextInt(0, 2);
+		puntosIntemedios.add(this);
+		puntosIntemedios.add(puntoFinal);
+		Punto nuevoPunto1 = new Punto(this.ubicacionX, puntoFinal.getUbicacionY(), this.orden + 1, this.codigoPedido);
+		puntosIntemedios.add(1,nuevoPunto1);
+		double distanciaPuntosActual1 = Utils.calcularDistanciaTodosPuntos(puntosIntemedios);
+		long tiempo1 = (long) (distanciaPuntosActual1/camion.getTipo().getVelocidadPromedio() * 3600);
+		LocalDateTime fechaHoraEntrega1 = fechaIni.plusSeconds(tiempo1);
 		
-		if(sentido==0) {
-			//eje x primero
+		List<Bloqueo> bloqueosActuales1 = new ArrayList<Bloqueo>();
+		
+		for (int i = 0; i < bloqueos.size(); i++) {
+			if(bloqueos.get(i).getFechaInicio().isBefore(fechaHoraEntrega1) && 
+					fechaIni.isBefore(bloqueos.get(i).getFechaFin())) {
+				bloqueosActuales1.add(bloqueos.get(i));
+			}
+		}
+		
+		if(bloqueosActuales1.size()==0) {
+			puntosIntemedios.remove(0);
+			puntosIntemedios.remove(puntosIntemedios.size()-1);
+			return puntosIntemedios;
+		}
+		
+		puntosIntemedios.clear();
+		puntosIntemedios.add(this);
+		puntosIntemedios.add(puntoFinal);
+		Punto nuevoPunto2 = new Punto(puntoFinal.getUbicacionX(), this.ubicacionY, this.orden + 1, this.codigoPedido);
+		puntosIntemedios.add(1,nuevoPunto2);
+		double distanciaPuntosActual2 = Utils.calcularDistanciaTodosPuntos(puntosIntemedios);
+		long tiempo2 = (long) (distanciaPuntosActual2/camion.getTipo().getVelocidadPromedio() * 3600);
+		LocalDateTime fechaHoraEntrega2 = fechaIni.plusSeconds(tiempo2);
+		
+		List<Bloqueo> bloqueosActuales2 = new ArrayList<Bloqueo>();
+		
+		for (int i = 0; i < bloqueos.size(); i++) {
+			if(bloqueos.get(i).getFechaInicio().isBefore(fechaHoraEntrega2) && 
+					fechaIni.isBefore(bloqueos.get(i).getFechaFin())) {
+				bloqueosActuales2.add(bloqueos.get(i));
+			}
+		}
+		
+		if(bloqueosActuales2.size()==0) {
+			puntosIntemedios.remove(0);
+			puntosIntemedios.remove(puntosIntemedios.size()-1);
+			return puntosIntemedios;
+		}
+		
+		
+		puntosIntemedios.clear();
+		
+		List<Bloqueo> bloqueosActuales = bloqueosActuales1.size()<bloqueosActuales2.size() ?  bloqueosActuales1 : bloqueosActuales2;
+		double distanciaPuntosActual = 0;
+		long tiempo = 0;
+		LocalDateTime fechaHoraEntrega = null;
+		
+		while(bloqueosActuales.size()>0) {
+			AStar aStar = new AStar(this, puntoFinal, camion, bloqueosActuales);
+			puntosIntemedios = aStar.run();
+			distanciaPuntosActual = Utils.calcularDistanciaTodosPuntos(puntosIntemedios);
+			tiempo = (long) (distanciaPuntosActual/camion.getTipo().getVelocidadPromedio() * 3600);
+			fechaHoraEntrega = fechaIni.plusSeconds(tiempo);
 			
-			Punto nuevoPunto = new Punto(this.ubicacionX, puntoFinal.getUbicacionY(), this.orden + 1, this.codigoPedido);
-			puntosIntemedios.add(nuevoPunto);
-		}
-		else {
-			//eje y primero
-			Punto nuevoPunto = new Punto(puntoFinal.getUbicacionX(), this.ubicacionY, this.orden + 1, this.codigoPedido);
-			puntosIntemedios.add(nuevoPunto);
+			bloqueosActuales.clear();
+			for (int i = 0; i < bloqueos.size(); i++) {
+				if(bloqueos.get(i).getFechaInicio().isBefore(fechaHoraEntrega) && 
+						fechaIni.isBefore(bloqueos.get(i).getFechaFin())) {
+					bloqueosActuales.add(bloqueos.get(i));
+				}
+			}
 		}
 		
+		puntosIntemedios.remove(0);
+		puntosIntemedios.remove(puntosIntemedios.size()-1);
 		return puntosIntemedios;
 	}
 
