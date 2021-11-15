@@ -6,10 +6,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-
-import com.enrutaglp.backend.AstarFunciones;
-
 import com.enrutaglp.backend.algorithm.AStar;
+import com.enrutaglp.backend.algorithm.AstarFunciones;
 import com.enrutaglp.backend.utils.Utils;
 
 import lombok.AllArgsConstructor;
