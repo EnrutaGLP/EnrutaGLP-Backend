@@ -37,6 +37,14 @@ public class PedidoController {
 		return new ResponseEntity<Response>(new Response(pedidos),HttpStatus.OK);
 	}
 	
+	@GetMapping("/actuales")
+	@CrossOrigin
+	public ResponseEntity<Response> listarActuales(){
+		//Falta implementar, ahorita brindara data de todos los pedidos
+		List<Pedido>pedidos = pedidoRepository.listar();
+		return new ResponseEntity<Response>(new Response(pedidos),HttpStatus.OK);
+	}
+	
 	@PostMapping("/registro-masivo")
 	public ResponseEntity<Response>registrarMasivo(@RequestBody List<Pedido>pedidos){
 		pedidoRepository.registrarMasivo(pedidos);

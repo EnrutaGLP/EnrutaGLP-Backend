@@ -9,9 +9,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import com.enrutaglp.backend.enums.EstadoCamion;
 import com.enrutaglp.backend.models.Averia;
 import com.enrutaglp.backend.models.Camion;
 import com.enrutaglp.backend.models.Mantenimiento;
@@ -34,6 +36,13 @@ public class JDBCMantenimientoRepository implements MantenimientoRepository{
 	@Autowired
 	CamionCrudRepository camionRepo; 
 
+	
+	@Value("${plantas.principal.x}")
+	private int plantaPrincipalX;
+	
+	@Value("${plantas.principal.y}")
+	private int plantaPrincipalY;
+	
 	@Override
 	public Map<String, List<Mantenimiento>> obtenerMapaDeMantenimientos(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
 		 Map<String, List<Mantenimiento>> mapa = new HashMap<String, List<Mantenimiento>>(); 
@@ -42,6 +51,11 @@ public class JDBCMantenimientoRepository implements MantenimientoRepository{
 			 mapa.put(c.getCodigo(),new ArrayList<Mantenimiento>());
 		 }
 		 return mapa; 
+	}
+
+	@Override
+	public void registrarMantenimiento(Mantenimiento mantenimiento) {
+		repo.save(new MantenimientoTable(mantenimiento,true));
 	}
 	
 }

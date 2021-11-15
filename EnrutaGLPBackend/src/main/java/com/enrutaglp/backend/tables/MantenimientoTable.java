@@ -27,7 +27,7 @@ public class MantenimientoTable {
 	private LocalDateTime fechaInicio;
 	@Column("fecha_fin")
 	private LocalDateTime fechaFin;
-	
+	private byte tipo; 
 	
 	
 	public MantenimientoTable (Mantenimiento mantenimiento, boolean isNew) {
@@ -37,9 +37,10 @@ public class MantenimientoTable {
 		this.idCamion = mantenimiento.getIdCamion(); 
 		this.fechaInicio = mantenimiento.getFechaInicio(); 
 		this.fechaFin = mantenimiento.getFechaFin();
+		this.tipo = mantenimiento.getTipo();
 	}
 	
 	public Mantenimiento toModel() {
-		return new Mantenimiento(id,idCamion,fechaInicio,fechaFin);
+		return new Mantenimiento(id,idCamion,fechaInicio,fechaFin,tipo);
 	}
 }

@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import com.enrutaglp.backend.algorithm.Genetic;
 import com.enrutaglp.backend.algorithm.Individual;
 import com.enrutaglp.backend.algorithm.RutaCompleta;
+import com.enrutaglp.backend.enums.EstadoCamion;
 import com.enrutaglp.backend.events.UbicacionesActualizadasEvent;
 import com.enrutaglp.backend.models.Bloqueo;
 import com.enrutaglp.backend.models.Camion;
@@ -32,6 +33,7 @@ import com.enrutaglp.backend.repos.interfaces.CamionRepository;
 import com.enrutaglp.backend.repos.interfaces.ConfiguracionRepository;
 import com.enrutaglp.backend.repos.interfaces.MantenimientoRepository;
 import com.enrutaglp.backend.repos.interfaces.PedidoRepository;
+import com.enrutaglp.backend.repos.interfaces.PuntoRepository;
 import com.enrutaglp.backend.repos.interfaces.RutaRepository;
 import com.enrutaglp.backend.tables.ConfiguracionTable;
 import com.enrutaglp.backend.utils.Utils;
@@ -104,6 +106,10 @@ public class ScheduledJobs {
 	@Autowired
 	private MantenimientoRepository mantenimientoRepository; 
 	
+	@Autowired
+	private PuntoRepository puntoRepository; 
+	
+
 	@Scheduled(fixedDelayString = "${algorithm.delay}")
 	public void ejecutarAlgoritmo() {
 		
@@ -127,6 +133,7 @@ public class ScheduledJobs {
 		configuracionRepository.actualizarLlave(llaveUltimoCheck, nuevoValorUltimoCheck);
 		
 		Map<String, Pedido>pedidos = pedidoRepository.listarPendientesMap(nuevoValorUltimoCheck); 
+		pedidos = Utils.particionarPedidos(pedidos);
 		Map<String, Camion>flota = camionRepository.listarDisponiblesParaEnrutamiento(); 
 		List<Bloqueo>bloqueos = bloqueoRepository.listarEnRango(horaZero, null); 
 		Map<String, List<Mantenimiento>>mantenimientos = mantenimientoRepository.obtenerMapaDeMantenimientos(horaZero,null); 
@@ -137,34 +144,33 @@ public class ScheduledJobs {
 		
 		Map<String, RutaCompleta>rutasCompletas =  solution.getRutas();
 		
-		
 		for(RutaCompleta rc : rutasCompletas.values()) {
 			if(rc.getRutas() != null && rc.getRutas().size()>0) {
-				rutaRepository.registroMasivo(rc.getRutas());
+				rutaRepository.registroMasivo(rc.getCamion().getId(),rc.getRutas());
 			}
 		}
-		
-		//pruebas
-		/*List<Ruta>rutas = new ArrayList<Ruta>(); 
-		rutas.add(new EntregaPedido(100, null, null, 0));
-		EntregaPedido ep = null;
-		for(Ruta r: rutas) {
-			Object o = r; 
-		    ep = (EntregaPedido) o;
-		}
-		ep.setCantidadEntregada(0);*/
 	}
 	
-	
+	/*
 	@Scheduled(fixedDelayString = "${actualizar-posiciones.delay}")
 	public void actualizarUbicaciones() {
-		//En verdad deberian ser solo los que estan en ruta:
 		List<Camion>camiones = camionRepository.listar();
 		LocalDateTime horaActual = Utils.obtenerFechaHoraActual();
 		for(Camion c: camiones) {
 			
+			if(c.getSiguienteMovimiento()!= null &&
+					horaActual.isAfter(c.getSiguienteMovimiento()) || horaActual.isEqual(c.getSiguienteMovimiento())) {
+				if(c.getEstado() == EstadoCamion.EN_REPOSO.getValue()) {
+					
+				} else if(c.getEstado() == EstadoCamion.EN_RUTA.getValue()) {
+					puntoRepository.conseguirPuntoSiguienteEnrutado(c.getId());
+				}
+				
+				
+				c.setSiguienteMovimiento(c.getSiguienteMovimiento().plusSeconds(segundosEntreMovimiento));
+			}
 		}
-		publisher.publishEvent(new UbicacionesActualizadasEvent(this));
-	}
+		//publisher.publishEvent(new UbicacionesActualizadasEvent(this));
+	}*/
 	
 }

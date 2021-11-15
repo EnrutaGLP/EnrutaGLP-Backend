@@ -45,6 +45,11 @@ public class Punto {
 		codigoPedido = null;
 	}
 	
+	public Punto(int ubicacionX, int ubicacionY) {
+		this.ubicacionX = ubicacionX; 
+		this.ubicacionY = ubicacionY;
+	}
+	
 	public Punto(int id, int ubicacionX, int ubicacionY, int orden, int idBloqueo) {
 		this.id = id;
 		this.ubicacionX = ubicacionX;

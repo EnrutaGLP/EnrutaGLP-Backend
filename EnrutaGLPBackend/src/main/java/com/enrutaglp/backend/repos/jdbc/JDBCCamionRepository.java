@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.enrutaglp.backend.dtos.CamionTipoDTO;
+import com.enrutaglp.backend.enums.EstadoCamion;
 import com.enrutaglp.backend.models.Camion;
 import com.enrutaglp.backend.models.Pedido;
 import com.enrutaglp.backend.repos.crud.CamionCrudRepository;
@@ -54,6 +55,13 @@ public class JDBCCamionRepository implements CamionRepository {
 			camionesMapa.put(c.getCodigo(), c);
 		}
 		return camionesMapa;
+	}
+
+	@Override
+	public void actualizarEstado(int id, byte nuevoEstado) {
+		CamionTable ct = repo.findById(id).orElse(null); 
+		ct.setEstado(nuevoEstado);
+		repo.save(ct);
 	}
 
 }
