@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.enrutaglp.backend.dtos.CamionTipoDTO;
+import com.enrutaglp.backend.dtos.CamionEstadoDTO;
 import com.enrutaglp.backend.tables.CamionTable;
 
 @Repository
@@ -47,5 +48,17 @@ public interface CamionCrudRepository extends CrudRepository<CamionTable, Intege
 			+ "tc.id = c.tipo"
 			)
 	List<CamionTipoDTO> listarCamionesTipoDTODisponibles();
+	
+	@Query(   "SELECT c.codigo, "
+			+ "c.ubicacion_actual_x, "
+			+ "c.ubicacion_actual_y, "
+			+ "e.id as estado_id, "
+			+ "e.nombre as estado_nombre "
+			+ "FROM camion c "
+			+ "INNER JOIN estado_camion e "
+			+ "ON e.id = c.estado "
+			+ "where c.estado = :estado"
+			)
+	List<CamionEstadoDTO> listarCamionRutaDTOByEstado(@Param("estado") byte estado);
 	
 }

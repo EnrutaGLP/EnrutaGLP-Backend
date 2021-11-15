@@ -6,10 +6,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.List;
 import org.apache.commons.lang3.RandomStringUtils;
 
+import com.enrutaglp.backend.models.Pedido;
 import com.enrutaglp.backend.models.Punto;
 public class Utils {
 
@@ -21,6 +23,11 @@ public class Utils {
 	
 	public static LocalDateTime obtenerFechaHoraActual() {
 		return LocalDateTime.now(ZoneId.of("America/Lima"));
+	}
+	
+	public static Map<String, Pedido> particionarPedidos(Map<String,Pedido>pedidos){
+		
+		return pedidos; 
 	}
 	
 	public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");

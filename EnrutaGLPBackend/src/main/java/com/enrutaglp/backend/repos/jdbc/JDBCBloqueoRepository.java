@@ -29,9 +29,6 @@ public class JDBCBloqueoRepository implements BloqueoRepository {
 	@Autowired
 	PuntoCrudRepository puntoRepo;
 	
-	@Autowired
-	JdbcTemplate template;
-	
 	@Override
 	public void registroMasivo(List<Bloqueo> bloqueos) {
 		List<BloqueoTable> bloqueosTables = bloqueos.stream().map(b->new BloqueoTable(b))

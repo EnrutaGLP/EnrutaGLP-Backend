@@ -11,5 +11,5 @@ import com.enrutaglp.backend.models.Mantenimiento;
 public interface MantenimientoRepository {
 	
 	Map<String, List<Mantenimiento>>obtenerMapaDeMantenimientos(LocalDateTime fechaInicio, LocalDateTime fechaFin);
-	
+	void registrarMantenimiento(Mantenimiento mantenimiento);
 }
