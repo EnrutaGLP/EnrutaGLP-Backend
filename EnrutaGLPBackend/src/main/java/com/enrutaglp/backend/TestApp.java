@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.enrutaglp.backend.algorithm.AstarFunciones;
 import com.enrutaglp.backend.models.Bloqueo;
 import com.enrutaglp.backend.models.Camion;
 import com.enrutaglp.backend.models.Punto;
@@ -84,7 +85,7 @@ public class TestApp {
 	public static void main(String[] args) {
 		AstarFunciones af = new AstarFunciones();
 		Punto puntoIni = new Punto(0,0,4);
-		Punto puntoFinal = new Punto(4,5,2);
+		Punto puntoFinal = new Punto(2,6,2);
 		
 		List<Bloqueo> bloqueos = generarListaBloqueos();
 		LocalDateTime fecha = LocalDateTime.now();

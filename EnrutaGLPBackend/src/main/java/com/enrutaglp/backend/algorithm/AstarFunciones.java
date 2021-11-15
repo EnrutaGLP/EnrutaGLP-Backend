@@ -1,4 +1,4 @@
-package com.enrutaglp.backend;
+package com.enrutaglp.backend.algorithm;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -200,7 +200,8 @@ public boolean hayBloqueoEntre (Punto p1, Punto p2, Punto pBloq1, Punto pBloq2) 
 			for (Punto sucesor: obtenerSucesores(Q, bloqueos, fechaIni, camion)) {
 				sucesor.setAntecesor(Q);
 				if (mismaPosicion(sucesor,puntoFin)) {
-					return construirCamino(sucesor);
+					
+					return obtenerPuntosEsquina(construirCamino(sucesor));
 				}
 				
 				sucesor.setAstarG(Q.getAstarG() + calcularDistanciasNodos(sucesor, Q)); //G(S) = G(Q) + DISTANCIA(Q, S)
