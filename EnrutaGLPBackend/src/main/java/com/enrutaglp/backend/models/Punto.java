@@ -2,8 +2,12 @@ package com.enrutaglp.backend.models;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+
+
+import com.enrutaglp.backend.AstarFunciones;
 
 import com.enrutaglp.backend.algorithm.AStar;
 import com.enrutaglp.backend.utils.Utils;
@@ -27,7 +31,15 @@ public class Punto {
 	@Setter
 	private String codigoPedido;
 	@Setter
-	private boolean planta; 
+	private boolean planta;
+	@Setter
+	private double astarF;
+	@Setter
+	private double astarG;
+	@Setter
+	private double astarH;
+	@Setter
+	private Punto antecesor;
 	
 	public Punto() {
 		codigoPedido = null;
@@ -110,6 +122,7 @@ public class Punto {
 		
 	}
 
+
 	public double calcularDistanciasNodos(Punto puntoNodo) {
 		  double x1 = this.getUbicacionX(); 
 		  double y1 = this.getUbicacionY(); 
@@ -119,10 +132,18 @@ public class Punto {
 		  return Math.abs(y2 - y1)+ Math.abs(x2 - x1);
 	}
 	
+
 	
-	//public List<Punto> getPuntosIntermedios(Punto puntoFinal, List<Bloqueo> bloqueos, LocalDateTime fechaIni, Camion camion) {
-		
-		//List<Punto> puntosIntemedios = new ArrayList<Punto>();
+	
+	
+	public List<Punto> getPuntosIntermedios(Punto puntoFinal, List<Bloqueo> bloqueos, LocalDateTime fechaIni, Camion camion) {
+		/*
+		 * Punto intermedio: punto esquina
+		 * 
+		 */
+		AstarFunciones af = new AstarFunciones();
+		List<Punto> puntosIntemedios = new ArrayList<Punto>();
+
 		
 		/*
 		this.distanciaRecorrida = this.puntos.get(this.puntos.size()-2).calcularDistanciasNodos(this.puntos.get(this.puntos.size()-1));
@@ -132,9 +153,31 @@ public class Punto {
 		//verificar fechaini y fechafin, si no hay bloqueos devolver listapuntos
 		
 		//si hay bloqueos A *
+		Punto pEsquina1 = new Punto(this.getUbicacionX(), puntoFinal.getUbicacionY(), this.getOrden());
+		Punto pEsquina2 = new Punto(puntoFinal.getUbicacionX(), this.getUbicacionY(), this.getOrden());
 		
-		//return puntosIntemedios;
-	//}
+		if (!af.hayBloqueosEntre (this, pEsquina1, bloqueos, fechaIni, camion) &&
+				!af.hayBloqueosEntre (pEsquina1, puntoFinal, bloqueos, fechaIni, camion)) {
+//			if (!af.mismaPosicion(puntoFinal, pEsquina1) && !af.mismaPosicion(this, pEsquina1)) {
+//				puntosIntemedios.add(pEsquina1);
+//			}
+			puntosIntemedios.add(pEsquina1);
+			return puntosIntemedios;
+		}
+		
+		if (!af.hayBloqueosEntre (this, pEsquina2, bloqueos, fechaIni, camion) &&
+				!af.hayBloqueosEntre (pEsquina2, puntoFinal, bloqueos, fechaIni, camion)) {
+//			if (!af.mismaPosicion(puntoFinal, pEsquina2) && !af.mismaPosicion(this, pEsquina2)) {
+//				puntosIntemedios.add(pEsquina2);
+//			}
+			puntosIntemedios.add(pEsquina2);
+			return puntosIntemedios;
+		}
+		
+
+		return af.astarAlgoritmo(this, puntoFinal, bloqueos, fechaIni, camion);
+
+	}
 	
 	public List<Punto> getPuntosIntermedios(Punto puntoFinal, LocalDateTime fechaIni, Camion camion, List<Bloqueo> bloqueos){
 		List<Punto> puntosIntemedios = new ArrayList<Punto>();
@@ -214,6 +257,5 @@ public class Punto {
 		puntosIntemedios.remove(puntosIntemedios.size()-1);
 		return puntosIntemedios;
 	}
-
 	
 }
