@@ -16,5 +16,13 @@ public class CamionRutaDTO {
 	private int ubicacionActualY;	
 	private byte estadoId; 
 	private String estadoNombre;
-	private List<PuntoDTO>ruta;
+	List<PuntoDTO>ruta;
+	
+	public CamionRutaDTO(CamionEstadoDTO dto) {
+		this.codigo = dto.getCodigo(); 
+		this.ubicacionActualX = dto.getUbicacionActualX(); 
+		this.ubicacionActualY = dto.getUbicacionActualY(); 
+		this.estadoId = dto.getEstadoId(); 
+		this.estadoNombre = dto.getEstadoNombre(); 
+	}
 }

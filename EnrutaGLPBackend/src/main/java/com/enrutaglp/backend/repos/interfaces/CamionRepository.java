@@ -12,4 +12,5 @@ public interface CamionRepository {
 	Map<String,Camion> listarDisponiblesParaEnrutamiento();
 	void registrar (Camion camion);
 	int listarIDporCodigo (String codigoCamion);
+	void actualizarEstado(int id,byte nuevoEstado);
 }

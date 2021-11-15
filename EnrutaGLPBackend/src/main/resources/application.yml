@@ -18,6 +18,9 @@ datos-configuracion:
   salto-algoritmo: 5
   ultimo-chk-pedidos:
     llave: ULTIMO_CHECKPOINT_PEDIDOS
+  tiempo-aparicion-mapa-averiado: 
+    sim-tres-dias: 10 
+    dia-a-dia: 60
 helloWorld:
   delay: PT5S
 actualizar-posiciones:
@@ -38,6 +41,11 @@ notificaciones:
   ubicaciones-actualizadas: /topic/greetings
 camiones: 
   segundos-entre-movimiento: 80
+  tiempo-mantenimiento-correctivo: 48
+plantas: 
+  principal:
+    x: 12
+    y: 8
 #local: 
 #url: jdbc:mysql://localhost:3307/enrutaglp
 

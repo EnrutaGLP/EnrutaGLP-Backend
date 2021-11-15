@@ -9,14 +9,17 @@ import java.util.stream.Stream;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
 import com.enrutaglp.backend.dtos.ListaRutasActualesDTO;
+import com.enrutaglp.backend.dtos.CamionEstadoDTO;
 import com.enrutaglp.backend.dtos.CamionRutaDTO;
 import com.enrutaglp.backend.enums.EstadoCamion;
 import com.enrutaglp.backend.enums.TipoRuta;
 import com.enrutaglp.backend.models.EntregaPedido;
+import com.enrutaglp.backend.models.Mantenimiento;
 import com.enrutaglp.backend.models.Pedido;
 import com.enrutaglp.backend.models.Punto;
 import com.enrutaglp.backend.models.Recarga;
@@ -28,6 +31,7 @@ import com.enrutaglp.backend.repos.crud.PedidoCrudRepository;
 import com.enrutaglp.backend.repos.crud.PuntoCrudRepository;
 import com.enrutaglp.backend.repos.crud.RecargaCrudRepository;
 import com.enrutaglp.backend.repos.crud.RutaCrudRepository;
+import com.enrutaglp.backend.repos.interfaces.ConfiguracionRepository;
 import com.enrutaglp.backend.repos.interfaces.PedidoRepository;
 import com.enrutaglp.backend.repos.interfaces.RutaRepository;
 import com.enrutaglp.backend.tables.CamionTable;
@@ -36,6 +40,7 @@ import com.enrutaglp.backend.tables.PedidoTable;
 import com.enrutaglp.backend.tables.PuntoTable;
 import com.enrutaglp.backend.tables.RecargaTable;
 import com.enrutaglp.backend.tables.RutaTable;
+import com.enrutaglp.backend.utils.Utils;
 
 @Component
 public class JDBCRutaRepository implements RutaRepository {
@@ -54,6 +59,36 @@ public class JDBCRutaRepository implements RutaRepository {
 	
 	@Autowired
 	RecargaCrudRepository recargaRepo;
+
+	@Autowired
+    ConfiguracionRepository configuracionRepository;
+	
+	@Autowired
+	JdbcTemplate template;
+	
+	@Value("${datos-configuracion.const-vol-consumo.llave}")
+	private String llaveConstVC;
+	
+	@Value("${plantas.principal.x}")
+	private int plantaPrincipalX;
+	
+	@Value("${plantas.principal.y}")
+	private int plantaPrincipalY;
+	
+	@Value("${datos-configuracion.tiempo-aparicion-mapa-averiado.sim-tres-dias}")
+	private int minutosAparicionAveriaTresDias;
+	
+	@Value("${datos-configuracion.tiempo-aparicion-mapa-averiado.dia-a-dia}")
+	private int minutosAparicionAveriaDiaADia;
+	
+	@Value("${datos-configuracion.const-vol-consumo.sim-tres-dias}")
+	private String valorConstVCTresDias;
+	
+	@Value("${datos-configuracion.const-vol-consumo.sim-colapso}")
+	private String valorConstVCColapso;
+	
+	@Value("${datos-configuracion.const-vol-consumo.dia-a-dia}")
+	private String valorConstVCDiaAdia;
 	
 	@Override
 	public void registroMasivo(int camionId,List<Ruta> rutas) {
@@ -126,6 +161,8 @@ public class JDBCRutaRepository implements RutaRepository {
 		CamionTable camion = camionRepo.findById(camionId).orElse(null);
 		if(camion.getSiguienteMovimiento() == null) {
 			camion.setSiguienteMovimiento(rutas.get(0).getHoraSalida());
+			//Por ahora:
+			camion.setIdPuntoActual(puntos.get(0).getId());
 		}
 		camionRepo.save(camion);
 	}
@@ -138,16 +175,48 @@ public class JDBCRutaRepository implements RutaRepository {
 		estadosAv.add(EstadoCamion.AVERIADO.getValue()); 
 		List<Byte>estadosOtros = new ArrayList<Byte>(); 
 		estadosOtros.add(EstadoCamion.EN_RUTA.getValue());
-		List<CamionRutaDTO> averiados = camionRepo.listarCamionRutaDTOByEstado(estadosAv);
-		List<CamionRutaDTO> otros = camionRepo.listarCamionRutaDTOByEstado(estadosOtros);
+		//Por mientras:
+		estadosOtros.add(EstadoCamion.EN_REPOSO.getValue());
+		List<CamionEstadoDTO> averiados = camionRepo.listarCamionRutaDTOByEstado(EstadoCamion.AVERIADO.getValue());
+		List<CamionEstadoDTO> otros = camionRepo.listarCamionRutaDTOByEstado(EstadoCamion.EN_REPOSO.getValue());
+		List<CamionRutaDTO> otrosRuta = new ArrayList<CamionRutaDTO>();
 		
-		for(CamionRutaDTO crO : otros) {
-			
+		
+		for(CamionEstadoDTO ce : otros) {
+			CamionRutaDTO cr = new CamionRutaDTO(ce);
+			cr.setRuta(rutaRepo.listarPuntosDtoRutaActualCamion(cr.getCodigo()));
+			if(cr.getRuta()!=null && cr.getRuta().size()>0) {
+				otrosRuta.add(cr);	
+			}
 		}
 		
-		dto.setAveriados(null);
-		dto.setOtros(null);
+		dto.setAveriados(averiados);
+		dto.setOtros(otrosRuta);
 		return dto;
+	}
+
+
+	@Override
+	public void actualizarRutaDespuesDeAveria(int idCamion) {
+		RutaTable rt = rutaRepo.listarRutaActualCamion(idCamion);
+		String sql = "DELETE FROM ruta where"
+				+ " orden >= ? and"
+				+ " id_camion = ?;"; 
+		try {
+			template.update(sql,rt.getOrden(),idCamion);
+		}catch(Exception e) {
+			System.out.println(e.getMessage());
+		}
+		CamionTable ct = camionRepo.findById(idCamion).orElse(null);
+		ct.setEstado(EstadoCamion.AVERIADO.getValue());
+		//poner el siguiente movimiento de acuerdo al modo de ejecucion (dia a dia, 3 dias, colapso)
+		Map<String, String> configuracionCompleta = configuracionRepository.listarConfiguracionCompleta();
+		String k = configuracionCompleta.get(llaveConstVC);
+		if(k == valorConstVCDiaAdia) {
+			ct.setSiguienteMovimiento(Utils.obtenerFechaHoraActual().plusMinutes(minutosAparicionAveriaDiaADia));
+		}
+		ct.setSiguienteMovimiento(Utils.obtenerFechaHoraActual().plusMinutes(idCamion));
+		camionRepo.save(ct);
 	}
 
 }

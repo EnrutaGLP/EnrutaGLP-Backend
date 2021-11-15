@@ -6,7 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PuntoDTO {
-	private int ubicacionX; 
-	private int ubicacionY;
-	private int orden;
+	private Integer ubicacionX; 
+	private Integer ubicacionY;
+	private Integer orden;
 }

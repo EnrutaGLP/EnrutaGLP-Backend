@@ -8,22 +8,33 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.enrutaglp.backend.dtos.PuntoDTO;
-import com.enrutaglp.backend.tables.AveriaTable;
 import com.enrutaglp.backend.tables.RutaTable;
 
 @Repository
 public interface RutaCrudRepository extends CrudRepository<RutaTable, Integer>{
 
-	@Query("SELECT p.ubicacion_x as ubicacion_x, "
-			+ "p.ubicacion_y as ubicacion_y, "
-			+ "p.orden as orden "
-			+ "FROM "
-			+ "camion c "
-			+ "LEFT JOIN punto p "
-			+ "on p.id = c.id_punto_actual "
-			+ "LEFT JOIN ruta r "
-			+ "on r.id = p.id_ruta "
-			+ ""
+	//Falta:
+	@Query("SELECT p.ubicacion_x, "
+			+ "p.ubicacion_y, "
+			+ "p.orden "
+			+ "from camion c "
+			+ "INNER JOIN punto p1 "
+			+ "on p1.id = c.id_punto_actual "
+			+ "INNER JOIN punto p "
+			+ "on p.id_ruta = p1.id_ruta "
+			+ "WHERE "
+			+ "c.codigo = :codigoCamion"
 			)
-	List<PuntoDTO>listarPuntosDtoRutaActualCamion(@Param("idCamion") int idCamion);
+	List<PuntoDTO>listarPuntosDtoRutaActualCamion(@Param("codigoCamion") String codigoCamion);
+	
+	
+	 @Query("SELECT r.* "
+	 		+ "from ruta r "
+	 		+ "inner join punto p "
+	 		+ "on p.id_ruta = r.id "
+	 		+ "inner join camion c "
+	 		+ "on c.id_punto_actual = p.id "
+	 		+ "where c.id = :idCamion"
+	 		)
+	RutaTable listarRutaActualCamion(@Param("idCamion")int idCamion);
 }

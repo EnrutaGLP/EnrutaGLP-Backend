@@ -148,7 +148,7 @@ CREATE TABLE entrega_pedido (
     id_pedido INT NOT NULL,
 	PRIMARY KEY (id_ruta),
     FOREIGN KEY (id_pedido) REFERENCES pedido(id),
-    FOREIGN KEY (id_ruta) REFERENCES ruta(id)
+    FOREIGN KEY (id_ruta) REFERENCES ruta(id) ON DELETE CASCADE 
 );
 
 CREATE TABLE recarga (
@@ -157,7 +157,7 @@ CREATE TABLE recarga (
     id_planta INT,
 	PRIMARY KEY (id_ruta),
     FOREIGN KEY (id_planta) REFERENCES planta(id),
-    FOREIGN KEY (id_ruta) REFERENCES ruta(id)
+    FOREIGN KEY (id_ruta) REFERENCES ruta(id) ON DELETE CASCADE  
 );
 
 CREATE TABLE punto (
@@ -169,10 +169,10 @@ CREATE TABLE punto (
     id_ruta INT,
 	PRIMARY KEY (id),
     FOREIGN KEY (id_bloqueo) REFERENCES bloqueo(id),
-    FOREIGN KEY (id_ruta) REFERENCES ruta(id)
+    FOREIGN KEY (id_ruta) REFERENCES ruta(id) ON DELETE CASCADE 
 );
 
-ALTER TABLE camion ADD FOREIGN KEY (id_punto_actual) REFERENCES punto(id);
+ALTER TABLE camion ADD FOREIGN KEY (id_punto_actual) REFERENCES punto(id) ON DELETE SET NULL; 
 
 -- Inserts:
 

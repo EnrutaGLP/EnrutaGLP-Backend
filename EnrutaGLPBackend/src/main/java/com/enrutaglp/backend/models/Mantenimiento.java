@@ -14,4 +14,13 @@ public class Mantenimiento {
 	private int idCamion; 
 	private LocalDateTime fechaInicio; 
 	private LocalDateTime fechaFin;
+	private byte tipo;
+	public Mantenimiento(int idCamion, LocalDateTime fechaInicio, LocalDateTime fechaFin, byte tipo) {
+		this.idCamion = idCamion;
+		this.fechaInicio = fechaInicio;
+		this.fechaFin = fechaFin;
+		this.tipo = tipo;
+	} 
+	
+	
 }
