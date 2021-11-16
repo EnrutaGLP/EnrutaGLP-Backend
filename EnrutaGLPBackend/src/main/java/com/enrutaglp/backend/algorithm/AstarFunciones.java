@@ -15,11 +15,10 @@ import lombok.Setter;
 @Getter
 public class AstarFunciones {
 	
-	public int altoTabla = 11;
-	public int anchoTabla = 11;
+	public static int altoTabla = 11;
+	public static int anchoTabla = 11;
 	
-	
-	public boolean mismaPosicion (Punto p1, Punto p2) {
+	public static boolean mismaPosicion (Punto p1, Punto p2) {
 		int x1 = p1.getUbicacionX();
 		int y1 = p1.getUbicacionY();
 		int x2 = p2.getUbicacionX();
@@ -28,7 +27,7 @@ public class AstarFunciones {
 	}
 
 	
-	public Punto buscarPunto (Punto pABuscar, List<Punto> lPuntos) {
+	public static Punto buscarPunto (Punto pABuscar, List<Punto> lPuntos) {
 		
 		for (Punto p: lPuntos) {
 			if (mismaPosicion(pABuscar, p)) {
@@ -37,17 +36,17 @@ public class AstarFunciones {
 		}
 		return null;
 	}
-	public void imprimirCamino (List<Punto>camino, List<Bloqueo> bloqueos) {
-		AstarFunciones af = new AstarFunciones();
+	public static void imprimirCamino (List<Punto>camino, List<Bloqueo> bloqueos) {
 
 
-		for (int i = 0; i < af.getAltoTabla(); i ++) {
-			for (int j = 0; j < af.getAnchoTabla(); j ++) {
+
+		for (int i = 0; i < altoTabla; i ++) {
+			for (int j = 0; j < anchoTabla; j ++) {
 				Punto pVeif = new Punto(j,i,0);
-				if (af.buscarPunto(pVeif, camino) != null) {
+				if (buscarPunto(pVeif, camino) != null) {
 					System.out.print("C");
 				}
-				else if (af.hayBloqueosEntre(pVeif, pVeif, bloqueos, null, null)){
+				else if (hayBloqueosEntre(pVeif, pVeif, bloqueos, null, null)){
 					System.out.print("B");
 				}
 				else {
@@ -57,7 +56,7 @@ public class AstarFunciones {
 			System.out.println();
 		}
 	}
-	private boolean esEsquina (Punto p1, Punto p2, Punto p3) {
+	public static boolean esEsquina (Punto p1, Punto p2, Punto p3) {
 		int x1 = p1.getUbicacionX();
 		int y1 = p1.getUbicacionY();
 		int x2 = p2.getUbicacionX();
@@ -68,7 +67,7 @@ public class AstarFunciones {
 		
 		return (x1 != x2 && y2 != y3) || (y1 != y2 && x2 != x3);
 	}
-	private List<Punto> obtenerPuntosEsquina(List<Punto> lista) {
+	public static List<Punto> obtenerPuntosEsquina(List<Punto> lista) {
 		
 		List<Punto> lEsquinas = new ArrayList<Punto>();
 		for (int i = 1; i < lista.size() - 1; i ++) {
@@ -78,12 +77,12 @@ public class AstarFunciones {
 		}
 		return lEsquinas;
 	}
-	public boolean valorEntre (int valor, int Lim1, int Lim2) {
+	public static boolean valorEntre (int valor, int Lim1, int Lim2) {
 		return (valor >= Lim1 && valor <= Lim2) || (valor >= Lim2 && valor <= Lim1);
 	}
 
 
-public boolean hayBloqueoEntre (Punto p1, Punto p2, Punto pBloq1, Punto pBloq2) {
+	public static boolean hayBloqueoEntre (Punto p1, Punto p2, Punto pBloq1, Punto pBloq2) {
 		
 		/* Verificar entre dos puntos hay un bloqueo
 		 * 
@@ -99,7 +98,7 @@ public boolean hayBloqueoEntre (Punto p1, Punto p2, Punto pBloq1, Punto pBloq2) 
 		return (valorEntre(x1, pBloqX1, pBloqX2) && valorEntre(pBloqY1, y1, y2)) ||
 				(valorEntre(y1, pBloqY1, pBloqY2) && valorEntre(pBloqX1, x1, x2));
 	}
-	public boolean hayBloqueosEntre (Punto puntoInicial, Punto puntoFinal, List<Bloqueo> bloqueos, LocalDateTime fechaIni, Camion camion) {
+	public static boolean hayBloqueosEntre (Punto puntoInicial, Punto puntoFinal, List<Bloqueo> bloqueos, LocalDateTime fechaIni, Camion camion) {
 		
 		if (bloqueos == null){
 			return false;
@@ -123,7 +122,7 @@ public boolean hayBloqueoEntre (Punto p1, Punto p2, Punto pBloq1, Punto pBloq2) 
 		
 		
 	}
-	private Punto buscarPuntoConMenorF (Punto puntoABuscar, List<Punto> lista) {
+	public static Punto buscarPuntoConMenorF (Punto puntoABuscar, List<Punto> lista) {
 		/*
 		 * Se asume que lista esta ordenada de menor a mayor según el atributo astarF de cada punto
 		 */
@@ -135,12 +134,12 @@ public boolean hayBloqueoEntre (Punto p1, Punto p2, Punto pBloq1, Punto pBloq2) 
 		}
 		return null;
 	}
-	private boolean esPosicionValida(Punto p) {
+	public static boolean esPosicionValida(Punto p) {
 		int x = p.getUbicacionX();
 		int y= p.getUbicacionY();
-		return x >= 0 && x < this.anchoTabla && y >= 0 && y < this.altoTabla;
+		return x >= 0 && x < anchoTabla && y >= 0 && y < altoTabla;
 	}
-	private List<Punto> agregarYOrdenar(List<Punto> lista, Punto puntoNuevo){
+	public static List<Punto> agregarYOrdenar(List<Punto> lista, Punto puntoNuevo){
 		
 		
 		int i;
@@ -152,7 +151,7 @@ public boolean hayBloqueoEntre (Punto p1, Punto p2, Punto pBloq1, Punto pBloq2) 
 		lista.add(i, puntoNuevo);
 		return lista;
 	}
-	private double calcularDistanciasNodos(Punto p1, Punto p2) {
+	public static double calcularDistanciasNodos(Punto p1, Punto p2) {
 		  double x1 = p1.getUbicacionX(); 
 		  double y1 = p1.getUbicacionY(); 
 		  double x2 = p2.getUbicacionX(); 
@@ -160,7 +159,7 @@ public boolean hayBloqueoEntre (Punto p1, Punto p2, Punto pBloq1, Punto pBloq2) 
 		  
 		  return Math.abs(y2 - y1)+ Math.abs(x2 - x1);
 	}
-	private List<Punto> construirCamino (Punto pFin){
+	public static List<Punto> construirCamino (Punto pFin){
 		List<Punto> camino = new ArrayList<Punto>();
 		Punto antecesor = pFin;
 		while (antecesor != null) {
@@ -169,7 +168,7 @@ public boolean hayBloqueoEntre (Punto p1, Punto p2, Punto pBloq1, Punto pBloq2) 
 		}
 		return camino;
 	}
-	private List<Punto> obtenerSucesores (Punto p, List<Bloqueo> bloqueos, LocalDateTime fechaIni, Camion camion){
+	public static List<Punto> obtenerSucesores (Punto p, List<Bloqueo> bloqueos, LocalDateTime fechaIni, Camion camion){
 		
 		List<Punto> sucesores = new ArrayList<Punto>();
 		List<Punto> lAux = new ArrayList<Punto>();
@@ -187,7 +186,8 @@ public boolean hayBloqueoEntre (Punto p1, Punto p2, Punto pBloq1, Punto pBloq2) 
 		}
 		return sucesores;
 	}
-	public List<Punto> astarAlgoritmo(Punto puntoIni, Punto puntoFin, List<Bloqueo> bloqueos, LocalDateTime fechaIni, Camion camion) {
+
+	public static List<Punto> astarAlgoritmo(Punto puntoIni, Punto puntoFin, List<Bloqueo> bloqueos, LocalDateTime fechaIni, Camion camion) {
 		
 		List<Punto> lAbierta = new ArrayList<Punto>();
 		List<Punto> lCerrada = new ArrayList<Punto>();
@@ -223,5 +223,40 @@ public boolean hayBloqueoEntre (Punto p1, Punto p2, Punto pBloq1, Punto pBloq2) 
 		}
 
 		return null;
+	}
+	public static List<Bloqueo> generarListaBloqueos(){
+		
+		List<Bloqueo> bloqueos = new ArrayList<Bloqueo>();
+		List<Punto> pEsqBloq = new ArrayList<Punto>();
+		
+		
+		pEsqBloq.add(new Punto (1,0,44));
+		pEsqBloq.add(new Punto (1,2,44));
+		Bloqueo bloqueo = new Bloqueo (1,LocalDateTime.now(),LocalDateTime.now().plusDays(1));
+		bloqueo.setPuntos(pEsqBloq);
+		bloqueos.add(bloqueo);
+		
+		pEsqBloq = new ArrayList<Punto>();
+		pEsqBloq.add(new Punto (0,4,44));
+		pEsqBloq.add(new Punto (9,4,44));
+		bloqueo = new Bloqueo (1,LocalDateTime.now(),LocalDateTime.now().plusDays(1));
+		bloqueo.setPuntos(pEsqBloq);
+		bloqueos.add(bloqueo);
+		return bloqueos;
+	}
+	
+	public static void testAstarAlgoritmo () {
+		
+		Punto puntoIni = new Punto(0,0,4);
+		Punto puntoFinal = new Punto(2,6,2);
+		
+		List<Bloqueo> bloqueos = generarListaBloqueos();
+		LocalDateTime fecha = LocalDateTime.now();
+		Camion camion = new Camion("CODIGO",3,4,10.5,5.6);
+		
+		List<Punto> puntosIntermedios = puntoIni.getPuntosIntermedios(puntoFinal, bloqueos, fecha, camion);
+		
+
+		imprimirCamino(puntosIntermedios, bloqueos);
 	}
 }
