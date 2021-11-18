@@ -61,6 +61,13 @@ public class JDBCPedidoRepository implements PedidoRepository {
 			pedidosMapa.put(p.getCodigo(), p);
 		}
 		return pedidosMapa;
+	}
+
+	@Override
+	public List<Pedido> listarPedidosEnRuta() {
+		List<Pedido> pedidos = ((List<PedidoTable>)repo.listarEnRuta()).stream()
+				.map(pedidoTable -> pedidoTable.toModel()).collect(Collectors.toList());
+		return pedidos;
 	}	
 
 }
