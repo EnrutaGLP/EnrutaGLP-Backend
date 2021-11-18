@@ -1,5 +1,6 @@
 package com.enrutaglp.backend.repos.jdbc;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,8 +48,8 @@ public class JDBCCamionRepository implements CamionRepository {
 	}
 
 	@Override
-	public Map<String, Camion> listarDisponiblesParaEnrutamiento() {
-		List<Camion> camiones = ((List<CamionTipoDTO>)repo.listarCamionesTipoDTODisponibles()).stream()
+	public Map<String, Camion> listarDisponiblesParaEnrutamiento(String horaInicial) {
+		List<Camion> camiones = ((List<CamionTipoDTO>)repo.listarCamionesTipoDTODisponibles(horaInicial)).stream()
 				.map(c -> c.toModel()).collect(Collectors.toList());
 		Map<String,Camion> camionesMapa = new HashMap<String, Camion>();
 		for(Camion c: camiones) {
@@ -62,6 +63,12 @@ public class JDBCCamionRepository implements CamionRepository {
 		CamionTable ct = repo.findById(id).orElse(null); 
 		ct.setEstado(nuevoEstado);
 		repo.save(ct);
+	}
+
+	@Override
+	public void actualizarMasivo(List<Camion> camiones) {
+		List<CamionTable>cts = camiones.stream().map(c -> new CamionTable(c,false)).collect(Collectors.toList()); 
+		repo.saveAll(cts);
 	}
 
 }

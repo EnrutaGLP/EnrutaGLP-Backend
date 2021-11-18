@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import com.enrutaglp.backend.dtos.ListaRutasActualesDTO;
 import com.enrutaglp.backend.dtos.CamionEstadoDTO;
 import com.enrutaglp.backend.dtos.CamionRutaDTO;
+import com.enrutaglp.backend.dtos.EntregaPedidoDTO;
 import com.enrutaglp.backend.enums.EstadoCamion;
 import com.enrutaglp.backend.enums.TipoRuta;
 import com.enrutaglp.backend.models.EntregaPedido;
@@ -50,6 +51,9 @@ public class JDBCRutaRepository implements RutaRepository {
 	
 	@Autowired
 	RutaCrudRepository rutaRepo;
+
+	@Autowired
+	PedidoCrudRepository pedidoRepo;
 	
 	@Autowired
 	CamionCrudRepository camionRepo;
@@ -93,10 +97,13 @@ public class JDBCRutaRepository implements RutaRepository {
 	@Override
 	public void registroMasivo(int camionId,List<Ruta> rutas) {
 		int i = 0; 
+		Integer x = rutaRepo.listarOrdenDeLaUltimaRuta(camionId);
+		if(x==null) {
+			x = 0;
+		}
 		for(Ruta r : rutas) {
-			//en verdad deberia ser a partir de la ultima dada
-			r.setOrden(i+1);
-			
+			r.setOrden(x+1);
+			x++;
 			for(int j=0;j<r.getPuntos().size();j++) {
 				
 				if(j < (r.getPuntos().size()-1) && 
@@ -133,6 +140,7 @@ public class JDBCRutaRepository implements RutaRepository {
 			i++; 
 		}
 		
+		
 		List<EntregaPedidoTable> entregas = new ArrayList<EntregaPedidoTable>();
 		List<RecargaTable> recargas = new ArrayList<RecargaTable>();
 		List<RutaTable> rutasTable = rutas.stream().map(r -> new RutaTable(r))
@@ -161,8 +169,6 @@ public class JDBCRutaRepository implements RutaRepository {
 		CamionTable camion = camionRepo.findById(camionId).orElse(null);
 		if(camion.getSiguienteMovimiento() == null) {
 			camion.setSiguienteMovimiento(rutas.get(0).getHoraSalida());
-			//Por ahora:
-			camion.setIdPuntoActual(puntos.get(0).getId());
 		}
 		camionRepo.save(camion);
 	}
@@ -171,14 +177,8 @@ public class JDBCRutaRepository implements RutaRepository {
 	@Override
 	public ListaRutasActualesDTO listarActuales() {
 		ListaRutasActualesDTO dto = new ListaRutasActualesDTO();
-		List<Byte>estadosAv = new ArrayList<Byte>(); 
-		estadosAv.add(EstadoCamion.AVERIADO.getValue()); 
-		List<Byte>estadosOtros = new ArrayList<Byte>(); 
-		estadosOtros.add(EstadoCamion.EN_RUTA.getValue());
-		//Por mientras:
-		estadosOtros.add(EstadoCamion.EN_REPOSO.getValue());
 		List<CamionEstadoDTO> averiados = camionRepo.listarCamionRutaDTOByEstado(EstadoCamion.AVERIADO.getValue());
-		List<CamionEstadoDTO> otros = camionRepo.listarCamionRutaDTOByEstado(EstadoCamion.EN_REPOSO.getValue());
+		List<CamionEstadoDTO> otros = camionRepo.listarCamionRutaDTOByEstado(EstadoCamion.EN_RUTA.getValue());
 		List<CamionRutaDTO> otrosRuta = new ArrayList<CamionRutaDTO>();
 		
 		
@@ -199,23 +199,33 @@ public class JDBCRutaRepository implements RutaRepository {
 	@Override
 	public void actualizarRutaDespuesDeAveria(int idCamion) {
 		RutaTable rt = rutaRepo.listarRutaActualCamion(idCamion);
-		String sql = "DELETE FROM ruta where"
-				+ " orden >= ? and"
-				+ " id_camion = ?;"; 
-		try {
-			template.update(sql,rt.getOrden(),idCamion);
-		}catch(Exception e) {
-			System.out.println(e.getMessage());
+		if(rt!=null) {
+			/*List<EntregaPedidoDTO> eps = entregaPedidoRepo.listarEntregasPedidosFuturos(idCamion, rt.getOrden());
+			List<PedidoTable> pedidos = new ArrayList<PedidoTable>();
+			for(EntregaPedidoDTO ep : eps) {
+				PedidoTable p = new PedidoTable(ep);
+				p.setCantidadGlpPorPlanificar(p.getCantidadGlpPorPlanificar()-ep.getCantidadEntregada());
+				pedidos.add(p);
+			}
+			pedidoRepo.saveAll(pedidos);*/
+			
+			String sql = "DELETE FROM ruta where"
+					+ " orden >= ? and"
+					+ " id_camion = ?;"; 
+			try {
+				template.update(sql,rt.getOrden(),idCamion);
+			}catch(Exception e) {
+				System.out.println(e.getMessage());
+			}
 		}
 		CamionTable ct = camionRepo.findById(idCamion).orElse(null);
-		ct.setEstado(EstadoCamion.AVERIADO.getValue());
-		//poner el siguiente movimiento de acuerdo al modo de ejecucion (dia a dia, 3 dias, colapso)
 		Map<String, String> configuracionCompleta = configuracionRepository.listarConfiguracionCompleta();
 		String k = configuracionCompleta.get(llaveConstVC);
-		if(k == valorConstVCDiaAdia) {
+		if(k.equals(valorConstVCDiaAdia)) {
 			ct.setSiguienteMovimiento(Utils.obtenerFechaHoraActual().plusMinutes(minutosAparicionAveriaDiaADia));
+		} else if(k.equals(valorConstVCTresDias)) {
+			ct.setSiguienteMovimiento(Utils.obtenerFechaHoraActual().plusMinutes(minutosAparicionAveriaTresDias));
 		}
-		ct.setSiguienteMovimiento(Utils.obtenerFechaHoraActual().plusMinutes(idCamion));
 		camionRepo.save(ct);
 	}
 

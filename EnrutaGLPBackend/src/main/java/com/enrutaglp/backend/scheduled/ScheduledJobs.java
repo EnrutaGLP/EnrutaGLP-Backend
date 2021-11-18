@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 import com.enrutaglp.backend.algorithm.Genetic;
 import com.enrutaglp.backend.algorithm.Individual;
 import com.enrutaglp.backend.algorithm.RutaCompleta;
+import com.enrutaglp.backend.dtos.PuntoSiguienteDTO;
 import com.enrutaglp.backend.enums.EstadoCamion;
 import com.enrutaglp.backend.events.UbicacionesActualizadasEvent;
 import com.enrutaglp.backend.models.Bloqueo;
@@ -35,6 +37,7 @@ import com.enrutaglp.backend.repos.interfaces.MantenimientoRepository;
 import com.enrutaglp.backend.repos.interfaces.PedidoRepository;
 import com.enrutaglp.backend.repos.interfaces.PuntoRepository;
 import com.enrutaglp.backend.repos.interfaces.RutaRepository;
+import com.enrutaglp.backend.tables.CamionTable;
 import com.enrutaglp.backend.tables.ConfiguracionTable;
 import com.enrutaglp.backend.utils.Utils;
 @Component
@@ -134,7 +137,7 @@ public class ScheduledJobs {
 		
 		Map<String, Pedido>pedidos = pedidoRepository.listarPendientesMap(nuevoValorUltimoCheck); 
 		pedidos = Utils.particionarPedidos(pedidos);
-		Map<String, Camion>flota = camionRepository.listarDisponiblesParaEnrutamiento(); 
+		Map<String, Camion>flota = camionRepository.listarDisponiblesParaEnrutamiento(horaZero.format(Utils.formatter)); 
 		List<Bloqueo>bloqueos = bloqueoRepository.listarEnRango(horaZero, null); 
 		Map<String, List<Mantenimiento>>mantenimientos = mantenimientoRepository.obtenerMapaDeMantenimientos(horaZero,null); 
 		List<Planta> plantas = new ArrayList<Planta>();
@@ -151,26 +154,28 @@ public class ScheduledJobs {
 		}
 	}
 	
-	/*
+	
 	@Scheduled(fixedDelayString = "${actualizar-posiciones.delay}")
 	public void actualizarUbicaciones() {
 		List<Camion>camiones = camionRepository.listar();
 		LocalDateTime horaActual = Utils.obtenerFechaHoraActual();
 		for(Camion c: camiones) {
-			
-			if(c.getSiguienteMovimiento()!= null &&
-					horaActual.isAfter(c.getSiguienteMovimiento()) || horaActual.isEqual(c.getSiguienteMovimiento())) {
-				if(c.getEstado() == EstadoCamion.EN_REPOSO.getValue()) {
-					
-				} else if(c.getEstado() == EstadoCamion.EN_RUTA.getValue()) {
-					puntoRepository.conseguirPuntoSiguienteEnrutado(c.getId());
+			if(c.getSiguienteMovimiento() != null) {
+				if(horaActual.isAfter(c.getSiguienteMovimiento()) || horaActual.isEqual(c.getSiguienteMovimiento())) {
+					if(c.getEstado() == EstadoCamion.EN_REPOSO.getValue()) {
+						c.setEstado(EstadoCamion.EN_RUTA.getValue());
+					} 
+					PuntoSiguienteDTO siguiente = puntoRepository.conseguirPuntoSiguienteEnrutado(c.getId());
+					if(siguiente != null && siguiente.getId() != null) {
+						c.setIdPuntoActual(siguiente.getId());
+					}
+					c.setSiguienteMovimiento(c.getSiguienteMovimiento().plusSeconds(segundosEntreMovimiento));
 				}
-				
-				
-				c.setSiguienteMovimiento(c.getSiguienteMovimiento().plusSeconds(segundosEntreMovimiento));
 			}
 		}
-		//publisher.publishEvent(new UbicacionesActualizadasEvent(this));
-	}*/
+		
+		camionRepository.actualizarMasivo(camiones);
+		publisher.publishEvent(new UbicacionesActualizadasEvent(this));
+	}
 	
 }

@@ -9,17 +9,21 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
+import com.enrutaglp.backend.dtos.EntregaPedidoDTO;
 import com.enrutaglp.backend.enums.EstadoPedido;
 import com.enrutaglp.backend.models.Pedido;
 import com.enrutaglp.backend.utils.Utils;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
+@Setter
 @Table("pedido")
 @NoArgsConstructor
+@AllArgsConstructor
 public class PedidoTable {
 	@Id
 	private int id;
@@ -51,7 +55,6 @@ public class PedidoTable {
 		this.ubicacionY = pedido.getUbicacionY(); 
 		this.fechaPedido = pedido.getFechaPedido(); 
 		this.fechaLimite = pedido.getFechaLimite(); 
-		
 		if(isNew) {
 			this.cantidadGlpAtendida = 0; 
 			this.cantidadGlpPorPlanificar = pedido.getCantidadGlp();
@@ -66,6 +69,21 @@ public class PedidoTable {
 			this.estado = pedido.getEstado();
 		}
 		
+	}
+	
+	public PedidoTable(EntregaPedidoDTO pedido) {
+		this.codigo = pedido.getCodigo(); 
+		this.cliente = pedido.getCliente();
+		this.cantidadGlp = pedido.getCantidadGlp();
+		this.ubicacionX = pedido.getUbicacionX(); 
+		this.ubicacionY = pedido.getUbicacionY(); 
+		this.fechaPedido = pedido.getFechaPedido(); 
+		this.fechaLimite = pedido.getFechaLimite(); 
+		this.cantidadGlpPorPlanificar = pedido.getCantidadGlpPorPlanificar();
+		this.id = pedido.getId();
+		this.cantidadGlpAtendida = pedido.getCantidadGlpAtendida(); 
+		this.fechaCompletado = pedido.getFechaCompletado();
+		this.estado = pedido.getEstado();
 	}
 	
 	public Pedido toModel() {

@@ -24,7 +24,7 @@ datos-configuracion:
 helloWorld:
   delay: PT5S
 actualizar-posiciones:
-  delay: PT5S
+  delay: PT20S
 algorithm: 
   delay: PT5M 
   tiempo-aprox-ejecucion: 3
@@ -38,7 +38,7 @@ algorithm:
     population-epsilon: 20
     percent-genes-mutate: 0.3
 notificaciones: 
-  ubicaciones-actualizadas: /topic/greetings
+  ubicaciones-actualizadas: /topic/estado-general
 camiones: 
   segundos-entre-movimiento: 80
   tiempo-mantenimiento-correctivo: 48
