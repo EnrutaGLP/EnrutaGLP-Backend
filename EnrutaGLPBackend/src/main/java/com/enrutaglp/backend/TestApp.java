@@ -91,7 +91,7 @@ public class TestApp {
 		LocalDateTime fecha = LocalDateTime.now();
 		Camion camion = new Camion("CODIGO",3,4,10.5,5.6);
 		
-		List<Punto> puntosIntermedios = puntoIni.getPuntosIntermedios(puntoFinal, bloqueos, fecha, camion);
+		List<Punto> puntosIntermedios = puntoIni.pruebaAStar(puntoFinal, bloqueos);
 		
 //		System.out.println(puntosIntermedios.size());
 

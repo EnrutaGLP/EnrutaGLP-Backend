@@ -47,7 +47,7 @@ public class AstarFunciones {
 				if (af.buscarPunto(pVeif, camino) != null) {
 					System.out.print("C");
 				}
-				else if (af.hayBloqueosEntre(pVeif, pVeif, bloqueos, null, null)){
+				else if (af.hayBloqueosEntre(pVeif, pVeif, bloqueos)){
 					System.out.print("B");
 				}
 				else {
@@ -99,7 +99,7 @@ public boolean hayBloqueoEntre (Punto p1, Punto p2, Punto pBloq1, Punto pBloq2) 
 		return (valorEntre(x1, pBloqX1, pBloqX2) && valorEntre(pBloqY1, y1, y2)) ||
 				(valorEntre(y1, pBloqY1, pBloqY2) && valorEntre(pBloqX1, x1, x2));
 	}
-	public boolean hayBloqueosEntre (Punto puntoInicial, Punto puntoFinal, List<Bloqueo> bloqueos, LocalDateTime fechaIni, Camion camion) {
+	public boolean hayBloqueosEntre (Punto puntoInicial, Punto puntoFinal, List<Bloqueo> bloqueos) {
 		
 		if (bloqueos == null){
 			return false;
@@ -169,7 +169,7 @@ public boolean hayBloqueoEntre (Punto p1, Punto p2, Punto pBloq1, Punto pBloq2) 
 		}
 		return camino;
 	}
-	private List<Punto> obtenerSucesores (Punto p, List<Bloqueo> bloqueos, LocalDateTime fechaIni, Camion camion){
+	private List<Punto> obtenerSucesores (Punto p, List<Bloqueo> bloqueos){
 		
 		List<Punto> sucesores = new ArrayList<Punto>();
 		List<Punto> lAux = new ArrayList<Punto>();
@@ -181,13 +181,13 @@ public boolean hayBloqueoEntre (Punto p1, Punto p2, Punto pBloq1, Punto pBloq2) 
 		lAux.add(new Punto(x, y - 1, p.getOrden()));
 		
 		for (Punto pAux: lAux) {
-			if (esPosicionValida(pAux) && !hayBloqueosEntre(pAux, pAux, bloqueos, fechaIni, camion)) {
+			if (esPosicionValida(pAux) && !hayBloqueosEntre(pAux, pAux, bloqueos)) {
 				sucesores.add(pAux);
 			}
 		}
 		return sucesores;
 	}
-	public List<Punto> astarAlgoritmo(Punto puntoIni, Punto puntoFin, List<Bloqueo> bloqueos, LocalDateTime fechaIni, Camion camion) {
+	public List<Punto> astarAlgoritmo(Punto puntoIni, Punto puntoFin, List<Bloqueo> bloqueos) {
 		
 		List<Punto> lAbierta = new ArrayList<Punto>();
 		List<Punto> lCerrada = new ArrayList<Punto>();
@@ -197,7 +197,7 @@ public boolean hayBloqueoEntre (Punto p1, Punto p2, Punto pBloq1, Punto pBloq2) 
 		
 		while (!lAbierta.isEmpty()) {
 			Punto Q = lAbierta.remove(0);//Se asume que lAbierta esta ordenada de menor a mayor según el atributo astarF de cada punto
-			for (Punto sucesor: obtenerSucesores(Q, bloqueos, fechaIni, camion)) {
+			for (Punto sucesor: obtenerSucesores(Q, bloqueos)) {
 				sucesor.setAntecesor(Q);
 				if (mismaPosicion(sucesor,puntoFin)) {
 					
