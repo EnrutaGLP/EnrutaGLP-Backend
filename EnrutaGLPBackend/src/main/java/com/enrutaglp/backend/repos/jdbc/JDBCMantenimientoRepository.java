@@ -25,6 +25,7 @@ import com.enrutaglp.backend.repos.interfaces.MantenimientoRepository;
 import com.enrutaglp.backend.tables.AveriaTable;
 import com.enrutaglp.backend.tables.CamionTable;
 import com.enrutaglp.backend.tables.MantenimientoTable;
+import com.enrutaglp.backend.utils.Utils;
 
 
 @Component
@@ -45,13 +46,39 @@ public class JDBCMantenimientoRepository implements MantenimientoRepository{
 	
 	@Override
 	public Map<String, List<Mantenimiento>> obtenerMapaDeMantenimientos(LocalDateTime fechaInicio, LocalDateTime fechaFin) {
-		 Map<String, List<Mantenimiento>> mapa = new HashMap<String, List<Mantenimiento>>(); 
-		 List<CamionTable>camiones = (List<CamionTable>) camionRepo.findAll(); 
-		 for(CamionTable c: camiones) {
-			 mapa.put(c.getCodigo(),new ArrayList<Mantenimiento>());
-		 }
-		 
-		 return mapa; 
+		Map<String, List<Mantenimiento>> mapa = new HashMap<String, List<Mantenimiento>>(); 
+		List<CamionTable>camiones = (List<CamionTable>) camionRepo.findAll(); 
+		Map<Integer, String> mapaIdCodigo = new HashMap<Integer, String>();
+		String desdeString = null,hastaString = null;
+		if(fechaInicio!=null) {
+			desdeString = fechaInicio.format(Utils.formatter);
+		}
+		if(fechaFin!=null) {
+			hastaString = fechaFin.format(Utils.formatter);	
+		}
+		
+		List<MantenimientoTable> mantenimientosBd;
+		if(desdeString == null && hastaString != null) {
+			mantenimientosBd = repo.listarMatenimientoHasta(hastaString);
+		} else if(desdeString !=null && hastaString == null) {
+			mantenimientosBd = repo.listarMatenimientoDesde(desdeString);
+		} else {
+			mantenimientosBd = repo.listarMatenimientoEnRango(desdeString, hastaString);
+		}
+		List<Mantenimiento> mantenimientos = mantenimientosBd.stream().map(mant -> mant.toModel()).collect(Collectors.toList());
+		
+		for(CamionTable c: camiones) {
+			mapa.put(c.getCodigo(),new ArrayList<Mantenimiento>());
+			mapaIdCodigo.put(c.getId(), c.getCodigo());
+		}
+		
+		for(Mantenimiento m: mantenimientos) {
+			String codigo = mapaIdCodigo.get(m.getId()); 
+			mapa.get(codigo).add(m);
+		}
+		
+		
+		return mapa; 
 	}
 
 	@Override
