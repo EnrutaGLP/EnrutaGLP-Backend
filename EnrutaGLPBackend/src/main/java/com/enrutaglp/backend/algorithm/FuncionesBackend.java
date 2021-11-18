@@ -19,13 +19,15 @@ public class FuncionesBackend {
 	public static int[] capacidadGLP = {25,15,10,5};
 	
 	
-	
-	public static List<Pedido> dividirPedido(Pedido pADividir){
+	public static List<Pedido> dividirPedido(Pedido pADividir, int maxDivisor){
 		
 		double restoGlp = pADividir.getCantidadGlp();
 		List<Pedido> pDivididos = new ArrayList<Pedido>();
 		int indice = 1;
 		for (int cap: capacidadGLP) {
+			if (cap > maxDivisor) {
+				continue;
+			}
 			int cociente = (int)(restoGlp/cap);
 			for (int i=0; i<cociente; i++) {
 				pDivididos.add(new Pedido(
@@ -51,7 +53,7 @@ public class FuncionesBackend {
 		Pedido p = new Pedido (1,"", "cliente", 0,0,0,0,
 				LocalDateTime.now(),LocalDateTime.now(),LocalDateTime.now(),Byte.MAX_VALUE);
 		
-		int[]cargasGLP = {117,20,16,110};
+		int[]cargasGLP = {117};
 		for (int i = 0;i < cargasGLP.length; i++) {
 			p.setCantidadGlp(cargasGLP[i]);
 			p.setCodigo("COD" + String.valueOf(i + 1));
