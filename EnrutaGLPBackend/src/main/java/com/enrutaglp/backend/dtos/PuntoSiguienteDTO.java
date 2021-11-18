@@ -6,8 +6,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PuntoSiguienteDTO {
-	private int id; 
-	private int ubicacionX;
-	private int ubicacionY;
-	private boolean isFinal;
+	private Integer id; 
+	private Integer ubicacionX;
+	private Integer ubicacionY;
+	private Boolean isFinal;
 }

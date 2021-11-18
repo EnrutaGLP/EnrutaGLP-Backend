@@ -6,6 +6,6 @@ import com.enrutaglp.backend.dtos.PuntoSiguienteDTO;
 
 public interface PuntoRepository {
 	
-	List<PuntoSiguienteDTO>conseguirPuntoSiguienteEnrutado(int idCamion);
+	PuntoSiguienteDTO conseguirPuntoSiguienteEnrutado(int idCamion);
 	
 }

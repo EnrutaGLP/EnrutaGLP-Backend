@@ -46,7 +46,7 @@ public class AstarFunciones {
 				if (buscarPunto(pVeif, camino) != null) {
 					System.out.print("C");
 				}
-				else if (hayBloqueosEntre(pVeif, pVeif, bloqueos, null, null)){
+				else if (hayBloqueosEntre(pVeif, pVeif, bloqueos)){
 					System.out.print("B");
 				}
 				else {
@@ -98,7 +98,7 @@ public class AstarFunciones {
 		return (valorEntre(x1, pBloqX1, pBloqX2) && valorEntre(pBloqY1, y1, y2)) ||
 				(valorEntre(y1, pBloqY1, pBloqY2) && valorEntre(pBloqX1, x1, x2));
 	}
-	public static boolean hayBloqueosEntre (Punto puntoInicial, Punto puntoFinal, List<Bloqueo> bloqueos, LocalDateTime fechaIni, Camion camion) {
+	public static boolean hayBloqueosEntre (Punto puntoInicial, Punto puntoFinal, List<Bloqueo> bloqueos) {
 		
 		if (bloqueos == null){
 			return false;
@@ -168,7 +168,7 @@ public class AstarFunciones {
 		}
 		return camino;
 	}
-	public static List<Punto> obtenerSucesores (Punto p, List<Bloqueo> bloqueos, LocalDateTime fechaIni, Camion camion){
+	private List<Punto> obtenerSucesores (Punto p, List<Bloqueo> bloqueos){
 		
 		List<Punto> sucesores = new ArrayList<Punto>();
 		List<Punto> lAux = new ArrayList<Punto>();
@@ -180,14 +180,13 @@ public class AstarFunciones {
 		lAux.add(new Punto(x, y - 1, p.getOrden()));
 		
 		for (Punto pAux: lAux) {
-			if (esPosicionValida(pAux) && !hayBloqueosEntre(pAux, pAux, bloqueos, fechaIni, camion)) {
+			if (esPosicionValida(pAux) && !hayBloqueosEntre(pAux, pAux, bloqueos)) {
 				sucesores.add(pAux);
 			}
 		}
 		return sucesores;
 	}
-
-	public static List<Punto> astarAlgoritmo(Punto puntoIni, Punto puntoFin, List<Bloqueo> bloqueos, LocalDateTime fechaIni, Camion camion) {
+	public List<Punto> astarAlgoritmo(Punto puntoIni, Punto puntoFin, List<Bloqueo> bloqueos) {
 		
 		List<Punto> lAbierta = new ArrayList<Punto>();
 		List<Punto> lCerrada = new ArrayList<Punto>();
@@ -197,7 +196,7 @@ public class AstarFunciones {
 		
 		while (!lAbierta.isEmpty()) {
 			Punto Q = lAbierta.remove(0);//Se asume que lAbierta esta ordenada de menor a mayor según el atributo astarF de cada punto
-			for (Punto sucesor: obtenerSucesores(Q, bloqueos, fechaIni, camion)) {
+			for (Punto sucesor: obtenerSucesores(Q, bloqueos)) {
 				sucesor.setAntecesor(Q);
 				if (mismaPosicion(sucesor,puntoFin)) {
 					
@@ -254,7 +253,7 @@ public class AstarFunciones {
 		LocalDateTime fecha = LocalDateTime.now();
 		Camion camion = new Camion("CODIGO",3,4,10.5,5.6);
 		
-		List<Punto> puntosIntermedios = puntoIni.getPuntosIntermedios(puntoFinal, bloqueos, fecha, camion);
+		List<Punto> puntosIntermedios = puntoIni.pruebaAStar(puntoFinal, bloqueos);
 		
 
 		imprimirCamino(puntosIntermedios, bloqueos);

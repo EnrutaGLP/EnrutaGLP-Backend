@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.enrutaglp.backend.algorithm.AstarFunciones;
 import com.enrutaglp.backend.algorithm.FuncionesBackend;
-import com.enrutaglp.backend.algorithm.astarAlgoritmo;
 import com.enrutaglp.backend.models.Bloqueo;
 import com.enrutaglp.backend.models.Camion;
 import com.enrutaglp.backend.models.Punto;
