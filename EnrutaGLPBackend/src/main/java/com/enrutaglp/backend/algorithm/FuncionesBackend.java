@@ -53,7 +53,7 @@ public class FuncionesBackend {
 		Pedido p = new Pedido (1,"", "cliente", 0,0,0,0,
 				LocalDateTime.now(),LocalDateTime.now(),LocalDateTime.now(),Byte.MAX_VALUE);
 		
-		int[]cargasGLP = {117};
+		int[]cargasGLP = {1};
 		for (int i = 0;i < cargasGLP.length; i++) {
 			p.setCantidadGlp(cargasGLP[i]);
 			p.setCodigo("COD" + String.valueOf(i + 1));
