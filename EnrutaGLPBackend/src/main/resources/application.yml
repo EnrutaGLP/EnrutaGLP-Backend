@@ -29,7 +29,7 @@ algorithm:
   delay: PT5M 
   tiempo-aprox-ejecucion: 3
   params: 
-    max-iter-no-imp: 10
+    max-iter-no-imp: 5
     num-children-to-generate: 2
     wA: 1
     wB: 1000
