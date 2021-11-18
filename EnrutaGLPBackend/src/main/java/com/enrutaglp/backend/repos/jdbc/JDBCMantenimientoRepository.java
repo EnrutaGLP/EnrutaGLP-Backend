@@ -71,11 +71,11 @@ public class JDBCMantenimientoRepository implements MantenimientoRepository{
 			mapa.put(c.getCodigo(),new ArrayList<Mantenimiento>());
 			mapaIdCodigo.put(c.getId(), c.getCodigo());
 		}
-		
+		/*
 		for(Mantenimiento m: mantenimientos) {
 			String codigo = mapaIdCodigo.get(m.getId()); 
 			mapa.get(codigo).add(m);
-		}
+		}*/
 		
 		
 		return mapa; 
