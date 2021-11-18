@@ -43,10 +43,15 @@ public class Utils {
 		
 		for (Map.Entry<String, Pedido> entry: pedidos.entrySet()) {
 			Pedido pedido = entry.getValue();
-			
-			for (Pedido p:FuncionesBackend.dividirPedido(pedido)) {
-				pParticionados.put(p.getCodigo(), p);
+			if (pedido.getCantidadGlp() > FuncionesBackend.capacidadGLP[0]) {
+				for (Pedido p:FuncionesBackend.dividirPedido(pedido)) {
+					pParticionados.put(p.getCodigo(), p);
+				}
 			}
+			else {
+				pParticionados.put(pedido.getCodigo(), pedido);
+			}
+			
 		}
 		
 		return pParticionados; 

@@ -17,5 +17,7 @@ public class TestApp {
 	
 	public static void main(String[] args) {
 		
+		//AstarFunciones.testAstarAlgoritmo();
+		FuncionesBackend.testFuncionesBackend();
     }
 }
