@@ -40,8 +40,7 @@ public class PedidoController {
 	@GetMapping("/actuales")
 	@CrossOrigin
 	public ResponseEntity<Response> listarActuales(){
-		//Falta implementar, ahorita brindara data de todos los pedidos
-		List<Pedido>pedidos = pedidoRepository.listar();
+		List<Pedido>pedidos = pedidoRepository.listarPedidosEnRuta();
 		return new ResponseEntity<Response>(new Response(pedidos),HttpStatus.OK);
 	}
 	

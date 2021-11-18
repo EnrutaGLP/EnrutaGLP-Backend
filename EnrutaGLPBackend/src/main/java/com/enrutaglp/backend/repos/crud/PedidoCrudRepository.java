@@ -27,4 +27,20 @@ public interface PedidoCrudRepository extends CrudRepository<PedidoTable, Intege
 			)
 	List<PedidoTable>listarPendientesPlanificacion(@Param("hasta") String hasta); 
 	
+	
+	@Query("SELECT pe.* from "
+			+ "camion c "
+			+ "inner join "
+			+ "punto p "
+			+ "on p.id = c.id_punto_actual "
+			+ "inner join "
+			+ "ruta r "
+			+ "on r.id = p.id_ruta "
+			+ "inner join "
+			+ "entrega_pedido ep "
+			+ "on ep.id_ruta = r.id "
+			+ "inner join pedido pe "
+			+ "on pe.id = ep.id_pedido")
+	List<PedidoTable>listarEnRuta();
+	
 }

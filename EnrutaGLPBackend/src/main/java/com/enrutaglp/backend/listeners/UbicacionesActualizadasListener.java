@@ -16,12 +16,17 @@ import com.enrutaglp.backend.dtos.ListaRutasActualesDTO;
 import com.enrutaglp.backend.dtos.Response;
 import com.enrutaglp.backend.events.UbicacionesActualizadasEvent;
 import com.enrutaglp.backend.models.Bloqueo;
+import com.enrutaglp.backend.models.Pedido;
 import com.enrutaglp.backend.repos.interfaces.BloqueoRepository;
+import com.enrutaglp.backend.repos.interfaces.PedidoRepository;
 import com.enrutaglp.backend.repos.interfaces.RutaRepository;
 import com.enrutaglp.backend.utils.Utils;
 
 @Component
 public class UbicacionesActualizadasListener {
+	
+	@Autowired
+	private PedidoRepository pedidoRepository; 
 	
 	@Autowired
 	private RutaRepository rutaRepository; 
@@ -40,7 +45,8 @@ public class UbicacionesActualizadasListener {
 	public void onEvent(UbicacionesActualizadasEvent event) {
 		List<Bloqueo>bloqueos = bloqueoRepository.listarEnRango(Utils.obtenerFechaHoraActual(),Utils.obtenerFechaHoraActual());
 		ListaRutasActualesDTO rutas = rutaRepository.listarActuales();
-		EstadoGeneralDTO dto = new EstadoGeneralDTO(bloqueos, rutas, null);
+		List<Pedido>pedidos = pedidoRepository.listarPedidosEnRuta();
+		EstadoGeneralDTO dto = new EstadoGeneralDTO(bloqueos, rutas, pedidos);
 		template.convertAndSend(destino, dto);
 	}
 }
