@@ -135,7 +135,7 @@ public class ScheduledJobs {
 		String nuevoValorUltimoCheck = nuevoCheckpoint.format(Utils.formatter);
 		configuracionRepository.actualizarLlave(llaveUltimoCheck, nuevoValorUltimoCheck);
 		Map<String, Pedido>pedidos = pedidoRepository.listarPendientesMap(nuevoValorUltimoCheck); 
-		pedidos = Utils.particionarPedidos(pedidos);
+		pedidos = Utils.particionarPedidos(pedidos, 5, 5);
 		Map<String, Camion>flota = camionRepository.listarDisponiblesParaEnrutamiento(horaZero.format(Utils.formatter)); 
 		List<Bloqueo>bloqueos = bloqueoRepository.listarEnRango(horaZero, null); 
 		Map<String, List<Mantenimiento>>mantenimientos = mantenimientoRepository.obtenerMapaDeMantenimientos(horaZero,null); 

@@ -61,7 +61,7 @@ public class FuncionesBackend {
 		}
 		
 		
-		pedidos = Utils.particionarPedidos(pedidos);
+		pedidos = Utils.particionarPedidos(pedidos,5,5);
 		for (Map.Entry<String, Pedido> entry: pedidos.entrySet()) {
 			System.out.print(entry.getKey()+", GLP: ");
 			System.out.println(entry.getValue().getCantidadGlp());
