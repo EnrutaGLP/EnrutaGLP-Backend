@@ -5,12 +5,15 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.List;
 import org.apache.commons.lang3.RandomStringUtils;
 
+import com.enrutaglp.backend.algorithm.AstarFunciones;
+import com.enrutaglp.backend.algorithm.FuncionesBackend;
 import com.enrutaglp.backend.models.Pedido;
 import com.enrutaglp.backend.models.Punto;
 public class Utils {
@@ -26,8 +29,27 @@ public class Utils {
 	}
 	
 	public static Map<String, Pedido> particionarPedidos(Map<String,Pedido>pedidos){
+		/*
+		 * Para cada pedido se verifica que este no supere el máximo glp que un camion
+		 * de la flota pueda transportar. Si algun pedido supera el máximo permitido será
+		 * dividido en varios pedidos más pequeños.
+		 * Ejemplo para un pedido dado:
+		 * GLP pedido: 73
+		 * Salida esperada:
+		 * Pedidos de GLP de 20, 20, 20, 10 y 3
+		 * 
+		 */
+		Map<String, Pedido> pParticionados = new HashMap<>();
 		
-		return pedidos; 
+		for (Map.Entry<String, Pedido> entry: pedidos.entrySet()) {
+			Pedido pedido = entry.getValue();
+			
+			for (Pedido p:FuncionesBackend.dividirPedido(pedido)) {
+				pParticionados.put(p.getCodigo(), p);
+			}
+		}
+		
+		return pParticionados; 
 	}
 	
 	public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
