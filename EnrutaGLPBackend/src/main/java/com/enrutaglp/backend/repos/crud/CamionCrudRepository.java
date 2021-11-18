@@ -45,9 +45,12 @@ public interface CamionCrudRepository extends CrudRepository<CamionTable, Intege
 			+ "INNER JOIN "
 			+ "tipo_camion tc "
 			+ "ON "
-			+ "tc.id = c.tipo"
+			+ "tc.id = c.tipo "
+			+ "WHERE c.id "
+			+ "NOT IN "
+			+ "(SELECT id_camion from ruta where hora_salida >= :horaInicial)"
 			)
-	List<CamionTipoDTO> listarCamionesTipoDTODisponibles();
+	List<CamionTipoDTO> listarCamionesTipoDTODisponibles(@Param("horaInicial")String horaInicial);
 	
 	@Query(   "SELECT c.codigo, "
 			+ "c.ubicacion_actual_x, "

@@ -50,6 +50,7 @@ public class JDBCMantenimientoRepository implements MantenimientoRepository{
 		 for(CamionTable c: camiones) {
 			 mapa.put(c.getCodigo(),new ArrayList<Mantenimiento>());
 		 }
+		 
 		 return mapa; 
 	}
 

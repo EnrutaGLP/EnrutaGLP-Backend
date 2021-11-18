@@ -18,6 +18,14 @@ public class TestApp {
 	
 	public static void main(String[] args) {
 		
-		FuncionesBackend.testFuncionesBackend();
+		List<Bloqueo> bloqueos = generarListaBloqueos();
+		LocalDateTime fecha = LocalDateTime.now();
+		Camion camion = new Camion("CODIGO",3,4,10.5,5.6);
+		
+		List<Punto> puntosIntermedios = puntoIni.pruebaAStar(puntoFinal, bloqueos);
+		
+//		System.out.println(puntosIntermedios.size());
+
+		af.imprimirCamino(puntosIntermedios, bloqueos);
     }
 }

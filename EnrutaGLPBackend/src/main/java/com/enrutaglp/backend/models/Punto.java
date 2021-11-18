@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import com.enrutaglp.backend.algorithm.AStar;
 import com.enrutaglp.backend.algorithm.AstarFunciones;
 import com.enrutaglp.backend.utils.Utils;
 
@@ -134,7 +133,7 @@ public class Punto {
 	
 	
 	
-	public List<Punto> getPuntosIntermedios(Punto puntoFinal, List<Bloqueo> bloqueos, LocalDateTime fechaIni, Camion camion) {
+	public List<Punto> pruebaAStar(Punto puntoFinal, List<Bloqueo> bloqueos) {
 		/*
 		 * Punto intermedio: punto esquina
 		 * 
@@ -154,8 +153,8 @@ public class Punto {
 		Punto pEsquina1 = new Punto(this.getUbicacionX(), puntoFinal.getUbicacionY(), this.getOrden());
 		Punto pEsquina2 = new Punto(puntoFinal.getUbicacionX(), this.getUbicacionY(), this.getOrden());
 		
-		if (!af.hayBloqueosEntre (this, pEsquina1, bloqueos, fechaIni, camion) &&
-				!af.hayBloqueosEntre (pEsquina1, puntoFinal, bloqueos, fechaIni, camion)) {
+		if (!af.hayBloqueosEntre (this, pEsquina1, bloqueos) &&
+				!af.hayBloqueosEntre (pEsquina1, puntoFinal, bloqueos)) {
 //			if (!af.mismaPosicion(puntoFinal, pEsquina1) && !af.mismaPosicion(this, pEsquina1)) {
 //				puntosIntemedios.add(pEsquina1);
 //			}
@@ -163,8 +162,8 @@ public class Punto {
 			return puntosIntemedios;
 		}
 		
-		if (!af.hayBloqueosEntre (this, pEsquina2, bloqueos, fechaIni, camion) &&
-				!af.hayBloqueosEntre (pEsquina2, puntoFinal, bloqueos, fechaIni, camion)) {
+		if (!af.hayBloqueosEntre (this, pEsquina2, bloqueos) &&
+				!af.hayBloqueosEntre (pEsquina2, puntoFinal, bloqueos)) {
 //			if (!af.mismaPosicion(puntoFinal, pEsquina2) && !af.mismaPosicion(this, pEsquina2)) {
 //				puntosIntemedios.add(pEsquina2);
 //			}
@@ -173,7 +172,7 @@ public class Punto {
 		}
 		
 
-		return af.astarAlgoritmo(this, puntoFinal, bloqueos, fechaIni, camion);
+		return af.astarAlgoritmo(this, puntoFinal, bloqueos);
 
 	}
 	
@@ -236,8 +235,13 @@ public class Punto {
 		LocalDateTime fechaHoraEntrega = null;
 		
 		while(bloqueosActuales.size()>0) {
-			AStar aStar = new AStar(this, puntoFinal, camion, bloqueosActuales);
-			puntosIntemedios = aStar.run();
+			//AStar aStar = new AStar(this, puntoFinal, camion, bloqueosActuales);
+			AstarFunciones af = new AstarFunciones();
+			puntosIntemedios.clear();
+			puntosIntemedios = af.astarAlgoritmo(this, puntoFinal, bloqueosActuales);
+			puntosIntemedios.add(0, this);
+			puntosIntemedios.add(puntoFinal);
+			
 			distanciaPuntosActual = Utils.calcularDistanciaTodosPuntos(puntosIntemedios);
 			tiempo = (long) (distanciaPuntosActual/camion.getTipo().getVelocidadPromedio() * 3600);
 			fechaHoraEntrega = fechaIni.plusSeconds(tiempo);
