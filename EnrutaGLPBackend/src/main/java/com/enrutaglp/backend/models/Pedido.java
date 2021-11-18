@@ -73,4 +73,17 @@ public class Pedido {
 		this.estado = pedido.getEstado();
 	}
 	
+	public Pedido(Pedido pedido, String codigo, double cantidadGlp) {
+		this.id = pedido.getId();
+		this.codigo = codigo; 
+		this.cliente = pedido.getCliente(); 
+		this.cantidadGlpAtendida = pedido.getCantidadGlpAtendida();
+		this.cantidadGlp = cantidadGlp; 
+		this.ubicacionX = pedido.getUbicacionX(); 
+		this.ubicacionY = pedido.getUbicacionY(); 
+		this.fechaLimite = pedido.getFechaLimite();
+		this.fechaPedido = pedido.getFechaPedido();
+		this.fechaCompletado = pedido.getFechaCompletado();
+		this.estado = pedido.getEstado();
+	}
 }
