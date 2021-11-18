@@ -46,7 +46,7 @@ public class AstarFunciones {
 				if (buscarPunto(pVeif, camino) != null) {
 					System.out.print("C");
 				}
-				else if (af.hayBloqueosEntre(pVeif, pVeif, bloqueos)){
+				else if (hayBloqueosEntre(pVeif, pVeif, bloqueos)){
 					System.out.print("B");
 				}
 				else {
@@ -98,7 +98,7 @@ public class AstarFunciones {
 		return (valorEntre(x1, pBloqX1, pBloqX2) && valorEntre(pBloqY1, y1, y2)) ||
 				(valorEntre(y1, pBloqY1, pBloqY2) && valorEntre(pBloqX1, x1, x2));
 	}
-	public boolean hayBloqueosEntre (Punto puntoInicial, Punto puntoFinal, List<Bloqueo> bloqueos) {
+	public static boolean hayBloqueosEntre (Punto puntoInicial, Punto puntoFinal, List<Bloqueo> bloqueos) {
 		
 		if (bloqueos == null){
 			return false;
@@ -253,7 +253,7 @@ public class AstarFunciones {
 		LocalDateTime fecha = LocalDateTime.now();
 		Camion camion = new Camion("CODIGO",3,4,10.5,5.6);
 		
-		List<Punto> puntosIntermedios = puntoIni.getPuntosIntermedios(puntoFinal, bloqueos, fecha, camion);
+		List<Punto> puntosIntermedios = puntoIni.pruebaAStar(puntoFinal, bloqueos);
 		
 
 		imprimirCamino(puntosIntermedios, bloqueos);
