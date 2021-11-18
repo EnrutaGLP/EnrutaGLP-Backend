@@ -28,7 +28,10 @@ public class Utils {
 		return LocalDateTime.now(ZoneId.of("America/Lima"));
 	}
 	
-	public static Map<String, Pedido> particionarPedidos(Map<String,Pedido>pedidos){
+	public static Map<String, Pedido> particionarPedidos(
+			Map<String,Pedido>pedidos,
+			int maxTope,
+			int maxDivisor){
 		/*
 		 * Para cada pedido se verifica que este no supere el máximo glp que un camion
 		 * de la flota pueda transportar. Si algun pedido supera el máximo permitido será
@@ -43,8 +46,8 @@ public class Utils {
 		
 		for (Map.Entry<String, Pedido> entry: pedidos.entrySet()) {
 			Pedido pedido = entry.getValue();
-			int maxDivisor = 5;
-			if (pedido.getCantidadGlp() > maxDivisor) {
+			
+			if (pedido.getCantidadGlp() > maxTope) {
 				/* 
 				 * Solo se dividen aquellos pedidos > maxDivisor
 				 */
