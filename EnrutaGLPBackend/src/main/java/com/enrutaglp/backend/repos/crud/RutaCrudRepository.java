@@ -37,4 +37,10 @@ public interface RutaCrudRepository extends CrudRepository<RutaTable, Integer>{
 	 		+ "where c.id = :idCamion"
 	 		)
 	RutaTable listarRutaActualCamion(@Param("idCamion")int idCamion);
+	
+	@Query(   "SELECT MAX(orden) "
+			+ "from ruta "
+			+ "where id_camion = :idCamion")
+	Integer listarOrdenDeLaUltimaRuta(@Param("idCamion")int idCamion);
+	
 }

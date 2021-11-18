@@ -26,6 +26,7 @@ public class Camion {
 	private double cargaActualPetroleo;
 	private byte estado;
 	private TipoCamion tipo;
+	private byte tipoByte;
 	private LocalDateTime siguienteMovimiento;
 	private List<EntregaPedido>entregas;
 	private List<Punto>ruta;
@@ -64,6 +65,35 @@ public class Camion {
 		this.tipo = tipo;
 	}
 	
+
+	public Camion(int id, String codigo, String placa, int ubicacionActualX, int ubicacionActualY,
+			double cargaActualGLP, double cargaActualPetroleo, byte estado, LocalDateTime siguienteMovimiento) {
+		this.id = id;
+		this.codigo = codigo;
+		this.placa = placa;
+		this.ubicacionActualX = ubicacionActualX;
+		this.ubicacionActualY = ubicacionActualY;
+		this.cargaActualGLP = cargaActualGLP;
+		this.cargaActualPetroleo = cargaActualPetroleo;
+		this.estado = estado;
+	}
+
+
+	public Camion(int id, String codigo, String placa, int ubicacionActualX, int ubicacionActualY,
+			Integer idPuntoActual, double cargaActualGLP, double cargaActualPetroleo, byte estado, byte tipoByte,
+			LocalDateTime siguienteMovimiento) {
+		this.id = id;
+		this.codigo = codigo;
+		this.placa = placa;
+		this.ubicacionActualX = ubicacionActualX;
+		this.ubicacionActualY = ubicacionActualY;
+		this.idPuntoActual = idPuntoActual;
+		this.cargaActualGLP = cargaActualGLP;
+		this.cargaActualPetroleo = cargaActualPetroleo;
+		this.estado = estado;
+		this.tipoByte = tipoByte;
+		this.siguienteMovimiento = siguienteMovimiento;
+	}
 	
 	public Camion(int id, String codigo, String placa, int ubicacionActualX, int ubicacionActualY,
 			double cargaActualGLP, double cargaActualPetroleo, byte estado,TipoCamion tipoCamion) {
@@ -106,15 +136,5 @@ public class Camion {
 	}
 
 
-	public Camion(int id, String codigo, String placa, int ubicacionActualX, int ubicacionActualY,
-			double cargaActualGLP, double cargaActualPetroleo, byte estado, LocalDateTime siguienteMovimiento) {
-		this.id = id;
-		this.codigo = codigo;
-		this.placa = placa;
-		this.ubicacionActualX = ubicacionActualX;
-		this.ubicacionActualY = ubicacionActualY;
-		this.cargaActualGLP = cargaActualGLP;
-		this.cargaActualPetroleo = cargaActualPetroleo;
-		this.estado = estado;
-	}
+	
 }

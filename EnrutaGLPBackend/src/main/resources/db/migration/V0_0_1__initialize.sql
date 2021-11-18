@@ -173,6 +173,27 @@ CREATE TABLE punto (
 );
 
 ALTER TABLE camion ADD FOREIGN KEY (id_punto_actual) REFERENCES punto(id) ON DELETE SET NULL; 
+-- Triggers:
+
+DELIMITER $$
+
+CREATE TRIGGER after_insert_entrega_pedido AFTER INSERT ON entrega_pedido
+FOR EACH ROW 
+BEGIN
+	UPDATE pedido set 
+    cantidad_glp_por_planificar = cantidad_glp_por_planificar - NEW.cantidad_entregada
+    where id = NEW.id_pedido;
+END$$
+
+CREATE TRIGGER before_entrega_pedido_delete BEFORE DELETE ON entrega_pedido 
+FOR EACH ROW
+BEGIN
+	UPDATE pedido set 
+    cantidad_glp_por_planificar = cantidad_glp_por_planificar + OLD.cantidad_entregada
+    where id = OLD.id_pedido;
+END$$    
+
+DELIMITER ;
 
 -- Inserts:
 
@@ -220,6 +241,30 @@ INSERT INTO planta VALUES
 (1,12,8,null,null,null,null,true),
 (2,42,42,null,null,null,null,false),
 (3,63,3,null,null,null,null,false);
+
+
+INSERT INTO mantenimiento VALUES
+(1,1,'2021-12-01 00:00:00','2021-12-01 23:59:00',1),
+(2,11,'2021-12-03 00:00:00','2021-12-03 23:59:00',1),
+(3,7,'2021-12-05 00:00:00','2021-12-05 23:59:00',1),
+(4,3,'2021-12-07 00:00:00','2021-12-07 23:59:00',1),
+(5,12,'2021-12-10 00:00:00','2021-12-10 23:59:00',1),
+(6,13,'2021-12-13 00:00:00','2021-12-13 23:59:00',1),
+(7,4,'2021-12-16 00:00:00','2021-12-16 23:59:00',1),
+(8,14,'2021-12-19 00:00:00','2021-12-19 23:59:00',1),
+(9,8,'2021-12-22 00:00:00','2021-12-22 23:59:00',1),
+(10,15,'2021-12-25 00:00:00','2021-12-25 23:59:00',1),
+(11,2,'2022-01-01 00:00:00','2022-01-01 23:59:00',1),
+(12,16,'2022-01-03 00:00:00','2022-01-03 23:59:00',1),
+(13,9,'2022-01-05 00:00:00','2022-01-05 23:59:00',1),
+(14,5,'2022-01-07 00:00:00','2022-01-07 23:59:00',1),
+(15,17,'2022-01-10 00:00:00','2022-01-10 23:59:00',1),
+(16,18,'2022-01-13 00:00:00','2022-01-13 23:59:00',1),
+(17,6,'2022-01-16 00:00:00','2022-01-16 23:59:00',1),
+(18,19,'2021-11-19 00:00:00','2021-11-19 23:59:00',1),
+(19,10,'2021-11-22 00:00:00','2021-11-22 23:59:00',1),
+(20,20,'2021-11-25 00:00:00','2021-11-25 23:59:00',1);
+
 
 
 

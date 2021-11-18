@@ -41,17 +41,24 @@ public class CamionTable {
 	private byte tipo;
 	
 	public CamionTable(Camion camion, boolean isNew) {
+		if(!isNew) {
+			this.id = camion.getId();
+		}
 		this.codigo = camion.getCodigo(); 
 		this.placa = camion.getPlaca();
 		this.ubicacionActualX = camion.getUbicacionActualX();
 		this.ubicacionActualY = camion.getUbicacionActualY(); 
 		this.cargaActualGLP = camion.getCargaActualGLP(); 
 		this.cargaActualPetroleo = camion.getCargaActualPetroleo(); 
+		this.siguienteMovimiento = camion.getSiguienteMovimiento(); 
+		this.idPuntoActual = camion.getIdPuntoActual();
 		this.estado = camion.getEstado(); 
+		this.tipo = camion.getTipoByte();
 	}
 	
 	public Camion toModel() {
-		return new Camion(id,codigo,placa,ubicacionActualX,ubicacionActualY,cargaActualGLP,cargaActualPetroleo,
-				estado, siguienteMovimiento);
+		return new Camion( id,  codigo,  placa,  ubicacionActualX,  ubicacionActualY,
+				 idPuntoActual,  cargaActualGLP,  cargaActualPetroleo,  estado,  tipo,
+				 siguienteMovimiento);
 	}
 }

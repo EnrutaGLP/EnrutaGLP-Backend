@@ -25,10 +25,32 @@ public interface PuntoCrudRepository extends CrudRepository<PuntoTable, Integer>
 	
 	
 	//Falta:
-	@Query("SELECT p.id as id, "
-			+ "p.ubicacion_x as ubicacion_x,"
-			+ "p.ubicacion_y as ubicacion_y, "
-			+ "MAX(p.orden) as ultimo_orden"
+	@Query(	  "SELECT "
+			+ "IFNULL(p2.id,IFNULL(p3.id,p4.id)) as id, "
+			+ "IFNULL(p2.ubicacion_x,IFNULL(p3.ubicacion_x,p4.ubicacion_x)) as ubicacion_x, "
+			+ "IFNULL(p2.ubicacion_y,IFNULL(p3.ubicacion_y,p4.ubicacion_y)) as ubicacion_y "
+			+ "from camion c "
+			+ "left join punto p "
+			+ "on p.id = c.id_punto_actual "
+			+ "left join punto p2 "
+			+ "on p2.orden = p.orden + 1 "
+			+ "and p2.id_ruta = p.id_ruta "
+			+ "left join ruta r "
+			+ "on r.id = p.id_ruta "
+			+ "left join ruta r2 "
+			+ "on r2.orden = r.orden + 1 "
+			+ "and r2.id_camion = c.id "
+			+ "left join punto p3 "
+			+ "on p3.id_ruta = r2.id "
+			+ "and p3.orden = 1 "
+			+ "left join ruta r3 "
+			+ "on r3.id_camion = c.id "
+			+ "and r3.orden = 1 "
+			+ "left join punto p4 "
+			+ "on p4.id_ruta = r3.id "
+			+ "and p4.orden = 1 "
+			+ "where "
+			+ "c.id = :idCamion"
 			)
-	List<PuntoSiguienteDTO>conseguirPuntoSiguienteEnrutado(@Param("idCamion")int idCamion);
+	PuntoSiguienteDTO conseguirPuntoSiguienteEnrutado(@Param("idCamion")int idCamion);
 }
