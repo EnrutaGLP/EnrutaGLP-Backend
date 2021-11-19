@@ -165,10 +165,17 @@ public class ScheduledJobs {
 						c.setEstado(EstadoCamion.EN_RUTA.getValue());
 					} 
 					PuntoSiguienteDTO siguiente = puntoRepository.conseguirPuntoSiguienteEnrutado(c.getId());
+					
 					if(siguiente != null && siguiente.getId() != null) {
 						c.setIdPuntoActual(siguiente.getId());
+						c.setUbicacionActualX(siguiente.getUbicacionX());
+						c.setUbicacionActualY(siguiente.getUbicacionY());
+						if(siguiente.getSiguienteMovimiento()!=null) {
+							c.setSiguienteMovimiento(siguiente.getSiguienteMovimiento());
+						}else {
+							c.setSiguienteMovimiento(c.getSiguienteMovimiento().plusSeconds(segundosEntreMovimiento));
+						}
 					}
-					c.setSiguienteMovimiento(c.getSiguienteMovimiento().plusSeconds(segundosEntreMovimiento));
 				}
 			}
 		}
