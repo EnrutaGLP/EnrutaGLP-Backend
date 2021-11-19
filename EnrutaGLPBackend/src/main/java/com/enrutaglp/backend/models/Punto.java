@@ -234,7 +234,9 @@ public class Punto {
 		long tiempo = 0;
 		LocalDateTime fechaHoraEntrega = null;
 		
-		while(bloqueosActuales.size()>0) {
+		int numBloqueos = 0;
+		
+		while(bloqueosActuales.size()>numBloqueos) {
 			//AStar aStar = new AStar(this, puntoFinal, camion, bloqueosActuales);
 			AstarFunciones af = new AstarFunciones();
 			puntosIntemedios.clear();
@@ -245,6 +247,8 @@ public class Punto {
 			distanciaPuntosActual = Utils.calcularDistanciaTodosPuntos(puntosIntemedios);
 			tiempo = (long) (distanciaPuntosActual/camion.getTipo().getVelocidadPromedio() * 3600);
 			fechaHoraEntrega = fechaIni.plusSeconds(tiempo);
+			
+			numBloqueos = bloqueosActuales.size();
 			
 			bloqueosActuales.clear();
 			for (int i = 0; i < bloqueos.size(); i++) {
