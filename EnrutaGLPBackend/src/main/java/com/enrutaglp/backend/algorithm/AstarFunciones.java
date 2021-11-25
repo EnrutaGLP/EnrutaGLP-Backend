@@ -15,8 +15,8 @@ import lombok.Setter;
 @Getter
 public class AstarFunciones {
 	
-	public static int altoTabla = 11;
-	public static int anchoTabla = 11;
+	public static int altoTabla = 70;
+	public static int anchoTabla = 50;
 	
 	public static boolean mismaPosicion (Punto p1, Punto p2) {
 		int x1 = p1.getUbicacionX();
