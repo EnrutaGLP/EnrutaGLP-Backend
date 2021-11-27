@@ -31,5 +31,10 @@ public class Bloqueo {
 		this.puntos = new ArrayList<Punto>();
 	}
 	
-	
+	public Bloqueo(int id, LocalDateTime fechaInicio, LocalDateTime fechaFin,List<Punto>puntos) {
+		this.id = id;
+		this.fechaInicio = fechaInicio;
+		this.fechaFin = fechaFin;
+		this.puntos = puntos;
+	}
 }
