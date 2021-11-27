@@ -1,10 +1,13 @@
 package com.enrutaglp.backend.algorithm;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 import com.enrutaglp.backend.models.Pedido;
 import com.enrutaglp.backend.utils.Utils;
@@ -65,6 +68,41 @@ public class FuncionesBackend {
 		for (Map.Entry<String, Pedido> entry: pedidos.entrySet()) {
 			System.out.print(entry.getKey()+", GLP: ");
 			System.out.println(entry.getValue().getCantidadGlp());
+		}
+	}
+	
+	
+	
+	public static List<Object> read_folder (String path){
+		try {	
+			List<List<String>> data = new ArrayList<List<String>>();
+			File folder = new File(path);
+			List <String> names = new ArrayList<String>();
+			List<Object> output = new ArrayList<Object>();
+			
+			for (File f: folder.listFiles()) {
+				Scanner reader = new Scanner(f);
+				
+				List<String> lines = new ArrayList<String>();
+				
+				while (reader.hasNextLine()) {
+					
+					lines.add(reader.nextLine());
+				}
+				reader.close();
+				
+				data.add(lines);
+				names.add(f.getName());
+			}
+			output.add(names);
+			output.add(data);
+			return output;
+		}
+		catch (FileNotFoundException e) {
+			System.out.println("FileNotFoundException exception occurred.");
+			e.printStackTrace();
+			
+			return null;
 		}
 	}
 }
