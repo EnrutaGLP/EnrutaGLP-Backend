@@ -98,19 +98,52 @@ public class AstarFunciones {
 		return (valorEntre(x1, pBloqX1, pBloqX2) && valorEntre(pBloqY1, y1, y2)) ||
 				(valorEntre(y1, pBloqY1, pBloqY2) && valorEntre(pBloqX1, x1, x2));
 	}
+	public static boolean compare_time_lapse (LocalDateTime[] lapse1, LocalDateTime[] lapse2) {
+		/* Example i
+		 * 
+		 * Lapse 1                 <-------------------->
+		 * Lapse 2        <-------------------->
+		 * 
+		 * Return True
+		 * 
+		 * Example ii
+		 * 
+		 * Lapse 1                 <-------------------->
+		 * Lapse 2                                            <------------->
+		 * 
+		 * Return False
+		 * 
+		 * Example ii
+		 * 
+		 * Lapse 1                 <-------------------->
+		 * Lapse 2                                      <------------->
+		 * 
+		 * Return True
+		 */
+		
+		return lapse1[0].compareTo(lapse2[1]) <= 0 && lapse1[1].compareTo(lapse2[0]) >= 0;
+	}
+	public static List<Bloqueo> filter_locks_by_time_span (List<Bloqueo> locks, LocalDateTime[] my_lapse){
+		List<Bloqueo> filter = new ArrayList<Bloqueo>();
+		for (Bloqueo lock: locks) {
+			if (compare_time_lapse(my_lapse, new LocalDateTime[] {lock.getFechaInicio(), lock.getFechaFin()})) {
+				filter.add(lock);
+			}
+		}
+		return filter;
+	}
 	public static boolean hayBloqueosEntre (Punto puntoInicial, Punto puntoFinal, List<Bloqueo> bloqueos) {
+		/*
+		 * Verifica si hay bloqueo entre 2 puntos, dado un conjunto de bloqueos
+		 */
 		
 		if (bloqueos == null){
 			return false;
 		}
 		for (Bloqueo bloqueo: bloqueos) {
+			
 			for (int i = 0; i < bloqueo.getPuntos().size(); i ++) {
-				/* 
-				 * Si el punto bloqueado no es el primero entonces es un punto esquina
-				 * Por ejemplo, llamémosle p(i)
-				 * Devolver si hay bloqueo entre
-				 * puntoInicial, puntoFinal, p(i) y p(i - 1),
-				 */
+				
 				if (i == 0 && hayBloqueoEntre(puntoInicial, puntoFinal, bloqueo.getPuntos().get(0), bloqueo.getPuntos().get(0)) ||
 						(i != 0 && hayBloqueoEntre(puntoInicial, puntoFinal, bloqueo.getPuntos().get(i), bloqueo.getPuntos().get(i - 1)))) {
 					return true;
@@ -168,7 +201,7 @@ public class AstarFunciones {
 		}
 		return camino;
 	}
-	private List<Punto> obtenerSucesores (Punto p, List<Bloqueo> bloqueos){
+	static private List<Punto> obtenerSucesores (Punto p, List<Bloqueo> bloqueos){
 		
 		List<Punto> sucesores = new ArrayList<Punto>();
 		List<Punto> lAux = new ArrayList<Punto>();
@@ -186,7 +219,7 @@ public class AstarFunciones {
 		}
 		return sucesores;
 	}
-	public List<Punto> astarAlgoritmo(Punto puntoIni, Punto puntoFin, List<Bloqueo> bloqueos) {
+	static public List<Punto> astarAlgoritmo(Punto puntoIni, Punto puntoFin, List<Bloqueo> bloqueos) {
 		
 		List<Punto> lAbierta = new ArrayList<Punto>();
 		List<Punto> lCerrada = new ArrayList<Punto>();
