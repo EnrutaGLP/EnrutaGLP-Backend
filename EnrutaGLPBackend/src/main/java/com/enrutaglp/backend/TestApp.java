@@ -61,7 +61,7 @@ public class TestApp {
 		AstarFunciones.altoTabla = 11;
 		AstarFunciones.anchoTabla = 11;
 
-		List<Punto> intermediates = ini_point.get_intermediate_points(final_point, pedidos.get(0).getFechaPedido(), bloqueos);
+		List<Punto> intermediates = ini_point.get_way_to(final_point, pedidos.get(0).getFechaPedido(), bloqueos);
 		AstarFunciones.imprimirCamino(intermediates, bloqueos);
     }
 }

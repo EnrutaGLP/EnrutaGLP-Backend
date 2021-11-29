@@ -266,7 +266,7 @@ public class Punto {
 	}
 	
 	
-	public List<Punto> get_intermediate_points (Punto final_point, LocalDateTime ini_date, List<Bloqueo> locks){
+	public List<Punto> get_way_to (Punto final_point, LocalDateTime ini_date, List<Bloqueo> locks){
 		
 		
 		Punto corner1 = new Punto(this.getUbicacionX(), final_point.getUbicacionY(), this.getOrden() + 1, this.getCodigoPedido());
