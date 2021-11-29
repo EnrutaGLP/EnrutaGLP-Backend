@@ -99,26 +99,8 @@ public class AstarFunciones {
 				(valorEntre(y1, pBloqY1, pBloqY2) && valorEntre(pBloqX1, x1, x2));
 	}
 	public static boolean compare_time_lapse (LocalDateTime[] lapse1, LocalDateTime[] lapse2) {
-		/* Example i
-		 * 
-		 * Lapse 1                 <-------------------->
-		 * Lapse 2        <-------------------->
-		 * 
-		 * Return True
-		 * 
-		 * Example ii
-		 * 
-		 * Lapse 1                 <-------------------->
-		 * Lapse 2                                            <------------->
-		 * 
-		 * Return False
-		 * 
-		 * Example ii
-		 * 
-		 * Lapse 1                 <-------------------->
-		 * Lapse 2                                      <------------->
-		 * 
-		 * Return True
+		/* 
+		 * Retorna verdadero si lapse1 y lapse2 coinciden en algun espacio de tiempo o instante
 		 */
 		
 		return lapse1[0].compareTo(lapse2[1]) <= 0 && lapse1[1].compareTo(lapse2[0]) >= 0;
