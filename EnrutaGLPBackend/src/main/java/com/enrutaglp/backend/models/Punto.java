@@ -266,7 +266,6 @@ public class Punto {
 	}
 	
 	
-	
 	public List<Punto> get_intermediate_points (Punto final_point, LocalDateTime ini_date, List<Bloqueo> locks){
 		
 		
