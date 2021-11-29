@@ -124,6 +124,9 @@ public class AstarFunciones {
 		return lapse1[0].compareTo(lapse2[1]) <= 0 && lapse1[1].compareTo(lapse2[0]) >= 0;
 	}
 	public static List<Bloqueo> filter_locks_by_time_span (List<Bloqueo> locks, LocalDateTime[] my_lapse){
+		/*
+		 * Filter the locks that match the "my_span".
+		 */
 		List<Bloqueo> filter = new ArrayList<Bloqueo>();
 		for (Bloqueo lock: locks) {
 			if (compare_time_lapse(my_lapse, new LocalDateTime[] {lock.getFechaInicio(), lock.getFechaFin()})) {

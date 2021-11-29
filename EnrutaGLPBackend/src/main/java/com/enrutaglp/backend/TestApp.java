@@ -26,7 +26,7 @@ public class TestApp {
 		//AstarFunciones.testAstarAlgoritmo();
 		//FuncionesBackend.testFuncionesBackend();
 		
-		String path = "D:\\PUCP\\20141929\\20212\\DP1\\General proyects\\General-proyects\\Data-generator\\output\\";
+		String path = "D:\\PUCP\\20141929\\20212\\DP1\\my_input\\sales";
 		
 		List<Object> folder = FuncionesBackend.read_folder(path);
 		List<String> names = (List<String>)folder.get(0);
@@ -42,7 +42,7 @@ public class TestApp {
 		}
 		
 		List<Bloqueo> bloqueos = new ArrayList<Bloqueo>();
-		path = "D:\\PUCP\\20141929\\20212\\DP1\\Input\\bloqueos.20211001";
+		path = "D:\\PUCP\\20141929\\20212\\DP1\\my_input\\locks";
 		folder = FuncionesBackend.read_folder(path);
 		names = (List<String>)folder.get(0);
 		data = (List<List<String>>) folder.get(1);
@@ -55,5 +55,13 @@ public class TestApp {
 		}
 		
 		
+		
+		Punto ini_point = new Punto(0,0);
+		Punto final_point = new Punto (pedidos.get(0).getUbicacionX(), pedidos.get(0).getUbicacionY());
+		AstarFunciones.altoTabla = 11;
+		AstarFunciones.anchoTabla = 11;
+
+		List<Punto> intermediates = ini_point.get_intermediate_points(final_point, pedidos.get(0).getFechaPedido(), bloqueos);
+		AstarFunciones.imprimirCamino(intermediates, bloqueos);
     }
 }
