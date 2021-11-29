@@ -193,10 +193,10 @@ public class AstarFunciones {
 		List<Punto> lAux = new ArrayList<Punto>();
 		int x = p.getUbicacionX();
 		int y= p.getUbicacionY();
-		lAux.add(new Punto(x + 1, y, p.getOrden()));
-		lAux.add(new Punto(x - 1, y, p.getOrden()));
-		lAux.add(new Punto(x, y + 1, p.getOrden()));
-		lAux.add(new Punto(x, y - 1, p.getOrden()));
+		lAux.add(new Punto(x + 1, y, p.getOrden() + 1, p.getCodigoPedido()));
+		lAux.add(new Punto(x - 1, y, p.getOrden() + 1, p.getCodigoPedido()));
+		lAux.add(new Punto(x, y + 1, p.getOrden() + 1, p.getCodigoPedido()));
+		lAux.add(new Punto(x, y - 1, p.getOrden() + 1, p.getCodigoPedido()));
 		
 		for (Punto pAux: lAux) {
 			if (esPosicionValida(pAux) && !hayBloqueosEntre(pAux, pAux, bloqueos)) {
