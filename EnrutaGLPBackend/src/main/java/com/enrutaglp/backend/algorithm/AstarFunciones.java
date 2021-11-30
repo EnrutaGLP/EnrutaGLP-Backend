@@ -277,4 +277,14 @@ public class AstarFunciones {
 
 		imprimirCamino(puntosIntermedios, bloqueos);
 	}
+
+	public static boolean hayBloqueosEnMiCamino (List<Punto> points, List<Bloqueo> locks) {
+		
+		for (int i = 1; i < points.size(); i ++) {
+			if (AstarFunciones.hayBloqueosEntre(points.get(i - 1), points.get(i), locks)) {
+				return true;
+			}
+		}
+		return false;
+	}
 }
