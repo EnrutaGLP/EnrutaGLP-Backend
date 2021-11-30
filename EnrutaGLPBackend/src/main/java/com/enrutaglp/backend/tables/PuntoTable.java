@@ -27,7 +27,7 @@ public class PuntoTable {
 	private int ubicacionX; 
 	private int ubicacionY;
 	@Column("id_ruta")
-	private int idRuta;
+	private Integer idRuta;
 	private int orden; 
 	
 	public PuntoTable(Punto punto) {

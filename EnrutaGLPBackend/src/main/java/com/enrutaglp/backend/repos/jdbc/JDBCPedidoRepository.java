@@ -68,6 +68,17 @@ public class JDBCPedidoRepository implements PedidoRepository {
 		List<Pedido> pedidos = ((List<PedidoTable>)repo.listarEnRuta()).stream()
 				.map(pedidoTable -> pedidoTable.toModel()).collect(Collectors.toList());
 		return pedidos;
+	}
+
+	@Override
+	public Map<String, Pedido> listarPedidosDesdeHastaMap (String desde, String hasta) {
+		List<Pedido> pedidos = ((List<PedidoTable>)repo.listarPendientesPlanificacion(hasta)).stream()
+				.map(pedidoTable -> pedidoTable.toAlgorithmModel()).collect(Collectors.toList());
+		Map<String,Pedido> pedidosMapa = new HashMap<String, Pedido>();
+		for(Pedido p : pedidos) {
+			pedidosMapa.put(p.getCodigo(), p);
+		}
+		return pedidosMapa;
 	}	
 
 }

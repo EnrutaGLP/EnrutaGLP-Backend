@@ -14,7 +14,11 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Component;
 
 import com.enrutaglp.backend.algorithm.Genetic;
@@ -22,6 +26,7 @@ import com.enrutaglp.backend.algorithm.Individual;
 import com.enrutaglp.backend.algorithm.RutaCompleta;
 import com.enrutaglp.backend.dtos.PuntoSiguienteDTO;
 import com.enrutaglp.backend.enums.EstadoCamion;
+import com.enrutaglp.backend.events.SimulacionIniciadaEvent;
 import com.enrutaglp.backend.events.UbicacionesActualizadasEvent;
 import com.enrutaglp.backend.models.Bloqueo;
 import com.enrutaglp.backend.models.Camion;
@@ -43,12 +48,6 @@ import com.enrutaglp.backend.utils.Utils;
 @Component
 public class ScheduledJobs {
 	
-	/*
-	@Scheduled(fixedDelayString= "${helloWorld.delay}")
-	public void helloWorld() {
-		System.out.println("Hello world" + " now is " + new Date());
-	}
-	*/
 	@Autowired
 	private ApplicationEventPublisher publisher;
 	
@@ -127,7 +126,7 @@ public class ScheduledJobs {
 			nuevoCheckpoint = horaActual;
 		}
 		else {
-			LocalDateTime ultimoCheckpoint = LocalDateTime.parse(strUltimaHora, Utils.formatter);;
+			LocalDateTime ultimoCheckpoint = LocalDateTime.parse(strUltimaHora, Utils.formatter);
 			int sk = saltoAlgoritmo * k;
 			nuevoCheckpoint = ultimoCheckpoint.plusMinutes(sk);
 		}
@@ -165,16 +164,44 @@ public class ScheduledJobs {
 						c.setEstado(EstadoCamion.EN_RUTA.getValue());
 					} 
 					PuntoSiguienteDTO siguiente = puntoRepository.conseguirPuntoSiguienteEnrutado(c.getId());
+					
 					if(siguiente != null && siguiente.getId() != null) {
 						c.setIdPuntoActual(siguiente.getId());
+						c.setUbicacionActualX(siguiente.getUbicacionX());
+						c.setUbicacionActualY(siguiente.getUbicacionY());
+						if(siguiente.getSiguienteMovimiento()!=null) {
+							c.setSiguienteMovimiento(siguiente.getSiguienteMovimiento());
+						}else {
+							c.setSiguienteMovimiento(c.getSiguienteMovimiento().plusSeconds(segundosEntreMovimiento));
+						}
 					}
-					c.setSiguienteMovimiento(c.getSiguienteMovimiento().plusSeconds(segundosEntreMovimiento));
 				}
 			}
 		}
 		
 		camionRepository.actualizarMasivo(camiones);
 		publisher.publishEvent(new UbicacionesActualizadasEvent(this));
+	}
+	
+	private class EjecucionSimulacion implements Runnable{
+	    
+		
+	    public EjecucionSimulacion(){
+	    }
+	    
+	    @Override
+	    public void run() {
+	    	//Map<String, Pedido>pedidos = pedidoRepository.listarPedidosDesdeHastaMap();
+	    }
+	    
+	}
+	
+	@EventListener
+	@Async
+	public void iniciarSimulacionTresDias(SimulacionIniciadaEvent event) {
+		ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+		scheduler.initialize();
+		scheduler.scheduleAtFixedRate(new EjecucionSimulacion(), new Date(), 300000);
 	}
 	
 }
