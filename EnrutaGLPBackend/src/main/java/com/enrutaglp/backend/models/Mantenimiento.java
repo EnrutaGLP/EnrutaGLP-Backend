@@ -20,7 +20,5 @@ public class Mantenimiento {
 		this.fechaInicio = fechaInicio;
 		this.fechaFin = fechaFin;
 		this.tipo = tipo;
-	} 
-	
-	
+	}
 }

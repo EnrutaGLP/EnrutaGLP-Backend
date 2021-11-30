@@ -285,7 +285,7 @@ public class Punto {
 	}
 	
 	
-	public List<Punto> getWayTo (Punto final_point, LocalDateTime ini_date, List<Bloqueo> locks){
+	public List<Punto> getWayTo (Punto final_point, LocalDateTime ini_date, Camion truck, List<Bloqueo> locks){
 		
 		
 		Punto corner1 = new Punto(this.getUbicacionX(), final_point.getUbicacionY(), this.getOrden() + 1, this.getCodigoPedido());

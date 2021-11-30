@@ -3,13 +3,18 @@ package com.enrutaglp.backend.algorithm;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import com.enrutaglp.backend.models.Bloqueo;
+import com.enrutaglp.backend.models.Camion;
+import com.enrutaglp.backend.models.Mantenimiento;
 import com.enrutaglp.backend.models.Pedido;
+import com.enrutaglp.backend.models.TipoCamion;
 import com.enrutaglp.backend.utils.Utils;
 
 import lombok.Getter;
@@ -73,30 +78,29 @@ public class FuncionesBackend {
 	
 	
 	
-	public static List<Object> read_folder (String path){
-		try {	
-			List<List<String>> data = new ArrayList<List<String>>();
-			File folder = new File(path);
-			List <String> names = new ArrayList<String>();
-			List<Object> output = new ArrayList<Object>();
+	public static List<String> get_folder_content (String path, boolean put_name, String sep){
+		
+		File folder = new File(path);
+		List<String> content = new ArrayList<String>();
+		
+		for (File f: folder.listFiles()) {
+			String file_path = path + "\\" + f.getName();
+			content.addAll(FuncionesBackend.get_file_content(file_path, put_name, sep));
+		}
+		return content;
+	}
+	public static List<String> get_file_content (String path, boolean put_name, String sep){
+		try {
+			File f = new File(path);
+			Scanner reader = new Scanner(f);
+			List<String> content = new ArrayList<String>();
 			
-			for (File f: folder.listFiles()) {
-				Scanner reader = new Scanner(f);
+			while (reader.hasNextLine()) {
 				
-				List<String> lines = new ArrayList<String>();
-				
-				while (reader.hasNextLine()) {
-					
-					lines.add(reader.nextLine());
-				}
-				reader.close();
-				
-				data.add(lines);
-				names.add(f.getName());
+				content.add((put_name? f.getName() + sep:"") + reader.nextLine());
 			}
-			output.add(names);
-			output.add(data);
-			return output;
+			reader.close();
+			return content;
 		}
 		catch (FileNotFoundException e) {
 			System.out.println("FileNotFoundException exception occurred.");
@@ -106,14 +110,58 @@ public class FuncionesBackend {
 		}
 	}
 	
-	
-	public static List<Object> get_list_objects_by_folder (List<List<String>> folder){
-		List<Object> objects = new ArrayList<Object>();
-		for (List<String> file: folder) {
-			for (String line: file) {
-				//objects.add(new Object());
-			}
+	public static List<Pedido> get_sales (List<String> content){
+		List<Pedido> sales = new ArrayList<Pedido>();
+		for (String line: content) {
+			sales.add(new Pedido(line));
 		}
-		return objects;
+		return sales;
+	}
+	
+	public static List<Bloqueo> get_locks (List<String> content){
+		List<Bloqueo> locks = new ArrayList<Bloqueo>();
+		for (String line: content) {
+			locks.add(new Bloqueo(line));
+		}
+		return locks;
+	}
+	
+	public static List<Mantenimiento> get_maintenances (List<String> content){
+		List<Mantenimiento> maintenances = new ArrayList<Mantenimiento>();
+		String format = "yyyy-MM-ddHH:mm:ss";
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern (format);
+		
+		for (String line: content) {
+			String[] split = line.split(",");
+			
+			LocalDateTime ini_date = LocalDateTime.parse(split[2]+split[3], formatter);
+			LocalDateTime final_date = LocalDateTime.parse(split[4]+split[5], formatter);
+			maintenances.add(new Mantenimiento(Integer.parseInt(split[1]),ini_date, final_date, Byte.parseByte(split[6])));
+			
+		}
+		return maintenances;
+	}
+	
+	public static List<TipoCamion> get_truck_types (List<String> content){
+		List<TipoCamion> truck_types = new ArrayList<TipoCamion>();
+		for (String line: content) {
+			String[] split = line.split("\\t");
+			TipoCamion truck_type = new TipoCamion(split[1],Double.parseDouble(split[2]),Double.parseDouble(split[3]),Double.parseDouble(split[4]),
+					Double.parseDouble(split[5]),Double.parseDouble(split[6]),Double.parseDouble(split[7]),Integer.parseInt(split[8]));
+			truck_types.add(truck_type);
+			
+		}
+		return truck_types ;
+	}
+	
+	public static List<Camion> get_trucks (List<String> content,List<TipoCamion> truck_types){
+		List<Camion> trucks = new ArrayList<Camion>();
+		
+		for (String line: content) {
+			String[] split = line.split("\\t");
+			trucks.add(new Camion(Integer.parseInt(split[0]),split[1],split[2],Integer.parseInt(split[3]),Integer.parseInt(split[4]),
+					Double.parseDouble(split[5]),Double.parseDouble(split[6]), Byte.parseByte(split[7]), truck_types.get(Integer.parseInt(split[8]) - 1)));
+		}
+		return trucks;
 	}
 }
