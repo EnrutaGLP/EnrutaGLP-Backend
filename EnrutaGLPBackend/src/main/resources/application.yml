@@ -1,5 +1,5 @@
 spring:
-  task:    execution:      pool:        core-size: 2
+  task:    execution:      pool:        core-size: 5
   application:
     name: enrutaglp
   datasource:
@@ -21,6 +21,10 @@ datos-configuracion:
   tiempo-aparicion-mapa-averiado: 
     sim-tres-dias: 10 
     dia-a-dia: 60
+  modo-ejecucion: 
+    llave: MODO_EJECUCION
+  fecha-fin-simulacion: 
+    llave: FECHA_FIN_SIMULACION
 helloWorld:
   delay: PT5S
 actualizar-posiciones:

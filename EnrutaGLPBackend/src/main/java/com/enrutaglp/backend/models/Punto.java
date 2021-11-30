@@ -8,6 +8,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import com.enrutaglp.backend.algorithm.AstarFunciones;
 import com.enrutaglp.backend.utils.Utils;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,16 +27,22 @@ public class Punto {
 	@Setter
 	private int idBloqueo;
 	@Setter
+	@JsonIgnore
 	private String codigoPedido;
 	@Setter
+	@JsonIgnore
 	private boolean planta;
 	@Setter
+	@JsonIgnore
 	private double astarF;
 	@Setter
+	@JsonIgnore
 	private double astarG;
 	@Setter
+	@JsonIgnore
 	private double astarH;
 	@Setter
+	@JsonIgnore
 	private Punto antecesor;
 	
 	public Punto() {
