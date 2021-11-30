@@ -178,12 +178,19 @@ public class Punto {
 	}
 	
 	public List<Punto> getPuntosIntermedios(Punto puntoFinal, LocalDateTime fechaIni, Camion camion, List<Bloqueo> bloqueos){
+		
+		AstarFunciones af = new AstarFunciones();
+		
 		List<Punto> puntosIntemedios = new ArrayList<Punto>();
 		
 		puntosIntemedios.add(this);
 		puntosIntemedios.add(puntoFinal);
-		Punto nuevoPunto1 = new Punto(this.ubicacionX, puntoFinal.getUbicacionY(), this.orden + 1, this.codigoPedido);
-		puntosIntemedios.add(1,nuevoPunto1);
+		
+		if(this.ubicacionX!=puntoFinal.getUbicacionX()){
+			Punto nuevoPunto1 = new Punto(this.ubicacionX, puntoFinal.getUbicacionY(), this.orden + 1, this.codigoPedido);
+			puntosIntemedios.add(1,nuevoPunto1);			
+		}
+
 		double distanciaPuntosActual1 = Utils.calcularDistanciaTodosPuntos(puntosIntemedios);
 		long tiempo1 = (long) (distanciaPuntosActual1/camion.getTipo().getVelocidadPromedio() * 3600);
 		LocalDateTime fechaHoraEntrega1 = fechaIni.plusSeconds(tiempo1);
@@ -197,7 +204,7 @@ public class Punto {
 			}
 		}
 		
-		if(bloqueosActuales1.size()==0) {
+		if(bloqueosActuales1.size()==0 || !af.hayBloqueosEnMiCamino(puntosIntemedios, bloqueosActuales1)) {
 			puntosIntemedios.remove(0);
 			puntosIntemedios.remove(puntosIntemedios.size()-1);
 			return puntosIntemedios;
@@ -206,8 +213,12 @@ public class Punto {
 		puntosIntemedios.clear();
 		puntosIntemedios.add(this);
 		puntosIntemedios.add(puntoFinal);
-		Punto nuevoPunto2 = new Punto(puntoFinal.getUbicacionX(), this.ubicacionY, this.orden + 1, this.codigoPedido);
-		puntosIntemedios.add(1,nuevoPunto2);
+		
+		if(this.ubicacionY!=puntoFinal.getUbicacionY()) {
+			Punto nuevoPunto2 = new Punto(puntoFinal.getUbicacionX(), this.ubicacionY, this.orden + 1, this.codigoPedido);
+			puntosIntemedios.add(1,nuevoPunto2);			
+		}
+
 		double distanciaPuntosActual2 = Utils.calcularDistanciaTodosPuntos(puntosIntemedios);
 		long tiempo2 = (long) (distanciaPuntosActual2/camion.getTipo().getVelocidadPromedio() * 3600);
 		LocalDateTime fechaHoraEntrega2 = fechaIni.plusSeconds(tiempo2);
@@ -221,7 +232,7 @@ public class Punto {
 			}
 		}
 		
-		if(bloqueosActuales2.size()==0) {
+		if(bloqueosActuales2.size()==0 || !af.hayBloqueosEnMiCamino(puntosIntemedios, bloqueosActuales2)) {
 			puntosIntemedios.remove(0);
 			puntosIntemedios.remove(puntosIntemedios.size()-1);
 			return puntosIntemedios;
@@ -239,7 +250,7 @@ public class Punto {
 		
 		while(bloqueosActuales.size()>numBloqueos) {
 			//AStar aStar = new AStar(this, puntoFinal, camion, bloqueosActuales);
-			AstarFunciones af = new AstarFunciones();
+			//AstarFunciones af = new AstarFunciones();
 			puntosIntemedios.clear();
 			puntosIntemedios = af.astarAlgoritmo(this, puntoFinal, bloqueosActuales);
 			puntosIntemedios.add(0, this);
@@ -258,6 +269,7 @@ public class Punto {
 					bloqueosActuales.add(bloqueos.get(i));
 				}
 			}
+
 		}
 		
 		puntosIntemedios.remove(0);
