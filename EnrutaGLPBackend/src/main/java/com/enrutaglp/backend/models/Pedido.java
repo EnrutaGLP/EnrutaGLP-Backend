@@ -86,4 +86,45 @@ public class Pedido {
 		this.fechaCompletado = pedido.getFechaCompletado();
 		this.estado = pedido.getEstado();
 	}
+	
+	
+	public Pedido (String line) {
+		/*
+		 * The format of the line can be
+		 * 
+		 * ventasyyyyMM.txt,dd:HH:mm,posX,posY,m3,hLim
+		 * 
+		 * Examples of line
+		 * 
+		 * ventas202111.txt,16:00:46,69,10,13,14
+		 * ventas202111.txt,16:05:46,60,15,35,18
+		 * ventas202111.txt,16:06:46,2,5,1,8
+		 */
+		
+		String format = "'ventas'yyyyMM'.txt'dd:HH:mm";
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern (format);
+		String[] split = line.split(",");
+		
+		String str = split[0] + split[1];
+		int x = Integer.parseInt(split[2]);
+		int y = Integer.parseInt(split[3]);
+		double m3 = Double.parseDouble(split[4]);
+		double hlim = Double.parseDouble(split[5]);
+		LocalDateTime fechaPedido = LocalDateTime.parse(str, formatter);
+		LocalDateTime fechaLimite = fechaPedido.plusHours((long) hlim);
+		LocalDateTime fechaCompletado = LocalDateTime.now();
+		
+		//this.id = id;
+		//this.codigo = codigo;
+		//this.cliente = cliente;
+		this.cantidadGlp = m3;
+		//this.cantidadGlpAtendida = cantidadGlpAtendida;
+		this.ubicacionX = x;
+		this.ubicacionY = y;
+		this.fechaPedido = fechaPedido;
+		this.fechaLimite = fechaLimite;
+		this.fechaCompletado = fechaCompletado;
+		//this.estado = estado;
+		
+	}
 }

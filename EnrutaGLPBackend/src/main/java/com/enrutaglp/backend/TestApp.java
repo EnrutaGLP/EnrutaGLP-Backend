@@ -26,33 +26,42 @@ public class TestApp {
 		//AstarFunciones.testAstarAlgoritmo();
 		//FuncionesBackend.testFuncionesBackend();
 		
-		String path = "D:\\PUCP\\20141929\\20212\\DP1\\General proyects\\General-proyects\\Data-generator\\output\\";
+		String path = "D:\\PUCP\\20141929\\20212\\DP1\\my_input\\sales";
 		
 		List<Object> folder = FuncionesBackend.read_folder(path);
 		List<String> names = (List<String>)folder.get(0);
 		List<List<String>> data = (List<List<String>>) folder.get(1);
 		
-		String format = "'v'e'n't'a'syyyyMM'.'t'x'tdd:HH:mm";
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern (format);
 		
+		List<Pedido> pedidos = new ArrayList<Pedido>();
+		for (int i = 0; i < data.size(); i ++) {
+			for (String line: data.get(i)) {
+				
+				pedidos.add(new Pedido(names.get(i) + "," + line));
+			}
+		}
+		
+		List<Bloqueo> bloqueos = new ArrayList<Bloqueo>();
+		path = "D:\\PUCP\\20141929\\20212\\DP1\\my_input\\locks";
+		folder = FuncionesBackend.read_folder(path);
+		names = (List<String>)folder.get(0);
+		data = (List<List<String>>) folder.get(1);
 		
 		for (int i = 0; i < data.size(); i ++) {
-			for (String sale: data.get(i)) {
+			for (String line: data.get(i)) {
 				
-				String[] split = sale.split(",");
-				String str = names.get(i) + split[0];
-				LocalDateTime datetime = LocalDateTime.parse(str, formatter);
-				
-				int x = Integer.parseInt(split[1]);
-				int y = Integer.parseInt(split[2]);
-				int m3 = Integer.parseInt(split[3]);
-				int hlim = Integer.parseInt(split[4]);
-				
-				//Pedido pedido = new Pedido(0,"", "", m3, x, y,null,null,null,0);
+				bloqueos.add(new Bloqueo (names.get(i) + "," + line));
 			}
-			
 		}
 		
 		
+		
+		Punto ini_point = new Punto(0,0);
+		Punto final_point = new Punto (pedidos.get(0).getUbicacionX(), pedidos.get(0).getUbicacionY());
+		AstarFunciones.altoTabla = 11;
+		AstarFunciones.anchoTabla = 11;
+
+		List<Punto> intermediates = ini_point.getWayTo(final_point, pedidos.get(0).getFechaPedido(), bloqueos);
+		AstarFunciones.imprimirCamino(intermediates, bloqueos);
     }
 }

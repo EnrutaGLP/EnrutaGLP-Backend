@@ -105,4 +105,15 @@ public class FuncionesBackend {
 			return null;
 		}
 	}
+	
+	
+	public static List<Object> get_list_objects_by_folder (List<List<String>> folder){
+		List<Object> objects = new ArrayList<Object>();
+		for (List<String> file: folder) {
+			for (String line: file) {
+				//objects.add(new Object());
+			}
+		}
+		return objects;
+	}
 }

@@ -2,6 +2,7 @@ package com.enrutaglp.backend.models;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -264,4 +265,20 @@ public class Punto {
 		return puntosIntemedios;
 	}
 	
+	
+	public List<Punto> getWayTo (Punto final_point, LocalDateTime ini_date, List<Bloqueo> locks){
+		
+		
+		Punto corner1 = new Punto(this.getUbicacionX(), final_point.getUbicacionY(), this.getOrden() + 1, this.getCodigoPedido());
+		Punto corner2 = new Punto(final_point.getUbicacionX(), this.getUbicacionY(), this.getOrden() + 1, this.getCodigoPedido());
+		LocalDateTime[] lapse = new LocalDateTime[] {ini_date, ini_date.plusYears(5)};
+		List<Bloqueo> current_locks = AstarFunciones.filter_locks_by_time_span(locks, lapse);
+		boolean free_corner1 = !AstarFunciones.hayBloqueosEntre(this, corner1, current_locks) &&
+				!AstarFunciones.hayBloqueosEntre(corner1, final_point, current_locks);
+		boolean free_corner2 = !AstarFunciones.hayBloqueosEntre(this, corner2, current_locks) &&
+				!AstarFunciones.hayBloqueosEntre(corner2, final_point, current_locks);
+		return free_corner1? Arrays.asList(corner1): free_corner2? Arrays.asList(corner2):
+			AstarFunciones.astarAlgoritmo(this, final_point, current_locks);
+		
+	}
 }
