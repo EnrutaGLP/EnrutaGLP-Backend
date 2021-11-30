@@ -24,11 +24,11 @@ public interface PuntoCrudRepository extends CrudRepository<PuntoTable, Integer>
 	List<PuntoTable>listarPuntosPorIdBloqueo(@Param("idBloqueo")int idBloqueo);
 	
 	
-	//Falta:
 	@Query(	  "SELECT "
 			+ "IFNULL(p2.id,IFNULL(p3.id,p4.id)) as id, "
 			+ "IFNULL(p2.ubicacion_x,IFNULL(p3.ubicacion_x,p4.ubicacion_x)) as ubicacion_x, "
-			+ "IFNULL(p2.ubicacion_y,IFNULL(p3.ubicacion_y,p4.ubicacion_y)) as ubicacion_y "
+			+ "IFNULL(p2.ubicacion_y,IFNULL(p3.ubicacion_y,p4.ubicacion_y)) as ubicacion_y, "
+			+ "IF(ISNULL(p2.id) and NOT ISNULL(p3.id),r2.hora_salida,null) as siguiente_movimiento "
 			+ "from camion c "
 			+ "left join punto p "
 			+ "on p.id = c.id_punto_actual "

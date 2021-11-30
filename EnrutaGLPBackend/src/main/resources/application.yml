@@ -1,11 +1,11 @@
 spring:
-  task:    execution:      pool:        core-size: 2
+  task:    execution:      pool:        core-size: 5
   application:
     name: enrutaglp
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     password: enrutaglp.123
-    url: jdbc:mysql://db-dp1-v1.ccgecdc5dy3r.us-east-1.rds.amazonaws.com:3306/enrutaglp
+    url: jdbc:mysql://localhost:3307/enrutaglp
     username: root
   flyway:    locations:    - classpath:/db/migration
 server:  port: 8080
@@ -21,6 +21,10 @@ datos-configuracion:
   tiempo-aparicion-mapa-averiado: 
     sim-tres-dias: 10 
     dia-a-dia: 60
+  modo-ejecucion: 
+    llave: MODO_EJECUCION
+  fecha-fin-simulacion: 
+    llave: FECHA_FIN_SIMULACION
 helloWorld:
   delay: PT5S
 actualizar-posiciones:

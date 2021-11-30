@@ -23,7 +23,9 @@ public interface RutaCrudRepository extends CrudRepository<RutaTable, Integer>{
 			+ "INNER JOIN punto p "
 			+ "on p.id_ruta = p1.id_ruta "
 			+ "WHERE "
-			+ "c.codigo = :codigoCamion"
+			+ "c.codigo = :codigoCamion "
+			+ "and "
+			+ "p.orden >= p1.orden "
 			)
 	List<PuntoDTO>listarPuntosDtoRutaActualCamion(@Param("codigoCamion") String codigoCamion);
 	

@@ -11,5 +11,6 @@ public interface PedidoRepository {
 	List<Pedido> listar();
 	List<Pedido> listarPedidosEnRuta();
 	Map<String, Pedido> listarPendientesMap(String hasta);
+	Map<String, Pedido> listarPedidosDesdeHastaMap (String desde, String hasta);
 	void registrarMasivo(List<Pedido>pedidos);
 }

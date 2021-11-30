@@ -1,5 +1,7 @@
 package com.enrutaglp.backend.dtos;
 
+import java.time.LocalDateTime;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,5 +11,5 @@ public class PuntoSiguienteDTO {
 	private Integer id; 
 	private Integer ubicacionX;
 	private Integer ubicacionY;
-	private Boolean isFinal;
+	private LocalDateTime siguienteMovimiento;
 }
