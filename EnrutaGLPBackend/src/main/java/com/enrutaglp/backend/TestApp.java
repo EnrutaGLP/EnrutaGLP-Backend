@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.io.File;
 import java.util.Scanner;
 import java.io.FileNotFoundException;
@@ -11,10 +12,14 @@ import java.io.FileNotFoundException;
 
 import com.enrutaglp.backend.algorithm.AstarFunciones;
 import com.enrutaglp.backend.algorithm.FuncionesBackend;
+import com.enrutaglp.backend.algorithm.Genetic;
+import com.enrutaglp.backend.algorithm.Individual;
+import com.enrutaglp.backend.algorithm.RutaCompleta;
 import com.enrutaglp.backend.models.Bloqueo;
 import com.enrutaglp.backend.models.Camion;
 import com.enrutaglp.backend.models.Mantenimiento;
 import com.enrutaglp.backend.models.Pedido;
+import com.enrutaglp.backend.models.Planta;
 import com.enrutaglp.backend.models.Punto;
 import com.enrutaglp.backend.models.TipoCamion;
 
@@ -30,16 +35,23 @@ public class TestApp {
 		
 		String path = "D:\\PUCP\\20141929\\20212\\DP1\\my_input\\";
 		
-		List<Pedido> sales = FuncionesBackend.get_sales(FuncionesBackend.get_folder_content(path+"sales",true,","));
+		List<String> file_content = FuncionesBackend.get_folder_content(path+"sales",true,",");
+		List<Pedido> sales = FuncionesBackend.get_sales(file_content);
+		Map<String, Pedido> map_sales = FuncionesBackend.get_map_sales(sales);
 		
-		List<Bloqueo> locks = FuncionesBackend.get_locks(FuncionesBackend.get_folder_content(path+"locks",true,","));
+		file_content = FuncionesBackend.get_folder_content(path+"locks",true,",");
+		List<Bloqueo> locks = FuncionesBackend.get_locks(file_content);
 		
-		List<Mantenimiento> maintenances = FuncionesBackend.get_maintenances(FuncionesBackend.get_file_content(path+"mantenimientos.txt",false,","));
+		file_content = FuncionesBackend.get_file_content(path+"Tipos_camiones.txt",false,"");
+		List<TipoCamion> truck_types = FuncionesBackend.get_truck_types(file_content);
 		
-		List<TipoCamion> truck_types = FuncionesBackend.get_truck_types( FuncionesBackend.get_file_content(path+"Tipos_camiones.txt",false,","));
+		file_content = FuncionesBackend.get_file_content(path+"camiones.txt",false,",");
+		List<Camion> trucks = FuncionesBackend.get_trucks(file_content, truck_types);
+		Map<String, Camion> map_trucks = FuncionesBackend.get_map_trucks(trucks);
 		
-		List<Camion> trucks = FuncionesBackend.get_trucks(FuncionesBackend.get_file_content(path+"camiones.txt",false,","), truck_types);
-		
+		file_content = FuncionesBackend.get_file_content(path+"mantenimientos.txt",false,",");
+		List<Mantenimiento> maintenances = FuncionesBackend.get_maintenances(file_content);
+		Map<String, List<Mantenimiento>> map_maintenances = FuncionesBackend.get_map_maintenances(maintenances, trucks);
 		
 		Punto ini_point = new Punto(0,0);
 		Punto final_point = new Punto (sales.get(0).getUbicacionX(), sales.get(0).getUbicacionY());
@@ -48,6 +60,13 @@ public class TestApp {
 
 		List<Punto> intermediates = ini_point.getPuntosIntermedios(final_point, sales.get(0).getFechaPedido(), trucks.get(0),locks);
 		AstarFunciones.imprimirCamino(intermediates, locks);
+		List<Planta> plants = new ArrayList<Planta>();
+		LocalDateTime horaZero = LocalDateTime.now();
 		
+		Genetic genetic = new Genetic(map_sales, map_trucks, locks, map_maintenances,plants, horaZero);
+		
+		//Individual solution = genetic.run(maxIterNoImp, numChildrenToGenerate, wA, wB, wC, mu, epsilon, percentageGenesToMutate);
+		
+		//Map<String, RutaCompleta>rutasCompletas =  solution.getRutas();
     }
 }

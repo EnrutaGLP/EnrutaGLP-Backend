@@ -164,4 +164,38 @@ public class FuncionesBackend {
 		}
 		return trucks;
 	}
+	
+	public static Map<String, Pedido> get_map_sales (List<Pedido> sales){
+		Map<String, Pedido> map_sales = new HashMap<String, Pedido>();
+		for (Pedido sale : sales) {
+			map_sales.put(sale.getCodigo(), sale);
+		}
+			
+		return map_sales;
+	}
+	
+	public static Map<String, Camion> get_map_trucks (List<Camion> trucks){
+		Map<String, Camion> map_trucks = new HashMap<String, Camion>();
+		for (Camion truck: trucks) {
+			map_trucks.put(truck.getCodigo(), truck);
+		}
+			
+		return map_trucks;
+	}
+	
+	public static Map<String, List<Mantenimiento>> get_map_maintenances (List<Mantenimiento> maintenances, List<Camion> trucks){
+		
+		Map<String, List<Mantenimiento>> map_maintenances = new HashMap<String, List<Mantenimiento>>();
+		for (Camion truck: trucks) {
+			List<Mantenimiento>maintenance_truck = new ArrayList<Mantenimiento> ();
+			
+			for (Mantenimiento maintenance : maintenances) {
+				if (maintenance.getIdCamion() == truck.getId()) {
+					maintenance_truck.add(maintenance);
+				}
+			}
+			map_maintenances.put(truck.getCodigo(), maintenance_truck);
+		}
+		return map_maintenances;
+	}
 }
