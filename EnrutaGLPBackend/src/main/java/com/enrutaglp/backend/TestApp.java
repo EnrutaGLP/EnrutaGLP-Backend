@@ -64,9 +64,18 @@ public class TestApp {
 		LocalDateTime horaZero = LocalDateTime.now();
 		
 		Genetic genetic = new Genetic(map_sales, map_trucks, locks, map_maintenances,plants, horaZero);
+		int maxIterNoImp = 0;
+		int numChildrenToGenerate = 0;
+		double wA = 0;
+		double wB = 0;
+		double wC = 0;
+		int mu = 0;
+		int epsilon = 0;
+		double percentageGenesToMutate = 0;
+		Individual solution = genetic.run(maxIterNoImp, numChildrenToGenerate, wA, wB, wC, mu, epsilon, percentageGenesToMutate);
 		
-		//Individual solution = genetic.run(maxIterNoImp, numChildrenToGenerate, wA, wB, wC, mu, epsilon, percentageGenesToMutate);
+		Map<String, RutaCompleta>rutasCompletas =  solution.getRutas();
 		
-		//Map<String, RutaCompleta>rutasCompletas =  solution.getRutas();
+		System.out.println();
     }
 }
