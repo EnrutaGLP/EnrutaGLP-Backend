@@ -2,6 +2,7 @@ package com.enrutaglp.backend.models;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -184,12 +185,19 @@ public class Punto {
 	}
 	
 	public List<Punto> getPuntosIntermedios(Punto puntoFinal, LocalDateTime fechaIni, Camion camion, List<Bloqueo> bloqueos){
+		
+		AstarFunciones af = new AstarFunciones();
+		
 		List<Punto> puntosIntemedios = new ArrayList<Punto>();
 		
 		puntosIntemedios.add(this);
 		puntosIntemedios.add(puntoFinal);
-		Punto nuevoPunto1 = new Punto(this.ubicacionX, puntoFinal.getUbicacionY(), this.orden + 1, this.codigoPedido);
-		puntosIntemedios.add(1,nuevoPunto1);
+		
+		if(this.ubicacionX!=puntoFinal.getUbicacionX()){
+			Punto nuevoPunto1 = new Punto(this.ubicacionX, puntoFinal.getUbicacionY(), this.orden + 1, this.codigoPedido);
+			puntosIntemedios.add(1,nuevoPunto1);			
+		}
+
 		double distanciaPuntosActual1 = Utils.calcularDistanciaTodosPuntos(puntosIntemedios);
 		long tiempo1 = (long) (distanciaPuntosActual1/camion.getTipo().getVelocidadPromedio() * 3600);
 		LocalDateTime fechaHoraEntrega1 = fechaIni.plusSeconds(tiempo1);
@@ -203,7 +211,7 @@ public class Punto {
 			}
 		}
 		
-		if(bloqueosActuales1.size()==0) {
+		if(bloqueosActuales1.size()==0 || !af.hayBloqueosEnMiCamino(puntosIntemedios, bloqueosActuales1)) {
 			puntosIntemedios.remove(0);
 			puntosIntemedios.remove(puntosIntemedios.size()-1);
 			return puntosIntemedios;
@@ -212,8 +220,12 @@ public class Punto {
 		puntosIntemedios.clear();
 		puntosIntemedios.add(this);
 		puntosIntemedios.add(puntoFinal);
-		Punto nuevoPunto2 = new Punto(puntoFinal.getUbicacionX(), this.ubicacionY, this.orden + 1, this.codigoPedido);
-		puntosIntemedios.add(1,nuevoPunto2);
+		
+		if(this.ubicacionY!=puntoFinal.getUbicacionY()) {
+			Punto nuevoPunto2 = new Punto(puntoFinal.getUbicacionX(), this.ubicacionY, this.orden + 1, this.codigoPedido);
+			puntosIntemedios.add(1,nuevoPunto2);			
+		}
+
 		double distanciaPuntosActual2 = Utils.calcularDistanciaTodosPuntos(puntosIntemedios);
 		long tiempo2 = (long) (distanciaPuntosActual2/camion.getTipo().getVelocidadPromedio() * 3600);
 		LocalDateTime fechaHoraEntrega2 = fechaIni.plusSeconds(tiempo2);
@@ -227,7 +239,7 @@ public class Punto {
 			}
 		}
 		
-		if(bloqueosActuales2.size()==0) {
+		if(bloqueosActuales2.size()==0 || !af.hayBloqueosEnMiCamino(puntosIntemedios, bloqueosActuales2)) {
 			puntosIntemedios.remove(0);
 			puntosIntemedios.remove(puntosIntemedios.size()-1);
 			return puntosIntemedios;
@@ -245,7 +257,7 @@ public class Punto {
 		
 		while(bloqueosActuales.size()>numBloqueos) {
 			//AStar aStar = new AStar(this, puntoFinal, camion, bloqueosActuales);
-			AstarFunciones af = new AstarFunciones();
+			//AstarFunciones af = new AstarFunciones();
 			puntosIntemedios.clear();
 			puntosIntemedios = af.astarAlgoritmo(this, puntoFinal, bloqueosActuales);
 			puntosIntemedios.add(0, this);
@@ -264,6 +276,7 @@ public class Punto {
 					bloqueosActuales.add(bloqueos.get(i));
 				}
 			}
+
 		}
 		
 		puntosIntemedios.remove(0);
@@ -271,4 +284,20 @@ public class Punto {
 		return puntosIntemedios;
 	}
 	
+	
+	public List<Punto> getWayTo (Punto final_point, LocalDateTime ini_date, Camion truck, List<Bloqueo> locks){
+		
+		
+		Punto corner1 = new Punto(this.getUbicacionX(), final_point.getUbicacionY(), this.getOrden() + 1, this.getCodigoPedido());
+		Punto corner2 = new Punto(final_point.getUbicacionX(), this.getUbicacionY(), this.getOrden() + 1, this.getCodigoPedido());
+		LocalDateTime[] lapse = new LocalDateTime[] {ini_date, ini_date.plusYears(5)};
+		List<Bloqueo> current_locks = AstarFunciones.filter_locks_by_time_span(locks, lapse);
+		boolean free_corner1 = !AstarFunciones.hayBloqueosEntre(this, corner1, current_locks) &&
+				!AstarFunciones.hayBloqueosEntre(corner1, final_point, current_locks);
+		boolean free_corner2 = !AstarFunciones.hayBloqueosEntre(this, corner2, current_locks) &&
+				!AstarFunciones.hayBloqueosEntre(corner2, final_point, current_locks);
+		return free_corner1? Arrays.asList(corner1): free_corner2? Arrays.asList(corner2):
+			AstarFunciones.astarAlgoritmo(this, final_point, current_locks);
+		
+	}
 }
