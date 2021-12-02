@@ -10,10 +10,13 @@ import lombok.Getter;
 public class SimulacionIniciadaEvent extends ApplicationEvent{
 
 	private byte modoEjecucion; 
-	
-	public SimulacionIniciadaEvent(Object source, byte modoEjecucion) {
+	private String fechaInicio; 
+	private String fechaFin; 
+	public SimulacionIniciadaEvent(Object source, byte modoEjecucion, String fechaInicio, String fechaFin) {
 		super(source);
 		this.modoEjecucion = modoEjecucion; 
+		this.fechaInicio = fechaInicio;
+		this.fechaFin = fechaFin; 
 	}
 	
 	/**

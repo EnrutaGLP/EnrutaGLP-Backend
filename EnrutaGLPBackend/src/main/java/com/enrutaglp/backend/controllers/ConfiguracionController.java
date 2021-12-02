@@ -37,6 +37,9 @@ public class ConfiguracionController {
 	@Value("${datos-configuracion.modo-ejecucion.llave}")
 	private String llaveModoEjecucion;
 	
+	@Value("${datos-configuracion.fecha-inicio-simulacion.llave}")
+	private String llaveFechaInicioSimulacion;
+	
 	@Value("${datos-configuracion.fecha-fin-simulacion.llave}")
 	private String llaveFechaFinSimulacion;
 	
@@ -59,22 +62,36 @@ public class ConfiguracionController {
 	@PutMapping("/simulacion-tres-dias")
 	public ResponseEntity<Response> cambiarAtresDias(@RequestBody Object requestBody){
 		Map<String, String> mapa = new HashMap<String, String>();
-		
+		String fechaInicio = ((Map<String, String>)requestBody)
+				.get("fechaInicio"); 
+		String fechaFin = LocalDateTime.parse(fechaInicio, Utils.formatter).plusDays(3).format(Utils.formatter);
 		mapa.put(llaveConstVC, valorConstVCTresDias); 
 		mapa.put(llaveUltimoCheck, ((Map<String, String>)requestBody).get("fechaInicio")); 
-		mapa.put(llaveModoEjecucion, ModoEjecucion.SIM_TRES_DIAS.toString()); 
-		mapa.put(llaveFechaFinSimulacion, LocalDateTime.parse(((Map<String, String>)requestBody)
-				.get("fechaInicio"), Utils.formatter).plusDays(3).format(Utils.formatter)); 
-		
+		mapa.put(llaveModoEjecucion, String.valueOf(ModoEjecucion.SIM_TRES_DIAS.getValue())); 
+		mapa.put(llaveFechaInicioSimulacion, fechaInicio); 
+		mapa.put(llaveFechaFinSimulacion,fechaFin); 
+		mapa.put(llaveUltimoCheck, null);
 		configuracionRepository.actualizarLlaves(mapa);
 		
-		publisher.publishEvent(new SimulacionIniciadaEvent(this,ModoEjecucion.SIM_TRES_DIAS.getValue()));
+		//publisher.publishEvent(new SimulacionIniciadaEvent(this,ModoEjecucion.SIM_TRES_DIAS.getValue(),fechaInicio, fechaFin));
 		return new ResponseEntity<Response>(new Response(true),HttpStatus.OK);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@PutMapping("/simulacion-colapso-logistico")
-	public ResponseEntity<Response> cambiarAcolapso(){
-		configuracionRepository.actualizarLlave(llaveConstVC, valorConstVCColapso);
+	public ResponseEntity<Response> cambiarAcolapso(@RequestBody Object requestBody){
+		Map<String, String> mapa = new HashMap<String, String>();
+		String fechaInicio = ((Map<String, String>)requestBody)
+				.get("fechaInicio"); 
+		String fechaFin = LocalDateTime.parse(fechaInicio, Utils.formatter).plusMonths(6).format(Utils.formatter);
+		mapa.put(llaveConstVC, valorConstVCColapso); 
+		mapa.put(llaveUltimoCheck, ((Map<String, String>)requestBody).get("fechaInicio")); 
+		mapa.put(llaveModoEjecucion, String.valueOf(ModoEjecucion.SIM_COLAPSO.getValue())); 
+		mapa.put(llaveFechaInicioSimulacion, fechaInicio); 
+		mapa.put(llaveFechaFinSimulacion,fechaFin); 
+		mapa.put(llaveUltimoCheck, null);
+		
+		//publisher.publishEvent(new SimulacionIniciadaEvent(this,ModoEjecucion.SIM_COLAPSO.getValue(), fechaInicio, fechaFin));
 		return new ResponseEntity<Response>(new Response(true),HttpStatus.OK);
 	}
 	
