@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.io.File;
 import java.util.Scanner;
+
+import org.springframework.beans.factory.annotation.Value;
+
 import java.io.FileNotFoundException;
 
 
@@ -22,6 +25,7 @@ import com.enrutaglp.backend.models.Pedido;
 import com.enrutaglp.backend.models.Planta;
 import com.enrutaglp.backend.models.Punto;
 import com.enrutaglp.backend.models.TipoCamion;
+import com.enrutaglp.backend.utils.Utils;
 
 public class TestApp {
 	
@@ -41,6 +45,7 @@ public class TestApp {
 		
 		file_content = FuncionesBackend.get_folder_content(path+"locks",true,",");
 		List<Bloqueo> locks = FuncionesBackend.get_locks(file_content);
+		//List<Bloqueo> locks = new ArrayList<Bloqueo>();
 		
 		file_content = FuncionesBackend.get_file_content(path+"Tipos_camiones.txt",false,"");
 		List<TipoCamion> truck_types = FuncionesBackend.get_truck_types(file_content);
@@ -50,28 +55,33 @@ public class TestApp {
 		Map<String, Camion> map_trucks = FuncionesBackend.get_map_trucks(trucks);
 		
 		file_content = FuncionesBackend.get_file_content(path+"mantenimientos.txt",false,",");
-		List<Mantenimiento> maintenances = FuncionesBackend.get_maintenances(file_content);
+		//List<Mantenimiento> maintenances = FuncionesBackend.get_maintenances(file_content);
+		List<Mantenimiento> maintenances = new ArrayList<Mantenimiento>();
 		Map<String, List<Mantenimiento>> map_maintenances = FuncionesBackend.get_map_maintenances(maintenances, trucks);
 		
 		Punto ini_point = new Punto(0,0);
 		Punto final_point = new Punto (sales.get(0).getUbicacionX(), sales.get(0).getUbicacionY());
-		AstarFunciones.altoTabla = 11;
-		AstarFunciones.anchoTabla = 11;
+//		AstarFunciones.altoTabla = 11;
+//		AstarFunciones.anchoTabla = 11;
 
 		List<Punto> intermediates = ini_point.getPuntosIntermedios(final_point, sales.get(0).getFechaPedido(), trucks.get(0),locks);
 		AstarFunciones.imprimirCamino(intermediates, locks);
 		List<Planta> plants = new ArrayList<Planta>();
-		LocalDateTime horaZero = LocalDateTime.now();
+		LocalDateTime horaZero = LocalDateTime.of(2021,11,1,0,0);
+		
+		//map_sales = Utils.particionarPedidos(map_sales, 5, 5);
 		
 		Genetic genetic = new Genetic(map_sales, map_trucks, locks, map_maintenances,plants, horaZero);
-		int maxIterNoImp = 0;
-		int numChildrenToGenerate = 0;
-		double wA = 0;
-		double wB = 0;
-		double wC = 0;
-		int mu = 0;
-		int epsilon = 0;
-		double percentageGenesToMutate = 0;
+		int maxIterNoImp = 5;
+		int numChildrenToGenerate = 2;
+		double wA = 1;
+		double wB = 1000;
+		double wC = 1000;
+		int mu = 10;
+		int epsilon = 20;
+		double percentageGenesToMutate = 0.3;
+		
+		
 		Individual solution = genetic.run(maxIterNoImp, numChildrenToGenerate, wA, wB, wC, mu, epsilon, percentageGenesToMutate);
 		
 		Map<String, RutaCompleta>rutasCompletas =  solution.getRutas();
