@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.enrutaglp.backend.models.Pedido;
+import com.enrutaglp.backend.utils.Pair;
 
 public interface PedidoRepository {
 	void registrar(Pedido pedido);

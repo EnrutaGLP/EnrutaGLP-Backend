@@ -40,6 +40,7 @@ import com.enrutaglp.backend.repos.interfaces.MantenimientoRepository;
 import com.enrutaglp.backend.repos.interfaces.PedidoRepository;
 import com.enrutaglp.backend.repos.interfaces.PuntoRepository;
 import com.enrutaglp.backend.repos.interfaces.RutaRepository;
+import com.enrutaglp.backend.utils.Pair;
 import com.enrutaglp.backend.utils.Utils;
 @Component
 public class ScheduledJobs {
@@ -228,8 +229,13 @@ public class ScheduledJobs {
 			
 			String nuevoValorUltimoCheck = nuevoCheckpoint.format(Utils.formatter);
 			configuracionRepository.actualizarLlave(llaveUltimoCheck, nuevoValorUltimoCheck);
-	    	Map<String, Pedido>pedidos = pedidoRepository.listarPedidosDesdeHastaMap(fechaInicio,nuevoValorUltimoCheck);
-			pedidos = Utils.particionarPedidos(pedidos, 5, 5);
+			Map<String, Pedido> pedidosMap = pedidoRepository.listarPedidosDesdeHastaMap(fechaInicio,nuevoValorUltimoCheck);
+			
+			
+			pedidosMap = Utils.particionarPedidos(pedidosMap, 5, 5);
+		
+			
+			
 			Map<String, Camion>flota = camionRepository.listarDisponiblesParaEnrutamiento(horaZero.format(Utils.formatter)); 
 			List<Bloqueo>bloqueos = bloqueoRepository.listarEnRango(horaZero, null); 
 			Map<String, List<Mantenimiento>>mantenimientos = mantenimientoRepository.obtenerMapaDeMantenimientos(horaZero,null); 
@@ -237,10 +243,10 @@ public class ScheduledJobs {
 			
 			
 			Map<Integer,List<Ruta>> rutas = new HashMap<Integer, List<Ruta>>();
-			
+			Map<String,Pedido> pedidosMapaParaAlgoritmo;
 			while(true) {
-				
-				Genetic genetic = new Genetic(pedidos, flota, bloqueos, mantenimientos,plantas, horaZero);
+				horaZero.plusHours(1);
+				Genetic genetic = new Genetic(pedidosMap, flota, bloqueos, mantenimientos,plantas, horaZero);
 				Individual solution = genetic.run(maxIterNoImp, numChildrenToGenerate, wA, wB, wC, mu, epsilon, percentageGenesToMutate);
 				
 				Map<String, RutaCompleta>rutasCompletas =  solution.getRutas();
@@ -261,7 +267,6 @@ public class ScheduledJobs {
 				}
 				
 				//define la fecha inicial para la siguiente ejecucion
-				horaZero.plusHours(1);
 				break;
 			}
 			
