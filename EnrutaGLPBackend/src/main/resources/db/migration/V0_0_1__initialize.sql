@@ -197,7 +197,13 @@ DELIMITER ;
 
 -- Inserts:
 
-INSERT INTO configuracion VALUES ('CTE_VOLUMEN_CONSUMO','1') , ('ULTIMO_CHECKPOINT_PEDIDOS',NULL);
+-- Modo de ejecucion : 1(dia a dia), 2(sim 3 dias), 3(sim hasta colapso)
+INSERT INTO configuracion VALUES 
+('CTE_VOLUMEN_CONSUMO','1'), 
+('ULTIMO_CHECKPOINT_PEDIDOS',NULL),
+('MODO_EJECUCION','1'),
+('FECHA_INICIO_SIMULACION',NULL),
+('FECHA_FIN_SIMULACION',NULL);
 
 INSERT INTO estado_pedido VALUES (1,'En cola'),(2,'En proceso'),(3,'Completado'); 
 

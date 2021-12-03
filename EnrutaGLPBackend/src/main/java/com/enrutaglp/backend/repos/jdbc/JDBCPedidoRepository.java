@@ -72,7 +72,7 @@ public class JDBCPedidoRepository implements PedidoRepository {
 
 	@Override
 	public Map<String, Pedido> listarPedidosDesdeHastaMap (String desde, String hasta) {
-		List<Pedido> pedidos = ((List<PedidoTable>)repo.listarPendientesPlanificacion(hasta)).stream()
+		List<Pedido> pedidos = ((List<PedidoTable>)repo.listarPedidosDesdeHasta(desde,hasta)).stream()
 				.map(pedidoTable -> pedidoTable.toAlgorithmModel()).collect(Collectors.toList());
 		Map<String,Pedido> pedidosMapa = new HashMap<String, Pedido>();
 		for(Pedido p : pedidos) {

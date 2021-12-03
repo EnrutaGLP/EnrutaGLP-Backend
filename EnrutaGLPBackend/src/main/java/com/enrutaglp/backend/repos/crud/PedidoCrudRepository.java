@@ -27,6 +27,17 @@ public interface PedidoCrudRepository extends CrudRepository<PedidoTable, Intege
 			)
 	List<PedidoTable>listarPendientesPlanificacion(@Param("hasta") String hasta); 
 	
+	@Query(  "SELECT * "
+			+ "FROM pedido "
+			+ "where "
+			+ "pedido.cantidad_glp_por_planificar > 0 "
+			+ "and "
+			+ "pedido.fecha_pedido <= :hasta "
+			+ "pedido.fecha_pedido >= :desde"
+			)
+	List<PedidoTable>listarPedidosDesdeHasta(@Param("desde") String desde,@Param("hasta") String hasta); 
+	
+	
 	
 	@Query("SELECT pe.* from "
 			+ "camion c "
