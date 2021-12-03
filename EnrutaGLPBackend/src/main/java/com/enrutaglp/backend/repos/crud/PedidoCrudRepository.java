@@ -33,7 +33,8 @@ public interface PedidoCrudRepository extends CrudRepository<PedidoTable, Intege
 			+ "pedido.cantidad_glp_por_planificar > 0 "
 			+ "and "
 			+ "pedido.fecha_pedido <= :hasta "
-			+ "pedido.fecha_pedido >= :desde"
+			+ "pedido.fecha_pedido >= :desde "
+			+ "order by pedido.fecha_pedido"
 			)
 	List<PedidoTable>listarPedidosDesdeHasta(@Param("desde") String desde,@Param("hasta") String hasta); 
 	
