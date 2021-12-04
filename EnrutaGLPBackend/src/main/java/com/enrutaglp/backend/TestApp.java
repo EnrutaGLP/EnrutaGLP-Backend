@@ -37,7 +37,7 @@ public class TestApp {
 		//AstarFunciones.testAstarAlgoritmo();
 		//FuncionesBackend.testFuncionesBackend();
 		
-		String path = "D:\\PUCP\\20141929\\20212\\DP1\\my_input\\";
+		String path = "//home//stevramos//Documents//PUCP//2021-2//DP1//Data//test//Simple_test//";
 		
 		List<String> file_content = FuncionesBackend.get_folder_content(path+"sales",true,",");
 		List<Pedido> sales = FuncionesBackend.get_sales(file_content);
