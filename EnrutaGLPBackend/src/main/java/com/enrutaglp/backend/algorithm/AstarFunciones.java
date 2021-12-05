@@ -141,34 +141,33 @@ public class AstarFunciones {
 		
 		
 	}
-	public static Punto buscarPuntoConMenorF (Punto puntoABuscar, List<Punto> lista) {
+	public static int buscarPuntoConMenorF (Punto target_point, List<Punto> my_list) {
 		/*
-		 * Se asume que lista esta ordenada de menor a mayor según el atributo astarF de cada punto
+		 * Return the first match
 		 */
 		
-		for (Punto punto: lista) {
-			if (mismaPosicion(punto, puntoABuscar)) {
-				return punto;
+		for (int i = 0; i < my_list.size(); i ++) {
+			if (mismaPosicion(my_list.get(i), target_point)) {
+				return i;
 			}
 		}
-		return null;
+		return -1;
 	}
 	public static boolean esPosicionValida(Punto p) {
 		int x = p.getUbicacionX();
 		int y= p.getUbicacionY();
 		return x >= 0 && x < anchoTabla && y >= 0 && y < altoTabla;
 	}
-	public static List<Punto> agregarYOrdenar(List<Punto> lista, Punto puntoNuevo){
+	public static void agregarYOrdenar(List<Punto> lista, Punto new_point){
 		
 		
-		int i;
-		for (i = 0; i < lista.size(); i ++) {
-			if (puntoNuevo.getAstarF() <= lista.get(i).getAstarF()) {
+		int i = 0;
+		for (; i < lista.size(); i ++) {
+			if (new_point.getAstarF() <= lista.get(i).getAstarF()) {
 				break;
 			}
 		}
-		lista.add(i, puntoNuevo);
-		return lista;
+		lista.add(i, new_point);
 	}
 	public static double calcularDistanciasNodos(Punto p1, Punto p2) {
 		  double x1 = p1.getUbicacionX(); 
@@ -193,10 +192,10 @@ public class AstarFunciones {
 		List<Punto> lAux = new ArrayList<Punto>();
 		int x = p.getUbicacionX();
 		int y= p.getUbicacionY();
-		lAux.add(new Punto(x + 1, y, p.getOrden() + 1, p.getCodigoPedido()));
-		lAux.add(new Punto(x - 1, y, p.getOrden() + 1, p.getCodigoPedido()));
-		lAux.add(new Punto(x, y + 1, p.getOrden() + 1, p.getCodigoPedido()));
-		lAux.add(new Punto(x, y - 1, p.getOrden() + 1, p.getCodigoPedido()));
+		lAux.add(new Punto(x + 1, y, p.getOrden(), p.getCodigoPedido()));
+		lAux.add(new Punto(x - 1, y, p.getOrden(), p.getCodigoPedido()));
+		lAux.add(new Punto(x, y + 1, p.getOrden(), p.getCodigoPedido()));
+		lAux.add(new Punto(x, y - 1, p.getOrden(), p.getCodigoPedido()));
 		
 		for (Punto pAux: lAux) {
 			if (esPosicionValida(pAux) && !hayBloqueosEntre(pAux, pAux, bloqueos)) {
@@ -205,39 +204,54 @@ public class AstarFunciones {
 		}
 		return sucesores;
 	}
-	static public List<Punto> astarAlgoritmo(Punto puntoIni, Punto puntoFin, List<Bloqueo> bloqueos) {
+	static public List<Punto> astarAlgoritmo(Punto ini_point, Punto target_point, List<Bloqueo> locks) {
+		/*
+		 * Return the path from ini_point to target_point, given a set of locks
+		 * The path consists of a set of corner points.
+		 * Source: https://ieeexplore-ieee-org.ezproxybib.pucp.edu.pe/stamp/stamp.jsp?tp=&arnumber=8996720
+		 * 
+		 */
+		List<Punto> open = new ArrayList<Punto>();
+		List<Punto> closed = new ArrayList<Punto>();
+		ini_point.setAstarF(calcularDistanciasNodos(ini_point, target_point));
+		ini_point.setAntecesor(null);
+		open.add(ini_point);
 		
-		List<Punto> lAbierta = new ArrayList<Punto>();
-		List<Punto> lCerrada = new ArrayList<Punto>();
-		puntoIni.setAstarF(0);
-		puntoIni.setAntecesor(null);
-		lAbierta.add(puntoIni);
-		
-		while (!lAbierta.isEmpty()) {
-			Punto Q = lAbierta.remove(0);//Se asume que lAbierta esta ordenada de menor a mayor según el atributo astarF de cada punto
-			for (Punto sucesor: obtenerSucesores(Q, bloqueos)) {
-				sucesor.setAntecesor(Q);
-				if (mismaPosicion(sucesor,puntoFin)) {
-					
-					return obtenerPuntosEsquina(construirCamino(sucesor));
-				}
-				
-				sucesor.setAstarG(Q.getAstarG() + calcularDistanciasNodos(sucesor, Q)); //G(S) = G(Q) + DISTANCIA(Q, S)
-				sucesor.setAstarH(calcularDistanciasNodos(sucesor, puntoFin)); //H(S) = DISTANCIA (S, Z)
-				sucesor.setAstarF(sucesor.getAstarG() + sucesor.getAstarH());
-				
-				Punto pMenorFenA = buscarPuntoConMenorF(sucesor, lAbierta);
-				Punto pMenorFenC = buscarPuntoConMenorF(sucesor, lCerrada);
-				
-				if (pMenorFenA != null && pMenorFenA.getAstarF() < sucesor.getAstarF()) {
-					continue;
-				}
-				if (pMenorFenC != null && pMenorFenC.getAstarF() < sucesor.getAstarF()) {
-					continue;
-				}
-				lAbierta = agregarYOrdenar (lAbierta, sucesor);
+		while (!open.isEmpty()) {
+			
+			
+			Punto record = open.remove(0);
+			agregarYOrdenar(closed, record);
+			
+			if (mismaPosicion(record,target_point)) {
+				return obtenerPuntosEsquina(construirCamino(record));
 			}
-			lCerrada.add(Q);
+			List<Punto> succs = obtenerSucesores(record, locks);
+			
+			for (Punto succ: succs) {
+				succ.setAntecesor(record);
+				
+				succ.setAstarG(record.getAstarG() + calcularDistanciasNodos(succ, record));
+				succ.setAstarH(calcularDistanciasNodos(succ, target_point));
+				succ.setAstarF(succ.getAstarG() + succ.getAstarH());
+				
+				int i_match_open_point = buscarPuntoConMenorF(succ, open);
+				int i_match_closed_point = buscarPuntoConMenorF(succ, closed);
+				boolean succ_is_not_in_open_and_close = i_match_open_point < 0 && i_match_closed_point < 0;
+				boolean better_than_match_closed_point = i_match_closed_point >= 0 &&
+						closed.get(i_match_closed_point).getAstarG() > succ.getAstarG();
+				
+				if (succ_is_not_in_open_and_close) {
+					
+					agregarYOrdenar (open, succ);
+				}
+				else if (better_than_match_closed_point){
+					closed.get(i_match_closed_point).setAstarG(succ.getAstarG());
+					closed.get(i_match_closed_point).setAstarH(succ.getAstarH());
+					closed.get(i_match_closed_point).setAstarF(succ.getAstarF());
+					closed.get(i_match_closed_point).setAntecesor(record);
+				}
+			}
 		}
 
 		return null;

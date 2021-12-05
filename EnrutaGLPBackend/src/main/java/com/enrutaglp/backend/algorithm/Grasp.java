@@ -141,7 +141,8 @@ public class Grasp {
 			Map<String, Pedido> pedidosSolucion = generarCopia(pedidosCand);
 			int j = 0;
 			for(String key: pedidosSolucion.keySet()) {
-				List<Punto> puntosTotales = rutaGenerada.esFactible(pedidosSolucion.get(key));
+				Pedido pedido = pedidosSolucion.get(key);
+				List<Punto> puntosTotales = rutaGenerada.esFactible(pedido);
 				boolean esFactible = puntosTotales.size()>0 ? true: false;
 				
 				if(esFactible) {

@@ -265,8 +265,8 @@ public class Punto {
 	public List<Punto> getWayTo (Punto final_point, LocalDateTime ini_date, Camion truck, List<Bloqueo> locks){
 		
 		
-		Punto corner1 = new Punto(this.getUbicacionX(), final_point.getUbicacionY(), this.getOrden() + 1, this.getCodigoPedido());
-		Punto corner2 = new Punto(final_point.getUbicacionX(), this.getUbicacionY(), this.getOrden() + 1, this.getCodigoPedido());
+		Punto corner1 = new Punto(this.getUbicacionX(), final_point.getUbicacionY(), this.getOrden(), this.getCodigoPedido());
+		Punto corner2 = new Punto(final_point.getUbicacionX(), this.getUbicacionY(), this.getOrden(), this.getCodigoPedido());
 		LocalDateTime[] lapse = new LocalDateTime[] {ini_date, ini_date.plusYears(5)};
 		List<Bloqueo> current_locks = AstarFunciones.filter_locks_by_time_span(locks, lapse);
 		boolean free_corner1 = !AstarFunciones.hayBloqueosEntre(this, corner1, current_locks) &&

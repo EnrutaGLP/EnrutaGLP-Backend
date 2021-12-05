@@ -51,8 +51,9 @@ public class Genetic {
 			genNewBest = false;
 			for(int i=0;i<numChildrenToGenerate;i++) {
 				//Parent selection and crossover 
-				childInd1 = crossover(population.getBinaryTournament(wA, wB, wC,mantenimientos, this.bloqueos, fechaHoraActual),
-						population.getBinaryTournament(wA, wB, wC, mantenimientos, this.bloqueos, fechaHoraActual));
+				Individual ind1 = population.getBinaryTournament(wA, wB, wC,mantenimientos, this.bloqueos, fechaHoraActual);
+				Individual ind2 = population.getBinaryTournament(wA, wB, wC, mantenimientos, this.bloqueos, fechaHoraActual);
+				childInd1 = crossover(ind1, ind2);
 				//Apply mutation
 				childInd2 = mutate(childInd1,percentGenesToMutate);
 				//Evaluate new individuals

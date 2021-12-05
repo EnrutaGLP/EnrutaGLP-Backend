@@ -37,7 +37,7 @@ public class TestApp {
 		//AstarFunciones.testAstarAlgoritmo();
 		//FuncionesBackend.testFuncionesBackend();
 		
-		String path = "//home//stevramos//Documents//PUCP//2021-2//DP1//Data//test//Simple_test//";
+		String path = "D:\\PUCP\\20141929\\20212\\DP1\\my_input\\";
 		
 		List<String> file_content = FuncionesBackend.get_folder_content(path+"sales",true,",");
 		List<Pedido> sales = FuncionesBackend.get_sales(file_content);
@@ -59,12 +59,13 @@ public class TestApp {
 		List<Mantenimiento> maintenances = new ArrayList<Mantenimiento>();
 		Map<String, List<Mantenimiento>> map_maintenances = FuncionesBackend.get_map_maintenances(maintenances, trucks);
 		
-		Punto ini_point = new Punto(0,0);
+		Punto ini_point = new Punto(1,17);
 		Punto final_point = new Punto (sales.get(0).getUbicacionX(), sales.get(0).getUbicacionY());
 //		AstarFunciones.altoTabla = 11;
 //		AstarFunciones.anchoTabla = 11;
-
-		List<Punto> intermediates = ini_point.getPuntosIntermedios(final_point, sales.get(0).getFechaPedido(), trucks.get(0),locks);
+		
+		
+		List<Punto> intermediates = ini_point.getWayTo(final_point, sales.get(0).getFechaPedido(), trucks.get(0),locks);
 		AstarFunciones.imprimirCamino(intermediates, locks);
 		List<Planta> plants = new ArrayList<Planta>();
 		LocalDateTime horaZero = LocalDateTime.of(2021,11,1,0,0);
