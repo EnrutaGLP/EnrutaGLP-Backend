@@ -9,7 +9,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import com.enrutaglp.backend.dtos.ActualizacionSimulacionDTO;
@@ -30,6 +32,8 @@ public class ActualizacionSimulacionListener {
 	@Autowired
 	private SimpMessagingTemplate template;
 	
+	@EventListener
+	@Async
 	public void onEvent(ActualizacionSimulacionEvent event) {
 		Map<Integer,List<Ruta>> rutas = event.getRutas(); 
 		List<CamionSimulacionDTO> averiados = new ArrayList<CamionSimulacionDTO>(); 
