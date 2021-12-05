@@ -19,7 +19,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Pedido {
+public class Pedido implements Comparable<Pedido> {
 	
 	private int id; 
 	private String codigo; 
@@ -126,5 +126,13 @@ public class Pedido {
 		this.fechaCompletado = fechaCompletado;
 		//this.estado = estado;
 		
+	}
+
+	@Override
+	public int compareTo(Pedido o) {
+		if(this.fechaPedido.isAfter(o.getFechaPedido())) {
+			return 1; 
+		}
+		return -1;
 	}
 }
