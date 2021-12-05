@@ -84,7 +84,7 @@ public class FuncionesBackend {
 		List<String> content = new ArrayList<String>();
 		
 		for (File f: folder.listFiles()) {
-			String file_path = path + "\\" + f.getName();
+			String file_path = path + "//" + f.getName();
 			content.addAll(FuncionesBackend.get_file_content(file_path, put_name, sep));
 		}
 		return content;
