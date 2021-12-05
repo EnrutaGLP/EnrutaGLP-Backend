@@ -45,6 +45,7 @@ algorithm:
     percent-genes-mutate: 0.3
 notificaciones: 
   ubicaciones-actualizadas: /topic/estado-general
+  actualizacion-simulacion: /topic/actualizacion-simulacion
 camiones: 
   segundos-entre-movimiento: 80
   tiempo-mantenimiento-correctivo: 48

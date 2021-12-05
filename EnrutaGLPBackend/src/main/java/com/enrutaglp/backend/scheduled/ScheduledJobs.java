@@ -2,10 +2,12 @@ package com.enrutaglp.backend.scheduled;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -25,6 +27,8 @@ import com.enrutaglp.backend.algorithm.RutaCompleta;
 import com.enrutaglp.backend.dtos.PuntoSiguienteDTO;
 import com.enrutaglp.backend.enums.EstadoCamion;
 import com.enrutaglp.backend.enums.ModoEjecucion;
+import com.enrutaglp.backend.events.ActualizacionSimulacionEvent;
+import com.enrutaglp.backend.events.SimulacionFinalizadaEvent;
 import com.enrutaglp.backend.events.SimulacionIniciadaEvent;
 import com.enrutaglp.backend.events.UbicacionesActualizadasEvent;
 import com.enrutaglp.backend.models.Bloqueo;
@@ -119,7 +123,7 @@ public class ScheduledJobs {
 		Map<String, String> configuracionCompleta = configuracionRepository.listarConfiguracionCompleta();
 		
 		//Solo se ejecuta si se encuentra en modo dia a dia
-		if(configuracionCompleta.get(llaveModoEjecucion) != String.valueOf(ModoEjecucion.DIA_A_DIA.getValue())) 
+		if(Integer.valueOf(configuracionCompleta.get(llaveModoEjecucion)) != ModoEjecucion.DIA_A_DIA.getValue()) 
 			return;
 		
 		int k = Integer.valueOf(configuracionCompleta.get(llaveConstVC));
@@ -158,7 +162,7 @@ public class ScheduledJobs {
 		
 		for(RutaCompleta rc : rutasCompletas.values()) {
 			if(rc.getRutas() != null && rc.getRutas().size()>0) {
-				rutaRepository.registroMasivo(rc.getCamion().getId(),rc.getRutas());
+				rutaRepository.registroMasivo(rc.getCamion().getId(),rc.getRutas(),true);
 			}
 		}
 	}
@@ -198,13 +202,55 @@ public class ScheduledJobs {
 	    
 		private byte modoEjecucion; 
 		private String fechaInicio; 
-		private String fechaFin; 
+		private String strFechaFin; 
+		private LocalDateTime fechaFin; 
+		private Map<String, LocalDateTime> mapaDisponibilidad;
+		private Map<String, Camion>camiones; 
 		
-	    public EjecucionSimulacion(byte modoEjecucion, String fechaInicio, String fechaFin){
+	    public EjecucionSimulacion(byte modoEjecucion, String fechaInicio, String strFechaFin){
 	    	this.modoEjecucion = modoEjecucion;
 	    	this.fechaInicio = fechaInicio; 
-	    	this.fechaFin = fechaFin; 
+	    	this.strFechaFin = strFechaFin; 
+	    	this.fechaFin = LocalDateTime.parse(strFechaFin, Utils.formatter);
 	    }
+	    
+	    public  Map<String, Pedido> filtrarPedidosDentroDeRango(LocalDateTime fechaFinal,  List<Pedido> pedidos){
+			//Asumiendo que los pedidos se encuentran ordenados por fecha pedido
+			Map<String, Pedido> pedidosMap = new HashMap<String, Pedido>(); 
+			while(true) {
+				if(pedidos.size() == 0)
+					return pedidosMap;;
+				Pedido p = pedidos.get(0);
+				if(p.getFechaPedido().isAfter(fechaFinal))
+					return pedidosMap; 
+				pedidosMap.put(p.getCodigo(), p); 
+				pedidos.remove(0); 
+			}
+		}
+		
+		public  Map<String, Camion> actualizarFlotaConMapaDisponibilidad(LocalDateTime horaZero){
+			
+			Map<String, Camion> flota = new HashMap<String, Camion>(); 
+			
+			for(Map.Entry<String, Camion> entry : camiones.entrySet()) {
+				if(mapaDisponibilidad.get(entry.getKey()).isBefore(horaZero) ||
+						mapaDisponibilidad.get(entry.getKey()).isEqual(horaZero)) {
+					
+					flota.put(entry.getKey(), entry.getValue()); 
+				
+				}
+			}
+				
+			return flota;   
+		}
+		
+		public Map<String, LocalDateTime> inicializarMapaDisponibilidad(LocalDateTime horaZero){
+			Map<String, LocalDateTime> mapa = new HashMap<String, LocalDateTime>(); 
+			for(Map.Entry<String, Camion> entry : camiones.entrySet()) {
+				mapa.put(entry.getKey(), horaZero);
+			}
+			return mapa; 
+		} 
 	    
 	    @Override
 	    public void run() {
@@ -214,39 +260,59 @@ public class ScheduledJobs {
 			
 			int k = Integer.valueOf(configuracionCompleta.get(llaveConstVC));
 			String strUltimaHora = configuracionCompleta.get(llaveUltimoCheck);
+			
 			LocalDateTime nuevoCheckpoint = null;
-			LocalDateTime horaZero = strUltimaHora==null? LocalDateTime.parse(fechaInicio, Utils.formatter) : LocalDateTime.parse(strUltimaHora, Utils.formatter);
-
+			LocalDateTime horaZero = strUltimaHora==null? LocalDateTime.parse(fechaInicio, Utils.formatter)
+					: LocalDateTime.parse(strUltimaHora, Utils.formatter);
+			String fechaInicioParaNotificacion = horaZero.format(Utils.formatter); 
+			if(horaZero.isEqual(fechaFin) || horaZero.isAfter(fechaFin))
+				return; 
+			
 			int sk = saltoAlgoritmo * k;
 			
 			if(strUltimaHora == null) {
+				//Primera ejecucion
+				camiones = camionRepository.listarDisponiblesParaEnrutamiento(horaZero.format(Utils.formatter)); 
+				mapaDisponibilidad = inicializarMapaDisponibilidad(horaZero);
 				nuevoCheckpoint = LocalDateTime.parse(fechaInicio, Utils.formatter).plusMinutes(sk);
 			}
 			else {
 				LocalDateTime ultimoCheckpoint = LocalDateTime.parse(strUltimaHora, Utils.formatter);
-				nuevoCheckpoint = ultimoCheckpoint.plusMinutes(sk);
+				LocalDateTime ultimoCheckpointMasSalto = ultimoCheckpoint.plusMinutes(sk); 
+				if(ultimoCheckpointMasSalto.isAfter(fechaFin)) {
+					nuevoCheckpoint = fechaFin;
+				} else {
+					nuevoCheckpoint = ultimoCheckpointMasSalto;
+				}
 			}
 			
 			String nuevoValorUltimoCheck = nuevoCheckpoint.format(Utils.formatter);
 			configuracionRepository.actualizarLlave(llaveUltimoCheck, nuevoValorUltimoCheck);
+			
 			Map<String, Pedido> pedidosMap = pedidoRepository.listarPedidosDesdeHastaMap(fechaInicio,nuevoValorUltimoCheck);
-			
-			
 			pedidosMap = Utils.particionarPedidos(pedidosMap, 5, 5);
-		
+			List<Pedido> pedidos = new ArrayList<>(pedidosMap.values().stream().toList());
+			Collections.sort(pedidos);
 			
-			
-			Map<String, Camion>flota = camionRepository.listarDisponiblesParaEnrutamiento(horaZero.format(Utils.formatter)); 
 			List<Bloqueo>bloqueos = bloqueoRepository.listarEnRango(horaZero, null); 
 			Map<String, List<Mantenimiento>>mantenimientos = mantenimientoRepository.obtenerMapaDeMantenimientos(horaZero,null); 
 			List<Planta> plantas = new ArrayList<Planta>();
 			
 			
 			Map<Integer,List<Ruta>> rutas = new HashMap<Integer, List<Ruta>>();
-			Map<String,Pedido> pedidosMapaParaAlgoritmo;
-			while(true) {
-				horaZero.plusHours(1);
-				Genetic genetic = new Genetic(pedidosMap, flota, bloqueos, mantenimientos,plantas, horaZero);
+			Map<String, Pedido> pedidosMapParaAlgoritmo; 
+			Map<String, LocalDateTime> mapaDisponibilidad = new HashMap<String, LocalDateTime>();
+			Map<String, Camion> flota; 
+			
+			while(true) {	
+				if(horaZero.plusHours(1).isAfter(nuevoCheckpoint)) {
+					horaZero = nuevoCheckpoint; 
+				} else {
+					horaZero =  horaZero.plusHours(1);
+				}
+				flota = actualizarFlotaConMapaDisponibilidad(horaZero);
+				pedidosMapParaAlgoritmo = filtrarPedidosDentroDeRango(horaZero, pedidos);
+				Genetic genetic = new Genetic(pedidosMapParaAlgoritmo, flota, bloqueos, mantenimientos,plantas, horaZero);
 				Individual solution = genetic.run(maxIterNoImp, numChildrenToGenerate, wA, wB, wC, mu, epsilon, percentageGenesToMutate);
 				
 				Map<String, RutaCompleta>rutasCompletas =  solution.getRutas();
@@ -263,18 +329,33 @@ public class ScheduledJobs {
 								rc.getRutas().stream()
 								).collect(Collectors.toList());
 						rutas.put(rc.getCamion().getId(), rs);
+						mapaDisponibilidad.put(rc.getCamion().getCodigo(), rs.get(rs.size()-1).getHoraLlegada());
 					}
 				}
 				
-				//define la fecha inicial para la siguiente ejecucion
-				break;
+				if(horaZero.isAfter(nuevoCheckpoint) || horaZero.isEqual(nuevoCheckpoint))break;
+				
 			}
 			
 			//Registrar las rutas:
 			for(Map.Entry<Integer,List<Ruta>> entry : rutas.entrySet()) {
 				if(entry.getValue() != null && entry.getValue().size()>0) {
-					rutaRepository.registroMasivo(entry.getKey(), entry.getValue());
+					rutaRepository.registroMasivo(entry.getKey(), entry.getValue(),false);
 				}
+			}
+			
+			
+			
+			
+			//Finalizar en el caso de que ya se haya completado la ejecucion:
+			if(nuevoCheckpoint.isEqual(fechaFin) || nuevoCheckpoint.isAfter(fechaFin)) {
+				//Enviar a traves de websocket:
+				publisher.publishEvent(new ActualizacionSimulacionEvent(this, true, fechaInicioParaNotificacion, nuevoValorUltimoCheck, rutas));
+				//Finalizar:
+				publisher.publishEvent(new SimulacionFinalizadaEvent(this, modoEjecucion));
+			}else {
+				//Enviar a traves de websocket:
+				publisher.publishEvent(new ActualizacionSimulacionEvent(this, false, fechaInicioParaNotificacion, nuevoValorUltimoCheck, rutas));
 			}
 	    }
 	    
@@ -286,11 +367,20 @@ public class ScheduledJobs {
 		ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
 		Runnable tarea = new EjecucionSimulacion(event.getModoEjecucion(), event.getFechaInicio(), event.getFechaFin());
 		scheduler.initialize();
-		runningTasks.put("3", scheduler.scheduleAtFixedRate(tarea, new Date(), 3000));
-		Thread.sleep(10000);
-		runningTasks.get("3").cancel(true);
-		Thread.sleep(10000);
-		runningTasks.put("3", scheduler.scheduleAtFixedRate(tarea, new Date(), 3000));
+		if(event.getModoEjecucion() == ModoEjecucion.SIM_TRES_DIAS.getValue()) {
+			runningTasks.put("3", scheduler.scheduleAtFixedRate(tarea, new Date(), 300000));
+		} else if(event.getModoEjecucion() == ModoEjecucion.SIM_COLAPSO.getValue()) {
+			runningTasks.put("inf", scheduler.scheduleAtFixedRate(tarea, new Date(), 300000));
+		}
+	}
+	
+	@EventListener
+	public void finalizarSimulacion(SimulacionFinalizadaEvent event) {
+		if(event.getModoEjecucion() == ModoEjecucion.SIM_TRES_DIAS.getValue()) {
+			runningTasks.get("3").cancel(true);
+		} else if(event.getModoEjecucion() == ModoEjecucion.SIM_COLAPSO.getValue()) {
+			runningTasks.get("inf").cancel(true);
+		}
 	}
 	
 }

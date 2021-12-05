@@ -30,7 +30,8 @@ public class Camion {
 	private LocalDateTime siguienteMovimiento;
 	private List<EntregaPedido>entregas;
 	private List<Punto>ruta;
-		
+	private String color;
+	
 	public Camion(Camion camion) {
 		this.id = camion.getId();
 		this.codigo = camion.getCodigo(); 
@@ -81,7 +82,7 @@ public class Camion {
 
 	public Camion(int id, String codigo, String placa, int ubicacionActualX, int ubicacionActualY,
 			Integer idPuntoActual, double cargaActualGLP, double cargaActualPetroleo, byte estado, byte tipoByte,
-			LocalDateTime siguienteMovimiento) {
+			LocalDateTime siguienteMovimiento, String color) {
 		this.id = id;
 		this.codigo = codigo;
 		this.placa = placa;
@@ -93,6 +94,7 @@ public class Camion {
 		this.estado = estado;
 		this.tipoByte = tipoByte;
 		this.siguienteMovimiento = siguienteMovimiento;
+		this.color = color; 
 	}
 	
 	public Camion(int id, String codigo, String placa, int ubicacionActualX, int ubicacionActualY,

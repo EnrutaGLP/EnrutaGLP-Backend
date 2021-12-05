@@ -7,7 +7,7 @@ import com.enrutaglp.backend.models.Mantenimiento;
 import com.enrutaglp.backend.models.Ruta;
 
 public interface RutaRepository {
-	void registroMasivo(int camionId,List<Ruta>rutas);
+	void registroMasivo(int camionId,List<Ruta>rutas, boolean llenarPuntos);
 	ListaRutasActualesDTO listarActuales();
 	void actualizarRutaDespuesDeAveria(int idCamion);
 }

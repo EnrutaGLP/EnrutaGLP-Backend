@@ -77,13 +77,5 @@ public class Utils {
 		return d;
 	}
 	
-	/*public static Map<String, Pedido> filtrarPedidosDentroDeRango(LocalDateTime fechaFin,   Map<String, Pedido> pedidos){
-		//Asumiendo que los pedidos se encuentran ordenados por fecha pedido
-		Map<String, Pedido>
-		for(Map.Entry<String, Pedido> entry : pedidos.entrySet()) {
-			
-		}
-		return pedidos; 
-	}*/
 	
 }

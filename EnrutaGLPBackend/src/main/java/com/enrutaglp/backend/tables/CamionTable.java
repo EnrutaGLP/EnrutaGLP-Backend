@@ -37,6 +37,7 @@ public class CamionTable {
 	private LocalDateTime siguienteMovimiento;
 	@Column("id_punto_actual")
 	private Integer idPuntoActual; 
+	private String color; 
 	private byte estado;
 	private byte tipo;
 	
@@ -53,12 +54,13 @@ public class CamionTable {
 		this.siguienteMovimiento = camion.getSiguienteMovimiento(); 
 		this.idPuntoActual = camion.getIdPuntoActual();
 		this.estado = camion.getEstado(); 
+		this.color = camion.getColor();
 		this.tipo = camion.getTipoByte();
 	}
 	
 	public Camion toModel() {
 		return new Camion( id,  codigo,  placa,  ubicacionActualX,  ubicacionActualY,
 				 idPuntoActual,  cargaActualGLP,  cargaActualPetroleo,  estado,  tipo,
-				 siguienteMovimiento);
+				 siguienteMovimiento,color);
 	}
 }

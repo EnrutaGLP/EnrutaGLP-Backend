@@ -73,7 +73,7 @@ public class ConfiguracionController {
 		mapa.put(llaveUltimoCheck, null);
 		configuracionRepository.actualizarLlaves(mapa);
 		
-		//publisher.publishEvent(new SimulacionIniciadaEvent(this,ModoEjecucion.SIM_TRES_DIAS.getValue(),fechaInicio, fechaFin));
+		publisher.publishEvent(new SimulacionIniciadaEvent(this,ModoEjecucion.SIM_TRES_DIAS.getValue(),fechaInicio, fechaFin));
 		return new ResponseEntity<Response>(new Response(true),HttpStatus.OK);
 	}
 	
@@ -91,13 +91,16 @@ public class ConfiguracionController {
 		mapa.put(llaveFechaFinSimulacion,fechaFin); 
 		mapa.put(llaveUltimoCheck, null);
 		
-		//publisher.publishEvent(new SimulacionIniciadaEvent(this,ModoEjecucion.SIM_COLAPSO.getValue(), fechaInicio, fechaFin));
+		publisher.publishEvent(new SimulacionIniciadaEvent(this,ModoEjecucion.SIM_COLAPSO.getValue(), fechaInicio, fechaFin));
 		return new ResponseEntity<Response>(new Response(true),HttpStatus.OK);
 	}
 	
 	@PutMapping("/dia-a-dia")
 	public ResponseEntity<Response> cambiarAdiaAdia(){
-		configuracionRepository.actualizarLlave(llaveConstVC, valorConstVCDiaAdia);
+		Map<String, String> mapa = new HashMap<String, String>();
+		mapa.put(llaveConstVC, valorConstVCDiaAdia); 
+		mapa.put(llaveUltimoCheck, null);
+		configuracionRepository.actualizarLlaves(mapa);
 		return new ResponseEntity<Response>(new Response(true),HttpStatus.OK);
 	}
 	

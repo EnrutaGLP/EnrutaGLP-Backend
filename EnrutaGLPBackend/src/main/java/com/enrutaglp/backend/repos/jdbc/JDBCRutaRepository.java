@@ -95,18 +95,20 @@ public class JDBCRutaRepository implements RutaRepository {
 	private String valorConstVCDiaAdia;
 	
 	@Override
-	public void registroMasivo(int camionId,List<Ruta> rutas) {
+	public void registroMasivo(int camionId,List<Ruta> rutas, boolean llenarPuntos) {
 		int i = 0; 
 		Integer x = rutaRepo.listarOrdenDeLaUltimaRuta(camionId);
 		if(x==null) {
 			x = 0;
 		}
+		
+		//Llenar ruta con todos los puntos:
 		for(Ruta r : rutas) {
 			r.setOrden(x+1);
 			x++;
 			for(int j=0;j<r.getPuntos().size();j++) {
 				
-				if(j < (r.getPuntos().size()-1) && 
+				if(llenarPuntos && j < (r.getPuntos().size()-1) && 
 				   (r.getPuntos().get(j).getUbicacionX() != r.getPuntos().get(j+1).getUbicacionX() 
 				   || r.getPuntos().get(j).getUbicacionY() != r.getPuntos().get(j+1).getUbicacionY() )) {
 					
