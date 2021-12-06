@@ -37,7 +37,7 @@ public class TestApp {
 		//AstarFunciones.testAstarAlgoritmo();
 		//FuncionesBackend.testFuncionesBackend();
 		
-		String path = "D:\\PUCP\\20141929\\20212\\DP1\\my_input\\";
+		String path = "//home//stevramos//Documents//PUCP//2021-2//DP1//Data//test//Simple_test//";
 		
 		List<String> file_content = FuncionesBackend.get_folder_content(path+"sales",true,",");
 		List<Pedido> sales = FuncionesBackend.get_sales(file_content);
@@ -55,8 +55,8 @@ public class TestApp {
 		Map<String, Camion> map_trucks = FuncionesBackend.get_map_trucks(trucks);
 		
 		file_content = FuncionesBackend.get_file_content(path+"mantenimientos.txt",false,",");
-		//List<Mantenimiento> maintenances = FuncionesBackend.get_maintenances(file_content);
-		List<Mantenimiento> maintenances = new ArrayList<Mantenimiento>();
+		List<Mantenimiento> maintenances = FuncionesBackend.get_maintenances(file_content);
+		//List<Mantenimiento> maintenances = new ArrayList<Mantenimiento>();
 		Map<String, List<Mantenimiento>> map_maintenances = FuncionesBackend.get_map_maintenances(maintenances, trucks);
 		
 		Punto ini_point = new Punto(1,17);

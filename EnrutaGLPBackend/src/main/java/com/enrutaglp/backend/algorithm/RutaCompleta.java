@@ -197,7 +197,8 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 		//boolean factible;
 		List<Punto> puntosTotales = new ArrayList<Punto>();
 		//el pedido debio haberse hech o antes de la hora actual y la carga actual de glp debe ser mayor o igual a la del pedido
-		if((this.fechaHoraTranscurrida.isBefore(pedido.getFechaPedido())) ||
+		if((this.fechaHoraTranscurrida.isBefore(pedido.getFechaPedido()) ||
+				pedido.getFechaLimite().isBefore(this.fechaHoraTranscurrida)) ||
 				(this.camion.getCargaActualGLP()<pedido.getCantidadGlp())) {
 			//vacio
 			return puntosTotales;
@@ -245,14 +246,16 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 				(fechaHoraEntrega.isBefore(pedido.getFechaLimite()))) {
 			
 			for (int i = 0; i < this.mantenimientos.size(); i++) {
-					if(this.mantenimientos.get(i).getFechaInicio().isBefore(fechaHoraEntrega) && 
-							this.fechaHoraTranscurrida.isBefore(this.mantenimientos.get(i).getFechaFin())) {
+				
+					if(this.mantenimientos.get(i).getFechaInicio().compareTo(fechaHoraEntrega) < 0 && 
+							this.mantenimientos.get(i).getFechaFin().compareTo(this.fechaHoraTranscurrida) > 0) {
 						
 						if(this.nodos.get(this.nodos.size()-1).isPlanta()) {
 							this.fechaHoraTranscurrida = this.mantenimientos.get(i).getFechaFin();
 						}
 						
-						return puntosTotales;
+						//return puntosTotales;
+						return this.esFactible(pedido);
 					}
 			}
 			
