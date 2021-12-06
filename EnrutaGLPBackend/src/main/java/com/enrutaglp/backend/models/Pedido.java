@@ -135,4 +135,14 @@ public class Pedido implements Comparable<Pedido> {
 		}
 		return -1;
 	}
+	
+	public String to_string () {
+		
+		String str = "";
+		str.concat("Cliente: " + this.cliente + "\n");
+		str.concat("Cantidad glp: " + this.cantidadGlp + "\n");
+		str.concat("Cantidad glp atendida: " + this.cantidadGlpAtendida + "\n");
+		str.concat("Ubicación: (" + this.ubicacionX + ", " + this.ubicacionY + ")\n\n");
+		return str;
+	}
 }

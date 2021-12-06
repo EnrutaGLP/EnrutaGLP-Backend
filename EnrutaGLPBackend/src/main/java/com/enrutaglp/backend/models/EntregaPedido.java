@@ -58,4 +58,10 @@ public class EntregaPedido extends Ruta{
 		return p; 
 	}
 
+	public String to_string () {
+		String str = "";
+		str.concat("Cantidad entregada: " + this.cantidadEntregada);
+		str.concat(this.pedido.to_string());
+		return str;
+	}
 }

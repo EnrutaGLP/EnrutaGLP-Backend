@@ -1,6 +1,7 @@
 package com.enrutaglp.backend.models;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -138,5 +139,20 @@ public class Camion {
 	}
 
 
-	
+	public String to_string () {
+		String str = ""; 
+		str.concat("ID: " + this.id + "\n");
+		str.concat("COD: " + this.codigo + "\n"); 
+		str.concat("PLACA: " + this.placa + "\n"); 
+		str.concat("UBICACION: " + this.ubicacionActualX + ", " + this.ubicacionActualY + "\n");
+		str.concat("Carga actual glp: " + this.cargaActualGLP + "\n");
+		str.concat("Carga actual petroleo: " + this.cargaActualPetroleo + "\n");
+		str.concat("Estado: " + this.estado + "\n");
+		str.concat("Tipo: " + this.tipo.toString() + "\n");
+		String format = "yyyy-MM-dd HH:mm:ss a";
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
+		String str_datetime = this.siguienteMovimiento.format(formatter);
+		str.concat("Siguiente movimiento: " + str_datetime + "\n\n");
+		return str;
+	}
 }

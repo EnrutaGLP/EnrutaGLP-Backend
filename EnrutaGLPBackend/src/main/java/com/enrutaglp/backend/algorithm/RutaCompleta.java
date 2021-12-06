@@ -280,5 +280,27 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 		}
 
 	}
+	
+	public String to_string () {
 		
+		String str = "";
+		str.concat("CAmion: " + this.camion.getCodigo()+ "\n");
+		String format = "yyyy-MM-dd HH:mm:ss a";
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
+		str.concat("fechaHoraTranscurrida: " + this.fechaHoraTranscurrida.format(formatter)+ "\n");
+		str.concat("cantPedidosNoEntregados: " + this.cantPedidosNoEntregados+ "\n");
+		str.concat("glpNoEntregado: " + this.glpNoEntregado+ "\n");
+		str.concat("petroleoConsumido: " + this.petroleoConsumido+ "\n");
+		str.concat("costoRuta: " + this.costoRuta+ "\n");
+		str.concat("distanciaRecorrida: " + this.distanciaRecorrida+ "\n");
+		str.concat("\n");
+		str.concat("RUTAS\n");
+		str.concat("\n");
+		if (this.rutas != null) {			
+			for (Ruta ruta: this.rutas) {
+				str.concat("Size ruta: " + ruta.getPuntos().size() + "\n");
+			}
+		}
+		return str;
+	}
 }
