@@ -70,8 +70,8 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 		this.cantPedidosNoEntregados = 0;
 		this.glpNoEntregado = 0;
 		this.costoRuta = wa*this.getPetroleoConsumido(); 
-		try {
-			for(String key: pedidosOriginales.keySet()) {
+		
+		for(String key: pedidosOriginales.keySet()) {
 				
 				if(!this.pedidos.containsKey(key)) {
 					this.glpNoEntregado += pedidosOriginales.get(key).getCantidadGlp(); 
@@ -79,13 +79,13 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 					//solo en caso el tiempo limite sea menor al tiempo actual
 				}
 			}
+		
+		assert this.cantPedidosNoEntregados + this.pedidos.size() == pedidosOriginales.size() : "La suma de pedidos y no entregados no esta bien";
 			
 			this.costoRuta += wb*this.glpNoEntregado;
-			return this.costoRuta;
-		}catch(Exception e) {
-			return this.costoRuta;
-		}
 		
+		
+		return this.costoRuta;
 	}
 
 	public void copiarRuta(RutaCompleta ruta) {

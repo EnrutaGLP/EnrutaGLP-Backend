@@ -88,7 +88,7 @@ public class Pedido implements Comparable<Pedido> {
 	}
 	
 	
-	public Pedido (String line) {
+	public Pedido (String line, String cod) {
 		/*
 		 * The format of the line can be
 		 * 
@@ -115,7 +115,7 @@ public class Pedido implements Comparable<Pedido> {
 		LocalDateTime fechaCompletado = LocalDateTime.now();
 		
 		//this.id = id;
-		//this.codigo = codigo;
+		this.codigo = cod;
 		//this.cliente = cliente;
 		this.cantidadGlp = m3;
 		//this.cantidadGlpAtendida = cantidadGlpAtendida;
