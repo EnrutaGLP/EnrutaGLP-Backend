@@ -168,7 +168,7 @@ public class TestApp {
 		String header = "dirfile/,i+1,maxIterNoImp,numChildrenToGenerate,seconds,solution.getCantidadPedidosNoEntregados\n";
 		System.out.print(header);
 		for (int n: s) {
-			for (int i = 0; i < n; i ++) {
+			for (int i = 0; i < 20; i ++) {
 				String dirname = "out" + n + "\\";
 				String path = root + dirname + (i+1);
 				List<String> file_content = FuncionesBackend.get_folder_content(path,true,",");
@@ -199,7 +199,7 @@ public class TestApp {
 				LocalDateTime horaZero = LocalDateTime.of(2021,11,1,0,0);
 				
 				Genetic genetic = new Genetic(map_sales, map_trucks, locks, map_maintenances,plants, horaZero);
-				int[] s_maxIterNoImp = {5,10,15,20};
+				int[] s_maxIterNoImp = {5,10,15};
 				int[] s_numChildrenToGenerate = {2,4,6,8};
 				double wA = 1;
 				double wB = 1000;

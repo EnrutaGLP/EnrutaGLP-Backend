@@ -40,6 +40,10 @@ public class Utils {
 		 * GLP pedido: 73
 		 * Salida esperada:
 		 * Pedidos de GLP de 20, 20, 20, 10 y 3
+		 * >15
+		 * 70 -> 15 + 15 + 15 + 15 + 10 
+		 * 80 -> 15 + 15 + 15 + 15 + 15 + 5
+		 * 25 -> 15 + 10
 		 * 
 		 */
 		Map<String, Pedido> pParticionados = new HashMap<>();
