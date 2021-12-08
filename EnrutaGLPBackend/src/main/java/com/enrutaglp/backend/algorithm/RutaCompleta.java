@@ -252,10 +252,11 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 						
 						if(this.nodos.get(this.nodos.size()-1).isPlanta()) {
 							this.fechaHoraTranscurrida = this.mantenimientos.get(i).getFechaFin();
+							return this.esFactible(pedido);
 						}
 						
-						//return puntosTotales;
-						return this.esFactible(pedido);
+						return puntosTotales;
+						
 					}
 			}
 			
