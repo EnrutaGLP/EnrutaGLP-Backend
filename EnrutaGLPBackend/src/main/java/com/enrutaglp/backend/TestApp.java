@@ -11,7 +11,8 @@ import java.util.Scanner;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.FileNotFoundException;
-
+import java.io.FileWriter;
+import java.io.PrintWriter;
 
 import com.enrutaglp.backend.algorithm.AstarFunciones;
 import com.enrutaglp.backend.algorithm.FuncionesBackend;
@@ -31,10 +32,15 @@ import com.enrutaglp.backend.utils.Utils;
 public class TestApp {
 	
 	
-	
-	
 	public static void main(String[] args) {
 		
+		//test ();
+		test_grilla ();
+//		test_csv();
+    }
+	
+	public static void test () {
+
 		//AstarFunciones.testAstarAlgoritmo();
 		//FuncionesBackend.testFuncionesBackend();
 		
@@ -68,7 +74,7 @@ public class TestApp {
 		Punto final_point = new Punto (sales.get(0).getUbicacionX(), sales.get(0).getUbicacionY());
 		
 		
-		List<Punto> intermediates = ini_point.getWayTo(final_point, sales.get(0).getFechaPedido(), trucks.get(0),locks);
+//		List<Punto> intermediates = ini_point.getWayTo(final_point, sales.get(0).getFechaPedido(), trucks.get(0),locks);
 //		AstarFunciones.imprimirCamino(intermediates, locks);
 		
 		//map_sales = Utils.particionarPedidos(map_sales, 5, 5);
@@ -125,6 +131,100 @@ public class TestApp {
 			//}
 		}
 		
+	}
+	
+	public static void test_csv () {
+		String root = "D:\\PUCP\\20141929\\20212\\DP1\\csv\\";
 		
-    }
+		String path = root + "test.csv";
+		try (PrintWriter writer = new PrintWriter(path)){
+			
+		      StringBuilder sb = new StringBuilder();
+		      sb.append("id");
+		      sb.append(',');
+		      sb.append("Name");
+		      sb.append('\n');
+
+		      sb.append("1");
+		      sb.append(',');
+		      sb.append("Prashant Ghimire");
+		      sb.append('\n');
+
+		      writer.write(sb.toString());
+
+		      System.out.println("done!");
+
+		    } catch (FileNotFoundException e) {
+		      System.out.println(e.getMessage());
+		    }
+
+	}
+	
+	public static void test_grilla () {
+		int [] s = {20,50,100};
+		
+		String root = "D:\\PUCP\\20141929\\20212\\DP1\\output\\";
+		StringBuilder sb = new StringBuilder();
+		
+		for (int n: s) {
+			for (int i = 0; i < n; i ++) {
+				String dirname = "out" + n + "\\";
+				String path = root + dirname + (i+1);
+				List<String> file_content = FuncionesBackend.get_folder_content(path,true,",");
+				List<Pedido> sales = FuncionesBackend.get_sales(file_content);
+				Map<String, Pedido> map_sales = FuncionesBackend.get_map_sales(sales);
+				
+				path = root + "Tipos_camiones.txt";
+				file_content = FuncionesBackend.get_file_content(path,false,"");
+				List<TipoCamion> truck_types = FuncionesBackend.get_truck_types(file_content);
+				
+				path = root +"camiones.txt";
+				file_content = FuncionesBackend.get_file_content(path,false,",");
+				List<Camion> trucks = FuncionesBackend.get_trucks(file_content, truck_types);
+				Map<String, Camion> map_trucks = FuncionesBackend.get_map_trucks(trucks);
+				
+				path = root + "mantenimientos.txt";
+				file_content = FuncionesBackend.get_file_content(path,false,",");
+				//List<Mantenimiento> maintenances = FuncionesBackend.get_maintenances(file_content);
+				List<Mantenimiento> maintenances = new ArrayList<Mantenimiento>();
+				Map<String, List<Mantenimiento>> map_maintenances = FuncionesBackend.get_map_maintenances(maintenances, trucks);
+				
+				List<Planta> plants = new ArrayList<Planta>();
+				LocalDateTime horaZero = LocalDateTime.of(2021,11,1,0,0);
+				
+				Genetic genetic = new Genetic(map_sales, map_trucks, null, null,plants, horaZero);
+				int[] s_maxIterNoImp = {5,10,15,20};
+				int[] s_numChildrenToGenerate = {2,4,6,8};
+				double wA = 1;
+				double wB = 1000;
+				double wC = 1000;
+				int mu = 10;
+				int epsilon = 20;
+				double percentageGenesToMutate = 0.3;
+				
+				for (int maxIterNoImp: s_maxIterNoImp) {
+					for (int numChildrenToGenerate: s_numChildrenToGenerate) {
+						long start = System.currentTimeMillis();
+						Individual solution = genetic.run(maxIterNoImp, numChildrenToGenerate, wA, wB, wC, mu, epsilon, percentageGenesToMutate);
+						long end = System.currentTimeMillis();
+						
+						sb.append(dirname);
+						sb.append(i);
+						sb.append(maxIterNoImp);
+						sb.append(s_maxIterNoImp);
+						long seconds = (start - end)/1000;
+						sb.append(seconds);
+					}
+				}
+				
+			}
+		}
+		String path = "D:\\PUCP\\20141929\\20212\\DP1\\csv\\grilla.csv";
+		try (PrintWriter writer = new PrintWriter(path)){
+			writer.write(sb.toString());
+		}
+		catch (FileNotFoundException e) {
+			System.out.println(e.getMessage());
+		}
+	}
 }
