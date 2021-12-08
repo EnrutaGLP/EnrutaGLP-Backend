@@ -165,7 +165,8 @@ public class TestApp {
 		
 		String root = "D:\\PUCP\\20141929\\20212\\DP1\\output\\";
 		StringBuilder sb = new StringBuilder();
-		
+		String header = "dirfile/,i+1,maxIterNoImp,numChildrenToGenerate,seconds,solution.getCantidadPedidosNoEntregados\n";
+		System.out.print(header);
 		for (int n: s) {
 			for (int i = 0; i < n; i ++) {
 				String dirname = "out" + n + "\\";
@@ -177,6 +178,11 @@ public class TestApp {
 				path = root + "Tipos_camiones.txt";
 				file_content = FuncionesBackend.get_file_content(path,false,"");
 				List<TipoCamion> truck_types = FuncionesBackend.get_truck_types(file_content);
+				
+				path = root + "locks";
+				file_content = FuncionesBackend.get_folder_content(path,true,",");
+				//List<Bloqueo> locks = FuncionesBackend.get_locks(file_content);
+				List<Bloqueo> locks = new ArrayList<Bloqueo>();
 				
 				path = root +"camiones.txt";
 				file_content = FuncionesBackend.get_file_content(path,false,",");
@@ -192,7 +198,7 @@ public class TestApp {
 				List<Planta> plants = new ArrayList<Planta>();
 				LocalDateTime horaZero = LocalDateTime.of(2021,11,1,0,0);
 				
-				Genetic genetic = new Genetic(map_sales, map_trucks, null, null,plants, horaZero);
+				Genetic genetic = new Genetic(map_sales, map_trucks, locks, map_maintenances,plants, horaZero);
 				int[] s_maxIterNoImp = {5,10,15,20};
 				int[] s_numChildrenToGenerate = {2,4,6,8};
 				double wA = 1;
@@ -207,17 +213,17 @@ public class TestApp {
 						long start = System.currentTimeMillis();
 						Individual solution = genetic.run(maxIterNoImp, numChildrenToGenerate, wA, wB, wC, mu, epsilon, percentageGenesToMutate);
 						long end = System.currentTimeMillis();
+						long seconds = (end - start)/1000;
 						
-						sb.append(dirname);
-						sb.append(i);
-						sb.append(maxIterNoImp);
-						sb.append(s_maxIterNoImp);
-						long seconds = (start - end)/1000;
-						sb.append(seconds);
+						String str = dirname + "," + (i + 1) + "," + maxIterNoImp + "," + numChildrenToGenerate + "," + seconds + "," + solution.getCantidadPedidosNoEntregados() + "\n";
+						sb.append(str);
+						System.out.print(str);
 					}
+					
 				}
 				
 			}
+			
 		}
 		String path = "D:\\PUCP\\20141929\\20212\\DP1\\csv\\grilla.csv";
 		try (PrintWriter writer = new PrintWriter(path)){
