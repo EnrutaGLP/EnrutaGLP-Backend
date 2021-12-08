@@ -186,20 +186,20 @@ public class AstarFunciones {
 		}
 		return camino;
 	}
-	static private List<Punto> obtenerSucesores (Punto p, List<Bloqueo> bloqueos){
+	static private List<Punto> obtenerSucesores (Punto p, List<Bloqueo> bloqueos, Punto exception){
 		
 		List<Punto> sucesores = new ArrayList<Punto>();
-		List<Punto> lAux = new ArrayList<Punto>();
+		List<Punto> all = new ArrayList<Punto>();
 		int x = p.getUbicacionX();
 		int y= p.getUbicacionY();
-		lAux.add(new Punto(x + 1, y, p.getOrden(), p.getCodigoPedido()));
-		lAux.add(new Punto(x - 1, y, p.getOrden(), p.getCodigoPedido()));
-		lAux.add(new Punto(x, y + 1, p.getOrden(), p.getCodigoPedido()));
-		lAux.add(new Punto(x, y - 1, p.getOrden(), p.getCodigoPedido()));
-		
-		for (Punto pAux: lAux) {
-			if (esPosicionValida(pAux) && !hayBloqueosEntre(pAux, pAux, bloqueos)) {
-				sucesores.add(pAux);
+		all.add(new Punto(x + 1, y, p.getOrden(), p.getCodigoPedido()));
+		all.add(new Punto(x - 1, y, p.getOrden(), p.getCodigoPedido()));
+		all.add(new Punto(x, y + 1, p.getOrden(), p.getCodigoPedido()));
+		all.add(new Punto(x, y - 1, p.getOrden(), p.getCodigoPedido()));
+		for (Punto p: all) {
+			boolean is_exception_or_not_lock = mismaPosicion(p, exception) || !hayBloqueosEntre(p, p, bloqueos);
+			if (esPosicionValida(p) && is_exception_or_not_lock) {
+				sucesores.add(p);
 			}
 		}
 		return sucesores;
@@ -223,13 +223,13 @@ public class AstarFunciones {
 			Punto record = open.remove(0);
 			agregarYOrdenar(closed, record);
 			
-			if (mismaPosicion(record,target_point)) {
-				return obtenerPuntosEsquina(construirCamino(record));
-			}
-			List<Punto> succs = obtenerSucesores(record, locks);
+			List<Punto> succs = obtenerSucesores(record, locks, target_point);
 			
 			for (Punto succ: succs) {
 				succ.setAntecesor(record);
+				if (mismaPosicion(succ,target_point)) {
+					return obtenerPuntosEsquina(construirCamino(succ));
+				}
 				
 				succ.setAstarG(record.getAstarG() + calcularDistanciasNodos(succ, record));
 				succ.setAstarH(calcularDistanciasNodos(succ, target_point));
