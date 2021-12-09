@@ -41,10 +41,10 @@ public class TestApp {
 		//String path = "//home//stevramos//Documents//PUCP//2021-2//DP1//Data//test//Simple_test//";
 		
 		//path 20
-		String path = "//home//stevramos//Documents//PUCP//2021-2//DP1//Data//test//Plan//out50//";
+		String path = "//home//stevramos//Documents//PUCP//2021-2//DP1//Data//test//Plan//out20//";
 //		String path = "D:\\PUCP\\20141929\\20212\\DP1\\my_input\\";
 		//List<String> file_content = FuncionesBackend.get_folder_content(path+"sales",true,",");
-		List<String> file_content = FuncionesBackend.get_folder_content(path+"3",true,",");
+		List<String> file_content = FuncionesBackend.get_folder_content(path+"2",true,",");
 		List<Pedido> sales = FuncionesBackend.get_sales(file_content);
 		Map<String, Pedido> map_sales = FuncionesBackend.get_map_sales(sales);
 		
@@ -77,7 +77,7 @@ public class TestApp {
 		
 		Genetic genetic = new Genetic(map_sales, map_trucks, locks, map_maintenances,plants, horaZero);
 		int maxIterNoImp = 5;
-		int numChildrenToGenerate = 2;
+		int numChildrenToGenerate = 6;
 		double wA = 1;
 		double wB = 1000;
 		double wC = 1000;
