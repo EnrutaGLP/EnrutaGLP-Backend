@@ -50,7 +50,7 @@ public class TestApp {
 		String path = "//home//stevramos//Documents//PUCP//2021-2//DP1//Data//test//Plan//out20//";
 //		String path = "D:\\PUCP\\20141929\\20212\\DP1\\my_input\\";
 		//List<String> file_content = FuncionesBackend.get_folder_content(path+"sales",true,",");
-		List<String> file_content = FuncionesBackend.get_folder_content(path+"2",true,",");
+		List<String> file_content = FuncionesBackend.get_folder_content(path+"202205",true,",");
 		List<Pedido> sales = FuncionesBackend.get_sales(file_content);
 		
 		
@@ -68,7 +68,7 @@ public class TestApp {
 		file_content = FuncionesBackend.get_file_content(path+"mantenimientos.txt",false,",");
 		List<Mantenimiento> maintenances = FuncionesBackend.get_maintenances(file_content);
 		//List<Mantenimiento> maintenances = new ArrayList<Mantenimiento>();
-		Map<String, List<Mantenimiento>> map_maintenances = FuncionesBackend.get_map_maintenances(maintenances, trucks);
+		
 		
 		int maxIterNoImp = 5;
 		int numChildrenToGenerate = 6;
@@ -81,74 +81,102 @@ public class TestApp {
 		
 		List<Planta> plants = new ArrayList<Planta>();
 		
-		List<Pedido> pedidosHora = null;
+		List<Pedido> pedidosHora = new ArrayList<Pedido>();
 		
 		LocalDateTime horaZero = LocalDateTime.of(2022,5,1,0,0);
 		LocalDateTime horaLim = horaZero.plusHours(1);
 		
-//		int[] divisores = {15};
+		int[] divisores = {15};
 //		map_sales = Utils.particionarPedidos(map_sales, 16, divisores);
 
+		List<Bloqueo> locksHora = new ArrayList<Bloqueo>();
+		
+		List<Mantenimiento> maintenancesHora = new ArrayList<Mantenimiento>();
 		for (int i = 0; i < 24; i++) {
+			
+			System.out.println("Pedidos para la hora " + i);
+			
 			pedidosHora.clear();
+			locksHora.clear();
+			maintenancesHora.clear();
+			
 			for (int j = 0; j < sales.size(); j++) {
-				
-				pedidosHora.add()
+				if(horaZero.compareTo(sales.get(j).getFechaPedido()) <= 0 && 
+						horaLim.compareTo(sales.get(j).getFechaPedido()) > 0) {
+					pedidosHora.add(sales.get(j));
+				}
 			}
 			
+			for (int k = 0; k < locks.size(); k++) {
+				if( locks.get(k).getFechaFin().compareTo(horaLim) >= 0) {
+					locksHora.add(locks.get(k));
+				}
+			}
+			
+			for (int l = 0; l < maintenances.size(); l++) {
+				if( maintenances.get(l).getFechaFin().compareTo(horaLim) >= 0) {
+					maintenancesHora.add(maintenances.get(l));
+				}
+			}
+			
+			
+			System.out.println("Se hicieron " + pedidosHora.size()  + " pedidos en esta hora");
+			if(pedidosHora.size()>0) {
+
+				Map<String, Pedido> map_sales = FuncionesBackend.get_map_sales(pedidosHora);			
+				map_sales = Utils.particionarPedidos(map_sales, 16, divisores);	
+				Map<String, List<Mantenimiento>> map_maintenances = FuncionesBackend.get_map_maintenances(maintenancesHora, trucks);
+				
+				System.out.println("Solucion algoritmo " + map_sales.size()  + " pedidos particionados");
+				
+				Genetic genetic = new Genetic(map_sales, map_trucks, locksHora, 
+									map_maintenances,plants, horaLim);
+				Individual solution = genetic.run(maxIterNoImp, numChildrenToGenerate, 
+						wA, wB, wC, mu, epsilon, percentageGenesToMutate);
+				
+				Map<String, RutaCompleta>rutasCompletas =  solution.getRutas();
+				
+				int orden = 0;
+				String output = "";	
+				
+				System.out.println("No se entregaron " + solution.getCantidadPedidosNoEntregados() + " pedidos");
+				
+				
+				for(RutaCompleta rc : rutasCompletas.values()) {
+					//if(rc.getRutas() != null && rc.getRutas().size()>0) {
+						System.out.println("Camion: " + rc.getCamion().getCodigo());
+						System.out.println("Fecha transcurrida: " + rc.getFechaHoraTranscurrida());
+						System.out.println("Pedidos entregados por el camion: " + rc.getPedidos().size());
+						System.out.println("Pedidos no entreg: " + rc.getCantPedidosNoEntregados());
+						System.out.println("GLP no entregados: " + rc.getGlpNoEntregado());
+						System.out.println("Petroleo consumido: " + rc.getPetroleoConsumido());
+						System.out.println("Costo ruta: " + rc.getCostoRuta());
+						System.out.println("Distancia recorrida: " + rc.getDistanciaRecorrida());
+						
+						List<Ruta> rutas = rc.getRutas();
+						orden = 0;
+						
+						for(Ruta r: rutas){
+							orden = orden + 1;
+							output = "";
+							System.out.println("Ruta num "+ orden);
+							for(int j=0;j<r.getPuntos().size();j++) {
+								output = output + "(" + r.getPuntos().get(j).getUbicacionX() 
+										+ ", " +  r.getPuntos().get(j).getUbicacionY() + ") ";
+							}
+							System.out.println(output);
+						}
+						System.out.println();
+					//}
+				}
+				
+			}
+			System.out.println();
 			
 			horaZero = horaZero.plusHours(1);
 			horaLim = horaLim.plusHours(1);
 		}
-		
-		
-		
-		Map<String, Pedido> map_sales = FuncionesBackend.get_map_sales(sales);
-		
 				
-		Genetic genetic = new Genetic(map_sales, map_trucks, locks, map_maintenances,plants, horaZero);
-
-		
-		
-		Individual solution = genetic.run(maxIterNoImp, numChildrenToGenerate, wA, wB, wC, mu, epsilon, percentageGenesToMutate);
-		
-		Map<String, RutaCompleta>rutasCompletas =  solution.getRutas();
-		
-		int orden = 0;
-		String output = "";	
-		
-		System.out.println("Solucion algoritmo " + map_sales.size()  + " pedidos");
-		System.out.println("No se entregaron " + solution.getCantidadPedidosNoEntregados() + " pedidos");
-		
-		
-		for(RutaCompleta rc : rutasCompletas.values()) {
-			//if(rc.getRutas() != null && rc.getRutas().size()>0) {
-				System.out.println("Camion: " + rc.getCamion().getCodigo());
-				System.out.println("Fecha transcurrida: " + rc.getFechaHoraTranscurrida());
-				System.out.println("Pedidos entregados por el camion: " + rc.getPedidos().size());
-				System.out.println("Pedidos no entreg: " + rc.getCantPedidosNoEntregados());
-				System.out.println("GLP no entregados: " + rc.getGlpNoEntregado());
-				System.out.println("Petroleo consumido: " + rc.getPetroleoConsumido());
-				System.out.println("Costo ruta: " + rc.getCostoRuta());
-				System.out.println("Distancia recorrida: " + rc.getDistanciaRecorrida());
-				
-				List<Ruta> rutas = rc.getRutas();
-				orden = 0;
-				
-				for(Ruta r: rutas){
-					orden = orden + 1;
-					output = "";
-					System.out.println("Ruta num "+ orden);
-					for(int j=0;j<r.getPuntos().size();j++) {
-						output = output + "(" + r.getPuntos().get(j).getUbicacionX() 
-								+ ", " +  r.getPuntos().get(j).getUbicacionY() + ") ";
-					}
-					System.out.println(output);
-				}
-				System.out.println();
-			//}
-		}
-		
 	}
 	
 	public static void test_csv () {
