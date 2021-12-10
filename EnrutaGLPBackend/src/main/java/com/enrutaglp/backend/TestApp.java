@@ -46,11 +46,11 @@ public class TestApp {
 		//List<String> file_content = FuncionesBackend.get_folder_content(path+"sales",true,",");
 		List<String> file_content = FuncionesBackend.get_folder_content(path+"2",true,",");
 		List<Pedido> sales = FuncionesBackend.get_sales(file_content);
-		Map<String, Pedido> map_sales = FuncionesBackend.get_map_sales(sales);
+		
 		
 		file_content = FuncionesBackend.get_folder_content(path+"locks",true,",");
-		//List<Bloqueo> locks = FuncionesBackend.get_locks(file_content);
-		List<Bloqueo> locks = new ArrayList<Bloqueo>();
+		List<Bloqueo> locks = FuncionesBackend.get_locks(file_content);
+		//List<Bloqueo> locks = new ArrayList<Bloqueo>();
 		
 		file_content = FuncionesBackend.get_file_content(path+"Tipos_camiones.txt",false,"");
 		List<TipoCamion> truck_types = FuncionesBackend.get_truck_types(file_content);
@@ -60,22 +60,10 @@ public class TestApp {
 		Map<String, Camion> map_trucks = FuncionesBackend.get_map_trucks(trucks);
 		
 		file_content = FuncionesBackend.get_file_content(path+"mantenimientos.txt",false,",");
-		//List<Mantenimiento> maintenances = FuncionesBackend.get_maintenances(file_content);
-		List<Mantenimiento> maintenances = new ArrayList<Mantenimiento>();
+		List<Mantenimiento> maintenances = FuncionesBackend.get_maintenances(file_content);
+		//List<Mantenimiento> maintenances = new ArrayList<Mantenimiento>();
 		Map<String, List<Mantenimiento>> map_maintenances = FuncionesBackend.get_map_maintenances(maintenances, trucks);
 		
-		Punto ini_point = new Punto(1,17);
-		Punto final_point = new Punto (sales.get(0).getUbicacionX(), sales.get(0).getUbicacionY());
-		
-		
-		List<Punto> intermediates = ini_point.getWayTo(final_point, sales.get(0).getFechaPedido(), trucks.get(0),locks);
-//		AstarFunciones.imprimirCamino(intermediates, locks);
-		
-		//map_sales = Utils.particionarPedidos(map_sales, 5, 5);
-		List<Planta> plants = new ArrayList<Planta>();
-		LocalDateTime horaZero = LocalDateTime.of(2021,11,1,0,0);
-		
-		Genetic genetic = new Genetic(map_sales, map_trucks, locks, map_maintenances,plants, horaZero);
 		int maxIterNoImp = 5;
 		int numChildrenToGenerate = 6;
 		double wA = 1;
@@ -84,6 +72,33 @@ public class TestApp {
 		int mu = 10;
 		int epsilon = 20;
 		double percentageGenesToMutate = 0.3;
+		
+		List<Planta> plants = new ArrayList<Planta>();
+		
+		List<Pedido> pedidosHora = null;
+		
+		LocalDateTime horaZero = LocalDateTime.of(2022,5,1,0,0);
+		LocalDateTime horaLim = horaZero.plusHours(1);
+		
+		for (int i = 0; i < 24; i++) {
+			pedidosHora.clear();
+			for (int j = 0; j < sales.size(); j++) {
+				
+				pedidosHora.add()
+			}
+			
+			
+			horaZero = horaZero.plusHours(1);
+			horaLim = horaLim.plusHours(1);
+		}
+		
+		
+		
+		Map<String, Pedido> map_sales = FuncionesBackend.get_map_sales(sales);
+		
+				
+		Genetic genetic = new Genetic(map_sales, map_trucks, locks, map_maintenances,plants, horaZero);
+
 		
 		
 		Individual solution = genetic.run(maxIterNoImp, numChildrenToGenerate, wA, wB, wC, mu, epsilon, percentageGenesToMutate);
