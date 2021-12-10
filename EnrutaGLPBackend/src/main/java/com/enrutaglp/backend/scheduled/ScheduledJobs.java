@@ -353,6 +353,7 @@ public class ScheduledJobs {
 						}
 					}
 				}
+				publisher.publishEvent(new ActualizacionSimulacionEvent(this, false, fechaInicioParaNotificacion, nuevoValorUltimoCheck, rutas));
 				if(solution.getCantidadPedidosNoEntregados() > 0) {
 					pedidos = new ArrayList<>(pedidosMap.values().stream().collect(Collectors.toList()));
 					Collections.sort(pedidos);
