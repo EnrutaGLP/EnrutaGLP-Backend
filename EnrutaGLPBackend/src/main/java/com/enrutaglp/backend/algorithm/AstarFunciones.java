@@ -186,16 +186,16 @@ public class AstarFunciones {
 		}
 		return camino;
 	}
-	static private List<Punto> obtenerSucesores (Punto p, List<Bloqueo> bloqueos, Punto exception){
+	static private List<Punto> obtenerSucesores (Punto point, List<Bloqueo> bloqueos, Punto exception){
 		
 		List<Punto> sucesores = new ArrayList<Punto>();
 		List<Punto> all = new ArrayList<Punto>();
-		int x = p.getUbicacionX();
-		int y= p.getUbicacionY();
-		all.add(new Punto(x + 1, y, p.getOrden(), p.getCodigoPedido()));
-		all.add(new Punto(x - 1, y, p.getOrden(), p.getCodigoPedido()));
-		all.add(new Punto(x, y + 1, p.getOrden(), p.getCodigoPedido()));
-		all.add(new Punto(x, y - 1, p.getOrden(), p.getCodigoPedido()));
+		int x = point.getUbicacionX();
+		int y= point.getUbicacionY();
+		all.add(new Punto(x + 1, y, point.getOrden(), point.getCodigoPedido()));
+		all.add(new Punto(x - 1, y, point.getOrden(), point.getCodigoPedido()));
+		all.add(new Punto(x, y + 1, point.getOrden(), point.getCodigoPedido()));
+		all.add(new Punto(x, y - 1, point.getOrden(), point.getCodigoPedido()));
 		for (Punto p: all) {
 			boolean is_exception_or_not_lock = mismaPosicion(p, exception) || !hayBloqueosEntre(p, p, bloqueos);
 			if (esPosicionValida(p) && is_exception_or_not_lock) {
