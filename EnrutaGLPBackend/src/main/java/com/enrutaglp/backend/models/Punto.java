@@ -243,6 +243,11 @@ public class Punto {
 			//AstarFunciones af = new AstarFunciones();
 			puntosIntemedios.clear();
 			puntosIntemedios = af.astarAlgoritmo(this, puntoFinal, bloqueosActuales);
+			
+			if(puntosIntemedios == null) {
+				puntosIntemedios = new ArrayList<Punto>();
+			} 
+			
 			puntosIntemedios.add(0, this);
 			puntosIntemedios.add(puntoFinal);
 			

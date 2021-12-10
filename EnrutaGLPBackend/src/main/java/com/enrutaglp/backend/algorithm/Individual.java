@@ -170,4 +170,40 @@ public class Individual implements Comparable<Individual> {
 		}
 	}
 
+	public String to_string () {
+		String str = "";
+		
+		str.concat("consumoTotalPetroleo: " + this.consumoTotalPetroleo + "\n");
+		str.concat("cantidadPedidosNoEntregados: " + this.cantidadPedidosNoEntregados + "\n");
+		str.concat("cantidadGlpNoEntregado: " + this.cantidadGlpNoEntregado + "\n");
+		str.concat("seEstanEntregandoATiempo: " + this.seEstanEntregandoATiempo + "\n");
+		str.concat("minutosAdicional: " + this.minutosAdicional + "\n");
+		str.concat("\n");
+		str.concat("ENTREGAS\n");
+		str.concat("\n");
+
+		for (String key : this.entregas.keySet()) {
+			if (this.entregas.get(key) != null) {
+				str.concat(key + ": " + this.entregas.get(key).size() + "\n");
+			}
+		}
+		str.concat("\n");
+		str.concat("CAMIONES\n");
+		str.concat("\n");
+		if (this.camiones != null) {			
+			for (Camion camion: this.camiones) {
+				str.concat(camion.to_string());
+			}
+		}
+		str.concat("\n");
+		str.concat("RUTAS\n");
+		str.concat("\n");
+		
+		for (String key : this.rutas.keySet()) {
+			if (this.rutas.get(key) != null) {
+				str.concat(key + ": " + this.rutas.get(key).toString() + "\n");				
+			}
+		}
+		return str;
+	}
 }

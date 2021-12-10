@@ -70,8 +70,8 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 		this.cantPedidosNoEntregados = 0;
 		this.glpNoEntregado = 0;
 		this.costoRuta = wa*this.getPetroleoConsumido(); 
-		try {
-			for(String key: pedidosOriginales.keySet()) {
+		
+		for(String key: pedidosOriginales.keySet()) {
 				
 				if(!this.pedidos.containsKey(key)) {
 					this.glpNoEntregado += pedidosOriginales.get(key).getCantidadGlp(); 
@@ -79,13 +79,13 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 					//solo en caso el tiempo limite sea menor al tiempo actual
 				}
 			}
+		
+		assert this.cantPedidosNoEntregados + this.pedidos.size() == pedidosOriginales.size() : "La suma de pedidos y no entregados no esta bien";
 			
 			this.costoRuta += wb*this.glpNoEntregado;
-			return this.costoRuta;
-		}catch(Exception e) {
-			return this.costoRuta;
-		}
 		
+		
+		return this.costoRuta;
 	}
 
 	public void copiarRuta(RutaCompleta ruta) {
@@ -197,7 +197,8 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 		//boolean factible;
 		List<Punto> puntosTotales = new ArrayList<Punto>();
 		//el pedido debio haberse hech o antes de la hora actual y la carga actual de glp debe ser mayor o igual a la del pedido
-		if((this.fechaHoraTranscurrida.isBefore(pedido.getFechaPedido())) ||
+		if((this.fechaHoraTranscurrida.isBefore(pedido.getFechaPedido()) ||
+				pedido.getFechaLimite().isBefore(this.fechaHoraTranscurrida)) ||
 				(this.camion.getCargaActualGLP()<pedido.getCantidadGlp())) {
 			//vacio
 			return puntosTotales;
@@ -245,14 +246,17 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 				(fechaHoraEntrega.isBefore(pedido.getFechaLimite()))) {
 			
 			for (int i = 0; i < this.mantenimientos.size(); i++) {
-					if(this.mantenimientos.get(i).getFechaInicio().isBefore(fechaHoraEntrega) && 
-							this.fechaHoraTranscurrida.isBefore(this.mantenimientos.get(i).getFechaFin())) {
+				
+					if(this.mantenimientos.get(i).getFechaInicio().compareTo(fechaHoraEntrega) < 0 && 
+							this.mantenimientos.get(i).getFechaFin().compareTo(this.fechaHoraTranscurrida) > 0) {
 						
 						if(this.nodos.get(this.nodos.size()-1).isPlanta()) {
 							this.fechaHoraTranscurrida = this.mantenimientos.get(i).getFechaFin();
+							return this.esFactible(pedido);
 						}
 						
 						return puntosTotales;
+						
 					}
 			}
 			
@@ -277,5 +281,27 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 		}
 
 	}
+	
+	public String to_string () {
 		
+		String str = "";
+		str.concat("CAmion: " + this.camion.getCodigo()+ "\n");
+		String format = "yyyy-MM-dd HH:mm:ss a";
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
+		str.concat("fechaHoraTranscurrida: " + this.fechaHoraTranscurrida.format(formatter)+ "\n");
+		str.concat("cantPedidosNoEntregados: " + this.cantPedidosNoEntregados+ "\n");
+		str.concat("glpNoEntregado: " + this.glpNoEntregado+ "\n");
+		str.concat("petroleoConsumido: " + this.petroleoConsumido+ "\n");
+		str.concat("costoRuta: " + this.costoRuta+ "\n");
+		str.concat("distanciaRecorrida: " + this.distanciaRecorrida+ "\n");
+		str.concat("\n");
+		str.concat("RUTAS\n");
+		str.concat("\n");
+		if (this.rutas != null) {			
+			for (Ruta ruta: this.rutas) {
+				str.concat("Size ruta: " + ruta.getPuntos().size() + "\n");
+			}
+		}
+		return str;
+	}
 }

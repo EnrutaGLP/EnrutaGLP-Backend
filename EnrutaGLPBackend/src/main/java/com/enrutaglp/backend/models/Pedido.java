@@ -88,7 +88,7 @@ public class Pedido implements Comparable<Pedido> {
 	}
 	
 	
-	public Pedido (String line) {
+	public Pedido (String line, String cod) {
 		/*
 		 * The format of the line can be
 		 * 
@@ -115,7 +115,7 @@ public class Pedido implements Comparable<Pedido> {
 		LocalDateTime fechaCompletado = LocalDateTime.now();
 		
 		//this.id = id;
-		//this.codigo = codigo;
+		this.codigo = cod;
 		//this.cliente = cliente;
 		this.cantidadGlp = m3;
 		//this.cantidadGlpAtendida = cantidadGlpAtendida;
@@ -134,5 +134,15 @@ public class Pedido implements Comparable<Pedido> {
 			return 1; 
 		}
 		return -1;
+	}
+	
+	public String to_string () {
+		
+		String str = "";
+		str.concat("Cliente: " + this.cliente + "\n");
+		str.concat("Cantidad glp: " + this.cantidadGlp + "\n");
+		str.concat("Cantidad glp atendida: " + this.cantidadGlpAtendida + "\n");
+		str.concat("Ubicación: (" + this.ubicacionX + ", " + this.ubicacionY + ")\n\n");
+		return str;
 	}
 }

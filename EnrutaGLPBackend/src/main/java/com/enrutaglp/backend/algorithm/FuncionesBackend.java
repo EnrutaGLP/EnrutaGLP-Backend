@@ -112,8 +112,10 @@ public class FuncionesBackend {
 	
 	public static List<Pedido> get_sales (List<String> content){
 		List<Pedido> sales = new ArrayList<Pedido>();
+		int i = 0;
 		for (String line: content) {
-			sales.add(new Pedido(line));
+			i = i +1;
+			sales.add(new Pedido(line, String.valueOf(i)));
 		}
 		return sales;
 	}
