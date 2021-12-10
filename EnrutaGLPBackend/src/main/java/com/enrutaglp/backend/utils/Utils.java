@@ -30,38 +30,42 @@ public class Utils {
 	
 	public static Map<String, Pedido> particionarPedidos(
 			Map<String,Pedido>pedidos,
-			int maxTope,
-			int maxDivisor){
+			int min_value_to_divide,
+			int[] dividers){
 		/*
-		 * Para cada pedido se verifica que este no supere el máximo glp que un camion
-		 * de la flota pueda transportar. Si algun pedido supera el máximo permitido será
-		 * dividido en varios pedidos más pequeños.
-		 * Ejemplo para un pedido dado:
-		 * GLP pedido: 73
-		 * Salida esperada:
-		 * Pedidos de GLP de 20, 20, 20, 10 y 3
 		 * 
+		 * If pedido >= min_value_to_divide:
+		 * 	map.put (dividir_pedido (pedido, dividers))
+		 * 
+		 * Example
+		 * 
+		 * dividers = {15}
+		 * If pedido(34) >= min_value_to_divide(25):
+		 * 	map.put ({15, 15, 4})
+		 *
+		 * 
+		 * Example 2
+		 * 
+		 * 70 -> 15 15 15 15 10
 		 */
-		Map<String, Pedido> pParticionados = new HashMap<>();
+		Map<String, Pedido> divisions = new HashMap<>();
 		
 		for (Map.Entry<String, Pedido> entry: pedidos.entrySet()) {
 			Pedido pedido = entry.getValue();
 			
-			if (pedido.getCantidadGlp() > maxTope) {
-				/* 
-				 * Solo se dividen aquellos pedidos > maxDivisor
-				 */
-				for (Pedido p:FuncionesBackend.dividirPedido(pedido,maxDivisor)) {
-					pParticionados.put(p.getCodigo(), p);
+			if (pedido.getCantidadGlp() >= min_value_to_divide) {
+
+				for (Pedido p:FuncionesBackend.dividirPedido(pedido, dividers)) {
+					divisions.put(p.getCodigo(), p);
 				}
 			}
 			else {
-				pParticionados.put(pedido.getCodigo(), pedido);
+				divisions.put(pedido.getCodigo(), pedido);
 			}
 			
 		}
 		
-		return pParticionados; 
+		return divisions; 
 	}
 	
 	public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");

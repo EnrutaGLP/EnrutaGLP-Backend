@@ -27,31 +27,29 @@ public class FuncionesBackend {
 	public static int[] capacidadGLP = {25,15,10,5};
 	
 	
-	public static List<Pedido> dividirPedido(Pedido pADividir, int maxDivisor){
-		
-		double restoGlp = pADividir.getCantidadGlp();
-		List<Pedido> pDivididos = new ArrayList<Pedido>();
+	public static List<Pedido> dividirPedido(Pedido pedido, int[] dividers){
+		/*
+		 * 
+		 * 
+		 */
+		double restoGlp = pedido.getCantidadGlp();
+		List<Pedido> divisions = new ArrayList<Pedido>();
 		int indice = 1;
-		for (int cap: capacidadGLP) {
-			if (cap > maxDivisor) {
-				continue;
-			}
-			int cociente = (int)(restoGlp/cap);
+		for (int divider: dividers) {
+			
+			int cociente = (int)(restoGlp/divider);
+			
 			for (int i=0; i<cociente; i++) {
-				pDivididos.add(new Pedido(
-						pADividir,
-						pADividir.getCodigo() + " - " + String.valueOf(indice++),
-						cap));
+				String cod = pedido.getCodigo() + " - " + String.valueOf(indice++);
+				divisions.add(new Pedido(pedido, cod, divider));
 			}
-			restoGlp = restoGlp%cap;
+			restoGlp = restoGlp%divider;
 		}
 		if (restoGlp > 0) {
-			pDivididos.add(new Pedido(
-					pADividir,
-					pADividir.getCodigo() + " - " + String.valueOf(indice++),
-					restoGlp));
+			String cod = pedido.getCodigo() + " - " + String.valueOf(indice++);
+			divisions.add(new Pedido(pedido, cod, restoGlp));
 		}
-		return pDivididos;
+		return divisions;
 	}
 	
 	
