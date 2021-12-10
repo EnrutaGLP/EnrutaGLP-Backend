@@ -34,8 +34,8 @@ public class TestApp {
 	
 	public static void main(String[] args) {
 		
-		//test ();
-		test_grilla ();
+		test ();
+//		test_grilla ();
 //		test_csv();
     }
 	
@@ -47,10 +47,10 @@ public class TestApp {
 		//String path = "//home//stevramos//Documents//PUCP//2021-2//DP1//Data//test//Simple_test//";
 		
 		//path 20
-		String path = "//home//stevramos//Documents//PUCP//2021-2//DP1//Data//test//Plan//out20//";
-//		String path = "D:\\PUCP\\20141929\\20212\\DP1\\my_input\\";
-		//List<String> file_content = FuncionesBackend.get_folder_content(path+"sales",true,",");
-		List<String> file_content = FuncionesBackend.get_folder_content(path+"1",true,",");
+//		String path = "//home//stevramos//Documents//PUCP//2021-2//DP1//Data//test//Plan//out20//";
+		String path = "D:\\PUCP\\20141929\\20212\\DP1\\my_input\\";
+		List<String> file_content = FuncionesBackend.get_folder_content(path+"sales",true,",");
+//		List<String> file_content = FuncionesBackend.get_folder_content(path+"1",true,",");
 		List<Pedido> sales = FuncionesBackend.get_sales(file_content);
 		Map<String, Pedido> map_sales = FuncionesBackend.get_map_sales(sales);
 		
@@ -76,8 +76,8 @@ public class TestApp {
 		
 //		List<Punto> intermediates = ini_point.getWayTo(final_point, sales.get(0).getFechaPedido(), trucks.get(0),locks);
 //		AstarFunciones.imprimirCamino(intermediates, locks);
-		
-		//map_sales = Utils.particionarPedidos(map_sales, 5, 5);
+		int[] divisores = {15};
+		map_sales = Utils.particionarPedidos(map_sales, 16, divisores);
 		List<Planta> plants = new ArrayList<Planta>();
 		LocalDateTime horaZero = LocalDateTime.of(2021,11,1,0,0);
 		

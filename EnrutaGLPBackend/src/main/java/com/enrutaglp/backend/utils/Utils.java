@@ -44,6 +44,9 @@ public class Utils {
 		 * 	map.put ({15, 15, 4})
 		 *
 		 * 
+		 * Example 2
+		 * 
+		 * 70 -> 15 15 15 15 10
 		 */
 		Map<String, Pedido> divisions = new HashMap<>();
 		
