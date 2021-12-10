@@ -8,6 +8,7 @@ import com.enrutaglp.backend.models.Pedido;
 import com.enrutaglp.backend.utils.Pair;
 
 public interface PedidoRepository {
+	List<Pedido>listarFaltantesEnLista(List<Integer> ids);
 	void registrar(Pedido pedido);
 	List<Pedido> listar();
 	List<Pedido> listarPedidosEnRuta();

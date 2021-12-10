@@ -22,6 +22,7 @@ import com.enrutaglp.backend.enums.TipoRuta;
 import com.enrutaglp.backend.events.ActualizacionSimulacionEvent;
 import com.enrutaglp.backend.models.EntregaPedido;
 import com.enrutaglp.backend.models.Ruta;
+import com.enrutaglp.backend.utils.Utils;
 
 @Component
 public class ActualizacionSimulacionListener {
@@ -51,12 +52,15 @@ public class ActualizacionSimulacionListener {
 					if(r.getTipo() == TipoRuta.ENTREGA.getValue()) {
 						EntregaPedido ep = (EntregaPedido) o; 
 						codigoPedido = ep.getPedido().getCodigo();
+						if(codigoPedido.contains("-")) {
+							codigoPedido = codigoPedido.split(" -")[0];
+						}
 					}else {
-						codigoPedido = null;
+						codigoPedido = "";
 					}
 					List<PuntoDTO> puntos = r.getPuntos().stream().map(p -> new PuntoDTO(p))
 							.collect(Collectors.toList());
-					rutasParaDto.add(new RutaSimulacionDTO(codigoPedido, r.getHoraSalida(), puntos));
+					rutasParaDto.add(new RutaSimulacionDTO(codigoPedido,r.getHoraSalida(), r.getHoraSalida().format(Utils.formatter2), puntos));
 				}
 				
 				otros.add(new CamionSimulacionDTO(entry.getValue().get(0).getCamion().getCodigo(),
@@ -66,8 +70,10 @@ public class ActualizacionSimulacionListener {
 		//Ordenar lista 
 		Collections.sort(otros);
 		
-		ActualizacionSimulacionDTO dto = new ActualizacionSimulacionDTO(event.getFechaInicio(), event.getFechaFin(), averiados, otros, event.isEsFinal());
-		template.convertAndSend(destino, dto);
+		ActualizacionSimulacionDTO dto = new ActualizacionSimulacionDTO(LocalDateTime.parse(event.getFechaInicio(), Utils.formatter1).format(Utils.formatter2),
+				LocalDateTime.parse(event.getFechaFin(), Utils.formatter1).format(Utils.formatter2), averiados, otros, event.isEsFinal());
+		Object o = dto;
+		template.convertAndSend(destino, o);
 	}
 	
 }

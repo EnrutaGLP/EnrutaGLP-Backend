@@ -79,6 +79,12 @@ public class JDBCPedidoRepository implements PedidoRepository {
 			pedidosMapa.put(p.getCodigo(), p);
 		}
 		return pedidosMapa;
+	}
+
+	@Override
+	public List<Pedido> listarFaltantesEnLista(List<Integer> ids) {
+		return repo.listarFaltantesEnLista(ids).stream().map(p -> p.toModel())
+				.collect(Collectors.toList());
 	}	
 
 }

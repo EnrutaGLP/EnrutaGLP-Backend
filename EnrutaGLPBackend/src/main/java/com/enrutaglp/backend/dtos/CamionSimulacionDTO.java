@@ -10,14 +10,14 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CamionSimulacionDTO implements Comparable<CamionSimulacionDTO>{
-	String codigo; 
-	List<RutaSimulacionDTO> rutas;
+	private String codigo; 
+	private List<RutaSimulacionDTO> rutas;
 	@Override
 	public int compareTo(CamionSimulacionDTO o) {
 		if(this.rutas == null || this.rutas.size()==0) {
 			return -1;
 		}
-		else if(this.rutas.get(0).getHoraSalida().isAfter(o.getRutas().get(0).getHoraSalida())) {
+		else if(this.rutas.get(0).getLdtHoraSalida().isAfter(o.getRutas().get(0).getLdtHoraSalida())) {
 			return 1; 
 		} else {
 			return -1;

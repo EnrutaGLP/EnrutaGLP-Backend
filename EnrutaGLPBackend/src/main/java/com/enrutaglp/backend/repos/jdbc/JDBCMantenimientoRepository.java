@@ -51,10 +51,10 @@ public class JDBCMantenimientoRepository implements MantenimientoRepository{
 		Map<Integer, String> mapaIdCodigo = new HashMap<Integer, String>();
 		String desdeString = null,hastaString = null;
 		if(fechaInicio!=null) {
-			desdeString = fechaInicio.format(Utils.formatter);
+			desdeString = fechaInicio.format(Utils.formatter1);
 		}
 		if(fechaFin!=null) {
-			hastaString = fechaFin.format(Utils.formatter);	
+			hastaString = fechaFin.format(Utils.formatter1);	
 		}
 		
 		List<MantenimientoTable> mantenimientosBd;

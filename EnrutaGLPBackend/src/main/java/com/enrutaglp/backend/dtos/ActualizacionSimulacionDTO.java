@@ -3,6 +3,8 @@ package com.enrutaglp.backend.dtos;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,9 +13,10 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class ActualizacionSimulacionDTO {
-	String fechaInicio; 
-	String fechaFin;
-	List<CamionSimulacionDTO> averiados; 
-	List<CamionSimulacionDTO> otros;
+	private String fechaInicio; 
+	private String fechaFin;
+	//private double porcentajePlazoOcupadoPromedio;
+	private List<CamionSimulacionDTO> averiados; 
+	private List<CamionSimulacionDTO> otros;
 	boolean esFinal; 
 }

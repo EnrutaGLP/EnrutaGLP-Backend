@@ -18,6 +18,14 @@ public interface PedidoCrudRepository extends CrudRepository<PedidoTable, Intege
 			)
 	List<PedidoTable>listarPorEstado(@Param("estado") byte estado);
 
+	@Query(   "SELECT * "
+			+ "FROM pedido "
+			+ "where pedido.cantidad_glp_por_planificar = 0 "
+			+ "and id in (:ids)"
+			)
+	List<PedidoTable>listarFaltantesEnLista(@Param("ids") List<Integer> ids);
+
+	
 	@Query(  "SELECT * "
 			+ "FROM pedido "
 			+ "where "

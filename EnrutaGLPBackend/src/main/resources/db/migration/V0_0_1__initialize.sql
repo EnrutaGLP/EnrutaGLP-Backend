@@ -4,6 +4,12 @@ CREATE TABLE configuracion (
     PRIMARY KEY (llave)
 );
 
+CREATE TABLE indicador (
+    nombre VARCHAR(100) NOT NULL,
+    valor DOUBLE,
+    PRIMARY KEY (nombre)
+);
+
 CREATE TABLE perfil (
 	id TINYINT NOT NULL,
 	nombre VARCHAR(20) NOT NULL,
@@ -181,16 +187,28 @@ DELIMITER $$
 CREATE TRIGGER after_insert_entrega_pedido AFTER INSERT ON entrega_pedido
 FOR EACH ROW 
 BEGIN
+    DECLARE cantidad_por_plan double;
+    
 	UPDATE pedido set 
     cantidad_glp_por_planificar = cantidad_glp_por_planificar - NEW.cantidad_entregada
     where id = NEW.id_pedido;
+    
+    SELECT cantidad_glp_por_planificar into cantidad_por_plan from pedido where id = NEW.id_pedido; 
+    
+    IF cantidad_por_plan = 0.0 then 
+		UPDATE pedido
+        SET fecha_completado = (SELECT hora_llegada FROM ruta where id = NEW.id_ruta)
+        WHERE id = NEW.id_pedido;
+    END IF; 
+    
 END$$
 
 CREATE TRIGGER before_entrega_pedido_delete BEFORE DELETE ON entrega_pedido 
 FOR EACH ROW
 BEGIN
 	UPDATE pedido set 
-    cantidad_glp_por_planificar = cantidad_glp_por_planificar + OLD.cantidad_entregada
+    cantidad_glp_por_planificar = cantidad_glp_por_planificar + OLD.cantidad_entregada,
+    fecha_completado = null
     where id = OLD.id_pedido;
 END$$    
 
@@ -205,6 +223,12 @@ INSERT INTO configuracion VALUES
 ('MODO_EJECUCION','1'),
 ('FECHA_INICIO_SIMULACION',NULL),
 ('FECHA_FIN_SIMULACION',NULL);
+
+-- Indicadores
+
+INSERT INTO indicador VALUES 
+('CANTIDAD_PEDIDOS_PROCESADOS',0),
+('PORCENTAJE_PLAZO_OCUPADO_PROMEDIO',0);
 
 INSERT INTO estado_pedido VALUES (1,'En cola'),(2,'En proceso'),(3,'Completado'); 
 
