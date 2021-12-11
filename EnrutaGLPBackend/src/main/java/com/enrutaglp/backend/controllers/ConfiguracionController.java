@@ -64,7 +64,7 @@ public class ConfiguracionController {
 		Map<String, String> mapa = new HashMap<String, String>();
 		String fechaInicio = ((Map<String, String>)requestBody)
 				.get("fechaInicio"); 
-		String fechaFin = LocalDateTime.parse(fechaInicio, Utils.formatter).plusDays(3).format(Utils.formatter);
+		String fechaFin = LocalDateTime.parse(fechaInicio, Utils.formatter1).plusDays(3).format(Utils.formatter1);
 		mapa.put(llaveConstVC, valorConstVCTresDias); 
 		mapa.put(llaveUltimoCheck, ((Map<String, String>)requestBody).get("fechaInicio")); 
 		mapa.put(llaveModoEjecucion, String.valueOf(ModoEjecucion.SIM_TRES_DIAS.getValue())); 
@@ -83,7 +83,7 @@ public class ConfiguracionController {
 		Map<String, String> mapa = new HashMap<String, String>();
 		String fechaInicio = ((Map<String, String>)requestBody)
 				.get("fechaInicio"); 
-		String fechaFin = LocalDateTime.parse(fechaInicio, Utils.formatter).plusMonths(6).format(Utils.formatter);
+		String fechaFin = LocalDateTime.parse(fechaInicio, Utils.formatter1).plusMonths(6).format(Utils.formatter1);
 		mapa.put(llaveConstVC, valorConstVCColapso); 
 		mapa.put(llaveUltimoCheck, ((Map<String, String>)requestBody).get("fechaInicio")); 
 		mapa.put(llaveModoEjecucion, String.valueOf(ModoEjecucion.SIM_COLAPSO.getValue())); 

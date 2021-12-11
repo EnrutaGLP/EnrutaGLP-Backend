@@ -50,10 +50,10 @@ public class JDBCBloqueoRepository implements BloqueoRepository {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 		String desdeString = null,hastaString = null;
 		if(fechaInicio!=null) {
-			desdeString = fechaInicio.format(Utils.formatter);
+			desdeString = fechaInicio.format(Utils.formatter1);
 		}
 		if(fechaFin!=null) {
-			hastaString = fechaFin.format(Utils.formatter);	
+			hastaString = fechaFin.format(Utils.formatter1);	
 		}
 		List<BloqueoTable> bloqueosBd; 
 		if(desdeString == null && hastaString != null) {

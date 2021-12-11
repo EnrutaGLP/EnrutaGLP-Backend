@@ -185,7 +185,7 @@ public class JDBCRutaRepository implements RutaRepository {
 		
 		
 		for(CamionEstadoDTO ce : otros) {
-			CamionRutaDTO cr = new CamionRutaDTO(ce);
+			CamionRutaDTO cr = 				new CamionRutaDTO(ce);
 			cr.setRuta(rutaRepo.listarPuntosDtoRutaActualCamion(cr.getCodigo()));
 			if(cr.getRuta()!=null && cr.getRuta().size()>0) {
 				otrosRuta.add(cr);	

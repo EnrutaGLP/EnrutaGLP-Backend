@@ -68,7 +68,9 @@ public class Utils {
 		return divisions; 
 	}
 	
-	public static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+	public static DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+	
+	public static DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
 	
 	public static double calcularDistanciaTodosPuntos(List<Punto> puntosIntemediosAB) {
 		

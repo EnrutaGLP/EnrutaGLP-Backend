@@ -1,4 +1,6 @@
 spring:
+  #jackson:
+  #  serialization:   #    write-dates-as-timestamps: false
   task:    execution:      pool:        core-size: 5
   application:
     name: enrutaglp
@@ -9,6 +11,11 @@ spring:
     username: root
   flyway:    locations:    - classpath:/db/migration
 server:  port: 8080
+indicadores: 
+  cantidad-pedidos-procesados: 
+    nombre: CANTIDAD_PEDIDOS_PROCESADOS
+  porcentaje-plazo-ocupado-promedio:
+    nombre: PORCENTAJE_PLAZO_OCUPADO_PROMEDIO
 datos-configuracion: 
   const-vol-consumo:
     llave: CTE_VOLUMEN_CONSUMO

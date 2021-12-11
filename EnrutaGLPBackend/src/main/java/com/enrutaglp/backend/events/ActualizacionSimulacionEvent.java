@@ -17,6 +17,7 @@ public class ActualizacionSimulacionEvent extends ApplicationEvent{
 	private String fechaInicio; 
 	private String fechaFin; 
 	private Map<Integer,List<Ruta>> rutas; 
+	
 	public ActualizacionSimulacionEvent(Object source, boolean esFinal, String fechaInicio, String fechaFin, Map<Integer,List<Ruta>> rutas) {
 		super(source);
 		this.esFinal = esFinal; 

@@ -31,7 +31,7 @@ public class BloqueoController {
 	public ResponseEntity<Response>listarProximos(@RequestBody Object requestBody){
 		String fechaInicio = ((Map<String, String>)requestBody)
 					.get("fechaInicio"); 
-		List<Bloqueo>bloqueos = bloqueoRepository.listarEnRango(LocalDateTime.parse(fechaInicio, Utils.formatter),null);
+		List<Bloqueo>bloqueos = bloqueoRepository.listarEnRango(LocalDateTime.parse(fechaInicio, Utils.formatter1),null);
 		return new ResponseEntity<Response>(new Response(bloqueos),HttpStatus.OK);
 	}
 	
