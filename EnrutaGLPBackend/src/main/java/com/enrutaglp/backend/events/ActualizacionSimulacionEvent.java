@@ -19,7 +19,7 @@ public class ActualizacionSimulacionEvent extends ApplicationEvent{
 	private String fechaFin; 
 	private List<Bloqueo>bloqueos;
 	private Map<Integer,List<Ruta>> rutas; 
-	
+	private boolean llegoAlColapso;
 	public ActualizacionSimulacionEvent(Object source, boolean esFinal, String fechaInicio, String fechaFin, Map<Integer,List<Ruta>> rutas) {
 		super(source);
 		this.esFinal = esFinal; 

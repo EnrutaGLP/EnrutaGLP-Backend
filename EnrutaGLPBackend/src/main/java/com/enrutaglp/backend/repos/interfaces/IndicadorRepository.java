@@ -7,6 +7,8 @@ import com.enrutaglp.backend.tables.ConfiguracionTable;
 
 public interface IndicadorRepository {
 	void actualizarIndicador(String nombre,Double valor);
-	void actualizarIndicadores(List<Integer>pedidosIdsActualizar);
+	void actualizarIndicadoresConPedidos(List<Integer>pedidosIdsActualizar);
+	void actualizarIndicadores(Map<String, Double> mapa); 
+	void resetearIndicadores(); 
 	Map<String, Double>listarIndicadores();
 }

@@ -21,6 +21,7 @@ import com.enrutaglp.backend.events.SimulacionIniciadaEvent;
 import com.enrutaglp.backend.events.UbicacionesActualizadasEvent;
 import com.enrutaglp.backend.models.Camion;
 import com.enrutaglp.backend.repos.interfaces.ConfiguracionRepository;
+import com.enrutaglp.backend.repos.interfaces.IndicadorRepository;
 import com.enrutaglp.backend.utils.Utils;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -52,9 +53,18 @@ public class ConfiguracionController {
 	@Value("${datos-configuracion.const-vol-consumo.dia-a-dia}")
 	private String valorConstVCDiaAdia;
 	
+	@Value("${indicadores.cantidad-pedidos-procesados.nombre}")
+	private String cantidadPedidosProcesadosNombre;
+	
+	@Value("${indicadores.porcentaje-plazo-ocupado-promedio.nombre}")
+	private String porcentajePlazoOcupadoPromedioNombre;
+	
 	@Autowired
 	private ConfiguracionRepository configuracionRepository; 
 
+	@Autowired
+	private IndicadorRepository indicadorRepository; 
+	
 	@Autowired
 	private ApplicationEventPublisher publisher;
 	
@@ -72,7 +82,7 @@ public class ConfiguracionController {
 		mapa.put(llaveFechaFinSimulacion,fechaFin); 
 		mapa.put(llaveUltimoCheck, null);
 		configuracionRepository.actualizarLlaves(mapa);
-		
+		indicadorRepository.resetearIndicadores();
 		publisher.publishEvent(new SimulacionIniciadaEvent(this,ModoEjecucion.SIM_TRES_DIAS.getValue(),fechaInicio, fechaFin));
 		return new ResponseEntity<Response>(new Response(true),HttpStatus.OK);
 	}
@@ -90,7 +100,7 @@ public class ConfiguracionController {
 		mapa.put(llaveFechaInicioSimulacion, fechaInicio); 
 		mapa.put(llaveFechaFinSimulacion,fechaFin); 
 		mapa.put(llaveUltimoCheck, null);
-		
+		indicadorRepository.resetearIndicadores();
 		publisher.publishEvent(new SimulacionIniciadaEvent(this,ModoEjecucion.SIM_COLAPSO.getValue(), fechaInicio, fechaFin));
 		return new ResponseEntity<Response>(new Response(true),HttpStatus.OK);
 	}
@@ -101,6 +111,7 @@ public class ConfiguracionController {
 		mapa.put(llaveConstVC, valorConstVCDiaAdia); 
 		mapa.put(llaveUltimoCheck, null);
 		configuracionRepository.actualizarLlaves(mapa);
+		indicadorRepository.resetearIndicadores();
 		return new ResponseEntity<Response>(new Response(true),HttpStatus.OK);
 	}
 	

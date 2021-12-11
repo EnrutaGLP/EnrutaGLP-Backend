@@ -1,6 +1,7 @@
 package com.enrutaglp.backend.listeners;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +19,7 @@ import com.enrutaglp.backend.events.UbicacionesActualizadasEvent;
 import com.enrutaglp.backend.models.Bloqueo;
 import com.enrutaglp.backend.models.Pedido;
 import com.enrutaglp.backend.repos.interfaces.BloqueoRepository;
+import com.enrutaglp.backend.repos.interfaces.IndicadorRepository;
 import com.enrutaglp.backend.repos.interfaces.PedidoRepository;
 import com.enrutaglp.backend.repos.interfaces.RutaRepository;
 import com.enrutaglp.backend.utils.Utils;
@@ -35,6 +37,12 @@ public class UbicacionesActualizadasListener {
 	private BloqueoRepository bloqueoRepository; 
 	
 	@Autowired
+	private IndicadorRepository indicadorRepository; 
+	
+	@Value("${indicadores.porcentaje-plazo-ocupado-promedio.nombre}")
+	private String porcentajePlazoOcupadoPromedioNombre;
+	
+	@Autowired
 	private SimpMessagingTemplate template;
 	
 	@Value("${notificaciones.ubicaciones-actualizadas}")
@@ -46,7 +54,8 @@ public class UbicacionesActualizadasListener {
 		List<Bloqueo>bloqueos = bloqueoRepository.listarEnRango(Utils.obtenerFechaHoraActual(),Utils.obtenerFechaHoraActual());
 		ListaRutasActualesDTO rutas = rutaRepository.listarActuales();
 		List<Pedido>pedidos = pedidoRepository.listarPedidosEnRuta();
-		EstadoGeneralDTO dto = new EstadoGeneralDTO(bloqueos, rutas, pedidos);
+		Map<String, Double>indicadoresMap =  indicadorRepository.listarIndicadores();
+		EstadoGeneralDTO dto = new EstadoGeneralDTO(bloqueos, rutas, pedidos, Utils.round(indicadoresMap.get(porcentajePlazoOcupadoPromedioNombre),2));
 		template.convertAndSend(destino, dto);
 	}
 }

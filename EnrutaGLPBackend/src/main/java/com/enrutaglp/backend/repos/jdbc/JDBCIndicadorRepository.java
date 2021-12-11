@@ -59,7 +59,7 @@ public class JDBCIndicadorRepository implements IndicadorRepository{
 
 
 	@Override
-	public void actualizarIndicadores(List<Integer> pedidosIdsActualizar) {
+	public void actualizarIndicadoresConPedidos(List<Integer> pedidosIdsActualizar) {
 		
 		if(pedidosIdsActualizar == null)
 			return; 
@@ -91,6 +91,25 @@ public class JDBCIndicadorRepository implements IndicadorRepository{
 		indicadoresActualizar.add(new IndicadorTable(cantidadPedidosProcesadosNombre,cantidadPedidosProcesadosNuevo));
 		indicadoresActualizar.add(new IndicadorTable(porcentajePlazoOcupadoPromedioNombre,porcentajePlazoOcupadoPromedioNuevo));
 		repo.saveAll(indicadoresActualizar);
+	}
+
+
+	@Override
+	public void actualizarIndicadores(Map<String, Double> mapa) {
+		List<IndicadorTable> indicadores = new ArrayList<IndicadorTable>(); 
+		for(Map.Entry<String, Double> entry: mapa.entrySet()) {
+			indicadores.add(new IndicadorTable(entry.getKey(), entry.getValue())); 
+		}
+		repo.saveAll(indicadores); 
+	}
+
+
+	@Override
+	public void resetearIndicadores() {
+		Map<String, Double> mapaIndicadores = new HashMap<String, Double>(); 
+		mapaIndicadores.put(cantidadPedidosProcesadosNombre, 0.0);
+		mapaIndicadores.put(porcentajePlazoOcupadoPromedioNombre, 0.0);
+		actualizarIndicadores(mapaIndicadores); 
 	}
 	
 	
