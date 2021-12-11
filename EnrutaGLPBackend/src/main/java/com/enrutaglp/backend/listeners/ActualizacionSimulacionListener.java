@@ -20,18 +20,26 @@ import com.enrutaglp.backend.dtos.PuntoDTO;
 import com.enrutaglp.backend.dtos.RutaSimulacionDTO;
 import com.enrutaglp.backend.enums.TipoRuta;
 import com.enrutaglp.backend.events.ActualizacionSimulacionEvent;
+import com.enrutaglp.backend.models.Averia;
 import com.enrutaglp.backend.models.EntregaPedido;
 import com.enrutaglp.backend.models.Ruta;
+import com.enrutaglp.backend.repos.interfaces.IndicadorRepository;
 import com.enrutaglp.backend.utils.Utils;
 
 @Component
 public class ActualizacionSimulacionListener {
+	
+	@Value("${indicadores.porcentaje-plazo-ocupado-promedio.nombre}")
+	private String porcentajePlazoOcupadoPromedioNombre;
 	
 	@Value("${notificaciones.actualizacion-simulacion}")
 	private String destino;
 	
 	@Autowired
 	private SimpMessagingTemplate template;
+	
+	@Autowired
+	private IndicadorRepository indicadorRepository; 
 	
 	@EventListener
 	@Async
@@ -69,9 +77,11 @@ public class ActualizacionSimulacionListener {
 		}
 		//Ordenar lista 
 		Collections.sort(otros);
+		Map<String, Double>indicadoresMap =  indicadorRepository.listarIndicadores();
 		
 		ActualizacionSimulacionDTO dto = new ActualizacionSimulacionDTO(LocalDateTime.parse(event.getFechaInicio(), Utils.formatter1).format(Utils.formatter2),
-				LocalDateTime.parse(event.getFechaFin(), Utils.formatter1).format(Utils.formatter2), averiados, otros, event.getBloqueos(), event.isEsFinal());
+				LocalDateTime.parse(event.getFechaFin(), Utils.formatter1).format(Utils.formatter2), Utils.round(indicadoresMap.get(porcentajePlazoOcupadoPromedioNombre),2)
+				,averiados, otros, event.getBloqueos(), new ArrayList<Averia>() , event.isEsFinal());
 		Object o = dto;
 		template.convertAndSend(destino, o);
 	}
