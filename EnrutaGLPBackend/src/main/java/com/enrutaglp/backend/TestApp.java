@@ -50,7 +50,7 @@ public class TestApp {
 		String path = "//home//stevramos//Documents//PUCP//2021-2//DP1//Data//test//Plan//out20//";
 //		String path = "D:\\PUCP\\20141929\\20212\\DP1\\my_input\\";
 		//List<String> file_content = FuncionesBackend.get_folder_content(path+"sales",true,",");
-		List<String> file_content = FuncionesBackend.get_folder_content(path+"202205",true,",");
+		List<String> file_content = FuncionesBackend.get_folder_content(path+"202110",true,",");
 		List<Pedido> sales = FuncionesBackend.get_sales(file_content);
 		
 		
@@ -83,7 +83,7 @@ public class TestApp {
 		
 		List<Pedido> pedidosHora = new ArrayList<Pedido>();
 		
-		LocalDateTime horaZero = LocalDateTime.of(2022,5,1,0,0);
+		LocalDateTime horaZero = LocalDateTime.of(2021,10,1,0,0);
 		LocalDateTime horaLim = horaZero.plusHours(1);
 		
 		int[] divisores = {15};
