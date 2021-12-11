@@ -151,7 +151,9 @@ public class ScheduledJobs {
 		String nuevoValorUltimoCheck = nuevoCheckpoint.format(Utils.formatter1);
 		configuracionRepository.actualizarLlave(llaveUltimoCheck, nuevoValorUltimoCheck);
 		Map<String, Pedido>pedidos = pedidoRepository.listarPendientesMap(nuevoValorUltimoCheck); 
-		pedidos = Utils.particionarPedidos(pedidos, 5, 5);
+
+		int[] divisores = {15};
+		pedidos = Utils.particionarPedidos(pedidos, 16, divisores);
 		Map<String, Camion>flota = camionRepository.listarDisponiblesParaEnrutamiento(horaZero.format(Utils.formatter1)); 
 		List<Bloqueo>bloqueos = bloqueoRepository.listarEnRango(horaZero, null); 
 		Map<String, List<Mantenimiento>>mantenimientos = mantenimientoRepository.obtenerMapaDeMantenimientos(horaZero,null); 
@@ -213,6 +215,8 @@ public class ScheduledJobs {
 		private LocalDateTime fechaFin; 
 		private Map<String, LocalDateTime> mapaDisponibilidad;
 		Map<String, Pedido> pedidosMapParaAlgoritmo;
+		List<Bloqueo> bloqueosParaAlgoritmo; 
+		Map<String, List<Mantenimiento>>mantenimientosParaAlgoritmo;
 		private Map<String, Camion>camiones; 
 		
 	    public EjecucionSimulacion(byte modoEjecucion, String fechaInicio, String strFechaFin){
@@ -222,15 +226,53 @@ public class ScheduledJobs {
 	    	this.fechaFin = LocalDateTime.parse(strFechaFin, Utils.formatter1);
 	    }
 	    
-	    public void filtrarPedidosDentroDeRango(LocalDateTime fechaFinal,  List<Pedido> pedidos){
+	    public void filtrarBloqueosDentroDeRango(LocalDateTime fechaFinal, List<Bloqueo>bloqueos) {
+	    	bloqueosParaAlgoritmo = new ArrayList<Bloqueo>(); 
+	    	int i = 0; 
+	    	while(true) {
+	    		if(i >= bloqueos.size())
+	    			return; 
+	    		Bloqueo b = bloqueos.get(i); 
+	    		if(b.getFechaInicio().isAfter(fechaFinal))
+	    			return; 
+	    		bloqueosParaAlgoritmo.add(b); 
+	    		if(b.getFechaFin().isBefore(fechaFinal)) {
+	    			bloqueos.remove(i); 
+	    		}
+	    		i++; 
+	    	}
+	    }
+	    
+	    public LocalDateTime obtenerFechaLimiteMax(List<Pedido> pedidos) {
+	    	LocalDateTime fechaLimiteMaximo = null;
+	    	
+	    	for(Pedido p: pedidos) {
+	    		if(fechaLimiteMaximo == null) {
+					fechaLimiteMaximo = p.getFechaLimite(); 
+				} else if(fechaLimiteMaximo.isBefore(p.getFechaLimite())) {
+					fechaLimiteMaximo = p.getFechaLimite(); 
+				}
+	    	}
+	    	
+	    	return fechaLimiteMaximo; 
+	    }
+	    
+	    public LocalDateTime filtrarPedidosDentroDeRango(LocalDateTime fechaFinal,  List<Pedido> pedidos){
+	    	LocalDateTime fechaLimiteMaximo = null;
+	    	pedidosMapParaAlgoritmo = new HashMap<String, Pedido>();
 			//Asumiendo que los pedidos se encuentran ordenados por fecha pedido
 			while(true) {
 				if(pedidos.size() == 0)
-					return;
+					return fechaLimiteMaximo;
 				Pedido p = pedidos.get(0);
 				if(p.getFechaPedido().isAfter(fechaFinal))
-					return; 
-				pedidosMapParaAlgoritmo.put(p.getCodigo(), p); 
+					return fechaLimiteMaximo; 
+				pedidosMapParaAlgoritmo.put(p.getCodigo(), p);
+				if(fechaLimiteMaximo == null) {
+					fechaLimiteMaximo = p.getFechaLimite(); 
+				} else if(fechaLimiteMaximo.isBefore(p.getFechaLimite())) {
+					fechaLimiteMaximo = p.getFechaLimite(); 
+				}
 				pedidos.remove(0); 
 			}
 		}
@@ -297,16 +339,16 @@ public class ScheduledJobs {
 			configuracionRepository.actualizarLlave(llaveUltimoCheck, nuevoValorUltimoCheck);
 			
 			Map<String, Pedido> pedidosMap = pedidoRepository.listarPedidosDesdeHastaMap(fechaInicio,nuevoValorUltimoCheck);
-			pedidosMap = Utils.particionarPedidos(pedidosMap, 5, 5);
+			pedidosMap = Utils.particionarPedidos(pedidosMap, 16, new int[] {15});
 			
 			List<Pedido> pedidos = new ArrayList<>(pedidosMap.values().stream().collect(Collectors.toList()));
-			
+			LocalDateTime fechaLimiteMaxGeneral = obtenerFechaLimiteMax(pedidos);
 			
 			List<Integer> pedidosIds = pedidos.stream().map(p -> p.getId()).collect(Collectors.toList());
 			Collections.sort(pedidos);
 			
-			List<Bloqueo>bloqueos = bloqueoRepository.listarEnRango(horaZero, null); 
-			Map<String, List<Mantenimiento>>mantenimientos = mantenimientoRepository.obtenerMapaDeMantenimientos(horaZero,null); 
+			List<Bloqueo>bloqueos = bloqueoRepository.listarEnRango(horaZero, fechaLimiteMaxGeneral); 
+			Map<String, List<Mantenimiento>>mantenimientos = mantenimientoRepository.obtenerMapaDeMantenimientos(horaZero,fechaLimiteMaxGeneral); 
 			List<Planta> plantas = new ArrayList<Planta>();
 			
 			
@@ -322,27 +364,28 @@ public class ScheduledJobs {
 					horaZero =  horaZero.plusHours(1);
 				}
 				flota = actualizarFlotaConMapaDisponibilidad(horaZero);
-				filtrarPedidosDentroDeRango(horaZero, pedidos);
-				Genetic genetic = new Genetic(pedidosMapParaAlgoritmo, flota, bloqueos, mantenimientos,plantas, horaZero);
-				Individual solution = genetic.run(maxIterNoImp, numChildrenToGenerate, wA, wB, wC, mu, epsilon, percentageGenesToMutate);
-				
-				Map<String, RutaCompleta>rutasCompletas =  solution.getRutas();			
-				
-				for(RutaCompleta rc : rutasCompletas.values()) {
-					if(rc.getRutas() != null && rc.getRutas().size()>0) {
-						
-						if(!rutas.containsKey(rc.getCamion().getId())) {
-							rutas.put(rc.getCamion().getId(), new ArrayList<Ruta>());
-						}
-						
-						List<Ruta> rs = Stream.concat(
-								rutas.get(rc.getCamion().getId()).stream(),
-								rc.getRutas().stream()
-								).collect(Collectors.toList());
-						rutas.put(rc.getCamion().getId(), rs);
-						mapaDisponibilidad.put(rc.getCamion().getCodigo(), rs.get(rs.size()-1).getHoraLlegada());
-						
-						if(rc.getCantPedidosNoEntregados() > 0 ) {
+				LocalDateTime fechaLimiteMax = filtrarPedidosDentroDeRango(horaZero, pedidos);
+				if(fechaLimiteMax != null) {
+					filtrarBloqueosDentroDeRango(fechaLimiteMax,bloqueos);
+					Genetic genetic = new Genetic(pedidosMapParaAlgoritmo, flota, bloqueosParaAlgoritmo, mantenimientos,plantas, horaZero);
+					Individual solution = genetic.run(maxIterNoImp, numChildrenToGenerate, wA, wB, wC, mu, epsilon, percentageGenesToMutate);
+					
+					Map<String, RutaCompleta>rutasCompletas =  solution.getRutas();			
+					
+					for(RutaCompleta rc : rutasCompletas.values()) {
+						if(rc.getRutas() != null && rc.getRutas().size()>0) {
+							
+							if(!rutas.containsKey(rc.getCamion().getId())) {
+								rutas.put(rc.getCamion().getId(), new ArrayList<Ruta>());
+							}
+							
+							List<Ruta> rs = Stream.concat(
+									rutas.get(rc.getCamion().getId()).stream(),
+									rc.getRutas().stream()
+									).collect(Collectors.toList());
+							rutas.put(rc.getCamion().getId(), rs);
+							mapaDisponibilidad.put(rc.getCamion().getCodigo(), rs.get(rs.size()-1).getHoraLlegada());
+							
 							for(Ruta r: rs) {
 								if(r.getTipo() == TipoRuta.ENTREGA.getValue()) {
 									Object o = r; 
@@ -352,12 +395,13 @@ public class ScheduledJobs {
 							}
 						}
 					}
+					//publisher.publishEvent(new ActualizacionSimulacionEvent(this, false, fechaInicioParaNotificacion, nuevoValorUltimoCheck, rutas));
+					if(solution.getCantidadPedidosNoEntregados() > 0) {
+						pedidos = new ArrayList<>(pedidosMap.values().stream().collect(Collectors.toList()));
+						Collections.sort(pedidos);
+					}
 				}
-				publisher.publishEvent(new ActualizacionSimulacionEvent(this, false, fechaInicioParaNotificacion, nuevoValorUltimoCheck, rutas));
-				if(solution.getCantidadPedidosNoEntregados() > 0) {
-					pedidos = new ArrayList<>(pedidosMap.values().stream().collect(Collectors.toList()));
-					Collections.sort(pedidos);
-				}
+				
 				if(horaZero.isAfter(nuevoCheckpoint) || horaZero.isEqual(nuevoCheckpoint))break;
 				
 			}
