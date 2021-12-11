@@ -226,7 +226,7 @@ public class ScheduledJobs {
 	    	this.fechaFin = LocalDateTime.parse(strFechaFin, Utils.formatter1);
 	    }
 	    
-	    public void filtrarBloqueosDentroDeRango(LocalDateTime fechaFinal, List<Bloqueo>bloqueos) {
+	    public void filtrarBloqueosDentroDeRango(LocalDateTime fechaFinal,LocalDateTime fechaInicialEjecucion , List<Bloqueo>bloqueos) {
 	    	bloqueosParaAlgoritmo = new ArrayList<Bloqueo>(); 
 	    	int i = 0; 
 	    	while(true) {
@@ -236,10 +236,11 @@ public class ScheduledJobs {
 	    		if(b.getFechaInicio().isAfter(fechaFinal))
 	    			return; 
 	    		bloqueosParaAlgoritmo.add(b); 
-	    		if(b.getFechaFin().isBefore(fechaFinal)) {
+	    		if(b.getFechaFin().isBefore(fechaInicialEjecucion)) {
 	    			bloqueos.remove(i); 
+	    		}else {
+		    		i++; 
 	    		}
-	    		i++; 
 	    	}
 	    }
 	    
@@ -337,6 +338,14 @@ public class ScheduledJobs {
 			
 			String nuevoValorUltimoCheck = nuevoCheckpoint.format(Utils.formatter1);
 			configuracionRepository.actualizarLlave(llaveUltimoCheck, nuevoValorUltimoCheck);
+			List<Bloqueo> bloqueosParaEnviar = null;
+			if(strUltimaHora == null) {
+				//Para obtener fechaLimiteMax de todos los pedidos y usarlo para obtener todos los bloqueos de los tres dias 
+				Map<String, Pedido> pedidosTodosMap = pedidoRepository.listarPedidosDesdeHastaMap(fechaInicio,strFechaFin);
+				List<Pedido> pedidosTodos = new ArrayList<>(pedidosTodosMap.values().stream().collect(Collectors.toList()));
+				LocalDateTime fechaLimiteMaxGeneralTodo = obtenerFechaLimiteMax(pedidosTodos);
+				bloqueosParaEnviar = bloqueoRepository.listarEnRango(horaZero, fechaLimiteMaxGeneralTodo); 
+			}
 			
 			Map<String, Pedido> pedidosMap = pedidoRepository.listarPedidosDesdeHastaMap(fechaInicio,nuevoValorUltimoCheck);
 			pedidosMap = Utils.particionarPedidos(pedidosMap, 16, new int[] {15});
@@ -366,7 +375,7 @@ public class ScheduledJobs {
 				flota = actualizarFlotaConMapaDisponibilidad(horaZero);
 				LocalDateTime fechaLimiteMax = filtrarPedidosDentroDeRango(horaZero, pedidos);
 				if(fechaLimiteMax != null) {
-					filtrarBloqueosDentroDeRango(fechaLimiteMax,bloqueos);
+					filtrarBloqueosDentroDeRango(fechaLimiteMax, horaZero,bloqueos);
 					Genetic genetic = new Genetic(pedidosMapParaAlgoritmo, flota, bloqueosParaAlgoritmo, mantenimientos,plantas, horaZero);
 					Individual solution = genetic.run(maxIterNoImp, numChildrenToGenerate, wA, wB, wC, mu, epsilon, percentageGenesToMutate);
 					
@@ -395,13 +404,12 @@ public class ScheduledJobs {
 							}
 						}
 					}
-					//publisher.publishEvent(new ActualizacionSimulacionEvent(this, false, fechaInicioParaNotificacion, nuevoValorUltimoCheck, rutas));
 					if(solution.getCantidadPedidosNoEntregados() > 0) {
 						pedidos = new ArrayList<>(pedidosMap.values().stream().collect(Collectors.toList()));
 						Collections.sort(pedidos);
 					}
 				}
-				
+
 				if(horaZero.isAfter(nuevoCheckpoint) || horaZero.isEqual(nuevoCheckpoint))break;
 				
 			}
@@ -423,8 +431,14 @@ public class ScheduledJobs {
 				//Finalizar:
 				publisher.publishEvent(new SimulacionFinalizadaEvent(this, modoEjecucion));
 			}else {
+
 				//Enviar a traves de websocket:
-				publisher.publishEvent(new ActualizacionSimulacionEvent(this, false, fechaInicioParaNotificacion, nuevoValorUltimoCheck, rutas));
+				if(strUltimaHora == null) {
+					//En la primera ejecucion se envian los bloqueos de los 3 dias
+					publisher.publishEvent(new ActualizacionSimulacionEvent(this, false, fechaInicioParaNotificacion, nuevoValorUltimoCheck, rutas,bloqueosParaEnviar));
+				} else {
+					publisher.publishEvent(new ActualizacionSimulacionEvent(this, false, fechaInicioParaNotificacion, nuevoValorUltimoCheck, rutas));
+				}
 			}
 	    }
 	    
