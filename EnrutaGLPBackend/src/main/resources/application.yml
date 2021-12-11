@@ -43,7 +43,7 @@ algorithm:
   tiempo-aprox-ejecucion: 3
   params: 
     max-iter-no-imp: 5
-    num-children-to-generate: 6
+    num-children-to-generate: 2
     wA: 1
     wB: 1000
     wC: 1000

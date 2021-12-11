@@ -14,4 +14,5 @@ public class EstadoGeneralDTO {
 	List<Bloqueo>bloqueos; 
 	ListaRutasActualesDTO rutas;
 	List<Pedido>pedidos;
+	double porcentajePlazoOcupadoPromedio;
 }
