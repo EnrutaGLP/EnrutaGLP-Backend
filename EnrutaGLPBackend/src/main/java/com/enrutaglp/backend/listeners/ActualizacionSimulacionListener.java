@@ -71,7 +71,7 @@ public class ActualizacionSimulacionListener {
 		Collections.sort(otros);
 		
 		ActualizacionSimulacionDTO dto = new ActualizacionSimulacionDTO(LocalDateTime.parse(event.getFechaInicio(), Utils.formatter1).format(Utils.formatter2),
-				LocalDateTime.parse(event.getFechaFin(), Utils.formatter1).format(Utils.formatter2), averiados, otros, event.isEsFinal());
+				LocalDateTime.parse(event.getFechaFin(), Utils.formatter1).format(Utils.formatter2), averiados, otros, event.getBloqueos(), event.isEsFinal());
 		Object o = dto;
 		template.convertAndSend(destino, o);
 	}
