@@ -100,6 +100,7 @@ public class ConfiguracionController {
 		mapa.put(llaveFechaInicioSimulacion, fechaInicio); 
 		mapa.put(llaveFechaFinSimulacion,fechaFin); 
 		mapa.put(llaveUltimoCheck, null);
+		configuracionRepository.actualizarLlaves(mapa);
 		indicadorRepository.resetearIndicadores();
 		publisher.publishEvent(new SimulacionIniciadaEvent(this,ModoEjecucion.SIM_COLAPSO.getValue(), fechaInicio, fechaFin));
 		return new ResponseEntity<Response>(new Response(true),HttpStatus.OK);
