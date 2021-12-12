@@ -109,8 +109,11 @@ public class ConfiguracionController {
 	@PutMapping("/dia-a-dia")
 	public ResponseEntity<Response> cambiarAdiaAdia(){
 		Map<String, String> mapa = new HashMap<String, String>();
+		mapa.put(llaveModoEjecucion, String.valueOf(ModoEjecucion.DIA_A_DIA.getValue())); 
 		mapa.put(llaveConstVC, valorConstVCDiaAdia); 
 		mapa.put(llaveUltimoCheck, null);
+		mapa.put(llaveFechaInicioSimulacion, null); 
+		mapa.put(llaveFechaFinSimulacion,null); 
 		configuracionRepository.actualizarLlaves(mapa);
 		indicadorRepository.resetearIndicadores();
 		return new ResponseEntity<Response>(new Response(true),HttpStatus.OK);

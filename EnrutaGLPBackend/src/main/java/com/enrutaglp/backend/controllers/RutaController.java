@@ -37,7 +37,7 @@ public class RutaController {
 	}
 	@PutMapping("/eliminar")
 	public ResponseEntity<Response>eliminarTodas(){
-		
+		rutaRepository.eliminarTodas();
 		return new ResponseEntity<Response>(new Response(true),HttpStatus.OK);
 	}
 }
