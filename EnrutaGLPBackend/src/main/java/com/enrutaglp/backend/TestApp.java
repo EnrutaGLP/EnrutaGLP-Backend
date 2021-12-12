@@ -71,7 +71,7 @@ public class TestApp {
 		
 		
 		int maxIterNoImp = 5;
-		int numChildrenToGenerate = 6;
+		int numChildrenToGenerate = 2;
 		double wA = 1;
 		double wB = 1000;
 		double wC = 1000;

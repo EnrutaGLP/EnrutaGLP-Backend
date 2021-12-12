@@ -3,6 +3,7 @@ package com.enrutaglp.backend.algorithm;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -195,14 +196,17 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 	
 	public List<Punto> esFactible(Pedido pedido) {
 		//boolean factible;
+		int valorMinRecPI = 5;
 		List<Punto> puntosTotales = new ArrayList<Punto>();
 		//el pedido debio haberse hech o antes de la hora actual y la carga actual de glp debe ser mayor o igual a la del pedido
 		if((this.fechaHoraTranscurrida.isBefore(pedido.getFechaPedido()) ||
 				pedido.getFechaLimite().isBefore(this.fechaHoraTranscurrida)) ||
-				(this.camion.getCargaActualGLP()<pedido.getCantidadGlp())) {
+				(pedido.getCantidadGlp() - this.camion.getCargaActualGLP() > valorMinRecPI) ||
+				(pedido.getCantidadGlp() > this.camion.getTipo().getCapacidadGLP())) {
 			//vacio
 			return puntosTotales;
 		}
+		
 
 		//el camion debe tener combustible para ir al pedido y regresar a la planta
 		//el camion debe tener GLP para el pedido
@@ -211,11 +215,63 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 				pedido.getUbicacionY(), this.nodos.size(),pedido.getCodigo());
 		
 		Punto planta = new Punto(12, 8, 5000);
+
 		
-		//empiezo
-		List<Punto> puntosIntemediosAB = this.nodos.get(this.nodos.size()-1).getPuntosIntermedios(punto, this.fechaHoraTranscurrida, this.camion, this.bloqueos);
-		puntosIntemediosAB.add(0, this.nodos.get(this.nodos.size()-1));
-		puntosIntemediosAB.add(punto);
+		//planta intermedia inicio
+		List<Punto> puntosIntemediosAPI = new ArrayList<Punto>();
+		if((pedido.getCantidadGlp()>this.camion.getCargaActualGLP()) &&
+				(pedido.getCantidadGlp() - this.camion.getCargaActualGLP() <= valorMinRecPI) &&
+				(this.camion.getTipo().getCapacidadGLP()>=pedido.getCantidadGlp())) {
+			//ir a planta intermedia a recargar
+			Punto planteIntN = new Punto(42, 42, 5001);
+			Punto planteIntE = new Punto(63, 3, 5002);			
+			
+			double distanciaPuntoAPIN = Utils.calcularDistanciaTodosPuntos(new ArrayList<Punto>(Arrays.asList(this.nodos.get(this.nodos.size()-1), planteIntN)));
+			double distanciaPuntoAPIE = Utils.calcularDistanciaTodosPuntos(new ArrayList<Punto>(Arrays.asList(this.nodos.get(this.nodos.size()-1), planteIntE)));
+			double distanciaPuntoAPP = Utils.calcularDistanciaTodosPuntos(new ArrayList<Punto>(Arrays.asList(this.nodos.get(this.nodos.size()-1), planta)));
+			
+			double distaMin = distanciaPuntoAPIN > distanciaPuntoAPIE ? distanciaPuntoAPIE : distanciaPuntoAPIN;
+			Punto plantaAIr = distanciaPuntoAPIN > distanciaPuntoAPIE ? planteIntE : planteIntN;
+			plantaAIr = distaMin > distanciaPuntoAPP ? planta : plantaAIr;
+			
+			if(!plantaAIr.isPlanta()) {
+				puntosIntemediosAPI = this.nodos.get(this.nodos.size()-1).getPuntosIntermedios(plantaAIr, this.fechaHoraTranscurrida, this.camion, this.bloqueos);
+				puntosIntemediosAPI.add(0, this.nodos.get(this.nodos.size()-1));
+				puntosIntemediosAPI.add(plantaAIr);				
+			}
+			else {
+				return puntosTotales;
+			}
+
+		}
+		//planta intermedia fin
+		
+		
+		double cargaActualGLPOrig = this.camion.getCargaActualGLP();
+		double cargaActualPetOrig = this.camion.getCargaActualPetroleo();
+		List<Punto> puntosIntemediosAB = new ArrayList<Punto>();
+		//flujo normal
+		if(puntosIntemediosAPI.size()==0) {
+			puntosIntemediosAB = this.nodos.get(this.nodos.size()-1).getPuntosIntermedios(punto, this.fechaHoraTranscurrida, this.camion, this.bloqueos);
+			puntosIntemediosAB.add(0, this.nodos.get(this.nodos.size()-1));
+			puntosIntemediosAB.add(punto);			
+		}
+		//si va a la planta intermedia
+		else {
+			this.camion.setCargaActualGLP(this.camion.getTipo().getCapacidadGLP());
+			this.camion.setCargaActualPetroleo(this.camion.getTipo().getCapacidadTanque());
+			
+			double distanciaPuntosAPI = Utils.calcularDistanciaTodosPuntos(puntosIntemediosAPI);
+			long tiempoAPI = (long) (distanciaPuntosAPI/this.camion.getTipo().getVelocidadPromedio() * 3600);
+			
+			List<Punto> puntosIntemediosABPI = puntosIntemediosAPI.get(puntosIntemediosAPI.size()-1).getPuntosIntermedios(punto, this.fechaHoraTranscurrida.plusSeconds(tiempoAPI), this.camion, this.bloqueos);
+			puntosIntemediosAB.addAll(puntosIntemediosAPI);
+			puntosIntemediosAB.addAll(puntosIntemediosABPI);
+			puntosIntemediosAB.add(punto);
+		}
+
+		
+		
 		double distanciaPuntosActualPedido = Utils.calcularDistanciaTodosPuntos(puntosIntemediosAB);
 		long tiempo = (long) (distanciaPuntosActualPedido/this.camion.getTipo().getVelocidadPromedio() * 3600);
 		
@@ -226,20 +282,6 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 		double distanciaPuntosPedidoPlanta = Utils.calcularDistanciaTodosPuntos(puntosIntemediosBC);
 		
 		double consumoPetroleo = this.camion.calcularConsumoPetroleo(distanciaPuntosActualPedido+distanciaPuntosPedidoPlanta);
-		//termino
-		
-		
-		//double distanciaPuntosActualPedido = this.nodos.get(this.nodos.size()-1).calcularDistanciasNodos(punto);
-		//double distanciaPuntosPedidoPlanta = planta.calcularDistanciasNodos(punto);
-		
-		
-		//double consumoPetroleo = this.camion.calcularConsumoPetroleo(distanciaPuntosActualPedido+distanciaPuntosPedidoPlanta);
-		
-		//vdt = 
-		//int tiempo = (int) (distanciaPuntosActualPedido/this.camion.getTipo().getVelocidadPromedio());
-		
-		//LocalDateTime fechaHoraEntrega = this.fechaHoraTranscurrida.plusHours(tiempo);
-		
 		
 		
 		if( (this.camion.getCargaActualPetroleo()>=consumoPetroleo) &&
@@ -249,6 +291,10 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 				
 					if(this.mantenimientos.get(i).getFechaInicio().compareTo(fechaHoraEntrega) < 0 && 
 							this.mantenimientos.get(i).getFechaFin().compareTo(this.fechaHoraTranscurrida) > 0) {
+						
+						this.camion.setCargaActualGLP(cargaActualGLPOrig);
+						this.camion.setCargaActualPetroleo(cargaActualPetOrig);
+						
 						
 						if(this.nodos.get(this.nodos.size()-1).isPlanta()) {
 							this.fechaHoraTranscurrida = this.mantenimientos.get(i).getFechaFin();
@@ -263,6 +309,8 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 			return puntosIntemediosAB;
 		}
 		
+		this.camion.setCargaActualGLP(cargaActualGLPOrig);
+		this.camion.setCargaActualPetroleo(cargaActualPetOrig);
 		
 		return puntosTotales;
 			
