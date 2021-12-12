@@ -190,6 +190,10 @@ CREATE TABLE punto (
 ALTER TABLE camion ADD FOREIGN KEY (id_punto_actual) REFERENCES punto(id) ON DELETE SET NULL; 
 -- Triggers:
 
+DROP TRIGGER IF EXISTS  after_insert_entrega_pedido; 
+DROP TRIGGER IF EXISTS  before_entrega_pedido_delete; 
+DROP TRIGGER IF EXISTS  before_ruta_delete; 
+
 DELIMITER $$
 
 CREATE TRIGGER after_insert_entrega_pedido AFTER INSERT ON entrega_pedido
@@ -211,14 +215,23 @@ BEGIN
     
 END$$
 
-CREATE TRIGGER before_entrega_pedido_delete BEFORE DELETE ON entrega_pedido 
+
+CREATE TRIGGER before_ruta_delete BEFORE DELETE ON ruta 
 FOR EACH ROW
-BEGIN
-	UPDATE pedido set 
-    cantidad_glp_por_planificar = cantidad_glp_por_planificar + OLD.cantidad_entregada,
-    fecha_completado = null
-    where id = OLD.id_pedido;
-END$$    
+BEGIN 
+DECLARE cant_entregada double;
+DECLARE id_ped int;
+    IF OLD.tipo = 1 THEN
+    
+		SELECT cantidad_entregada INTO cant_entregada from entrega_pedido where id_ruta = OLD.id;
+        SELECT id_pedido INTO id_ped from entrega_pedido where id_ruta = OLD.id; 
+        
+		UPDATE pedido set 
+		cantidad_glp_por_planificar = cantidad_glp_por_planificar + cant_entregada,
+        fecha_completado = null
+		where id = id_ped;
+    END IF;
+END$$ 
 
 DELIMITER ;
 

@@ -71,4 +71,18 @@ public class JDBCCamionRepository implements CamionRepository {
 		repo.saveAll(cts);
 	}
 
+	@Override
+	public void resetearValoresIniciales() {
+		List<CamionTable> camiones = (List<CamionTable>) repo.findAll();
+		for(CamionTable ct: camiones) {
+			ct.setEstado(EstadoCamion.EN_REPOSO.getValue());
+			ct.setIdPuntoActual(null);
+			ct.setUbicacionActualX(12);
+			ct.setUbicacionActualY(8);
+			ct.setSiguienteMovimiento(null);
+		}
+		repo.saveAll(camiones); 
+		
+	}
+
 }
