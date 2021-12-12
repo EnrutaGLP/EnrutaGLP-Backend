@@ -20,21 +20,26 @@ public class ActualizacionSimulacionEvent extends ApplicationEvent{
 	private List<Bloqueo>bloqueos;
 	private Map<Integer,List<Ruta>> rutas; 
 	private boolean llegoAlColapso;
-	public ActualizacionSimulacionEvent(Object source, boolean esFinal, String fechaInicio, String fechaFin, Map<Integer,List<Ruta>> rutas) {
+	private String codigoPedidoColapso;
+	public ActualizacionSimulacionEvent(Object source, boolean esFinal, String fechaInicio, String fechaFin, Map<Integer,List<Ruta>> rutas, boolean llegoAlColapso,String codigoPedidoColapso) {
 		super(source);
 		this.esFinal = esFinal; 
 		this.fechaInicio = fechaInicio; 
 		this.fechaFin = fechaFin;
 		this.rutas = rutas;
+		this.llegoAlColapso = llegoAlColapso; 
+		this.codigoPedidoColapso = codigoPedidoColapso; 
 	}
 	
-	public ActualizacionSimulacionEvent(Object source, boolean esFinal, String fechaInicio, String fechaFin, Map<Integer,List<Ruta>> rutas, List<Bloqueo>bloqueos) {
+	public ActualizacionSimulacionEvent(Object source, boolean esFinal, String fechaInicio, String fechaFin, Map<Integer,List<Ruta>> rutas, List<Bloqueo>bloqueos, boolean llegoAlColapso,String codigoPedidoColapso) {
 		super(source);
 		this.esFinal = esFinal; 
 		this.fechaInicio = fechaInicio; 
 		this.fechaFin = fechaFin;
 		this.rutas = rutas;
 		this.bloqueos = bloqueos; 
+		this.llegoAlColapso = llegoAlColapso; 
+		this.codigoPedidoColapso = codigoPedidoColapso; 
 	}
 	/**
 	 * 

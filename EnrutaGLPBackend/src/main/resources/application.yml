@@ -20,7 +20,8 @@ datos-configuracion:
   const-vol-consumo:
     llave: CTE_VOLUMEN_CONSUMO
     sim-tres-dias: '288'
-    sim-colapso: '1080' 
+    sim-colapso: '288' 
+    #sim-colapso: '1080' 
     dia-a-dia: '1' 
   salto-algoritmo: 5
   ultimo-chk-pedidos:

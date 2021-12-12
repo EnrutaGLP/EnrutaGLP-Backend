@@ -81,7 +81,7 @@ public class ActualizacionSimulacionListener {
 		
 		ActualizacionSimulacionDTO dto = new ActualizacionSimulacionDTO(LocalDateTime.parse(event.getFechaInicio(), Utils.formatter1).format(Utils.formatter2),
 				LocalDateTime.parse(event.getFechaFin(), Utils.formatter1).format(Utils.formatter2), Utils.round(indicadoresMap.get(porcentajePlazoOcupadoPromedioNombre),2)
-				,averiados, otros, event.getBloqueos(), new ArrayList<Averia>() , event.isEsFinal());
+				,event.isLlegoAlColapso(),event.getCodigoPedidoColapso(),averiados, otros, event.getBloqueos(), new ArrayList<Averia>() , event.isEsFinal());
 		Object o = dto;
 		template.convertAndSend(destino, o);
 	}
