@@ -382,7 +382,7 @@ public class ScheduledJobs {
 				}
 				
 				Map<String, Pedido> pedidosMap = pedidoRepository.listarPedidosDesdeHastaMap(fechaInicio,nuevoValorUltimoCheck);
-				pedidosMap = Utils.particionarPedidos(pedidosMap, 16, new int[] {15});
+				pedidosMap = Utils.particionarPedidos(pedidosMap, 16, new int[] {10});
 				
 				List<Pedido> pedidos = new ArrayList<>(pedidosMap.values().stream().collect(Collectors.toList()));
 				LocalDateTime fechaLimiteMaxGeneral = obtenerFechaLimiteMax(pedidos);
@@ -477,20 +477,22 @@ public class ScheduledJobs {
 					//Enviar a traves de websocket:
 					publisher.publishEvent(new ActualizacionSimulacionEvent(this, true, fechaInicioParaNotificacion, fechaFinParaNotificacionString, rutas, llegoAlColapso, codigoPedidoColapso));
 				}else {
+					boolean esFinalEjecucion = false; 
 					String fechaFinParaNotificacionString;
 					if(llegoAlColapso) {
 						LocalDateTime fechaFinParaNotificacion = obtenerFechaLlegadaFinal(rutas); 
 						fechaFinParaNotificacionString = (fechaFinParaNotificacion != null) ? fechaFinParaNotificacion.format(Utils.formatter1) :  nuevoValorUltimoCheck; 
+						esFinalEjecucion = true; 
 					} else { 
 						fechaFinParaNotificacionString = nuevoValorUltimoCheck;
 					}
 					
 					//Enviar a traves de websocket:
 					if(strUltimaHora == null) {
-						//En la primera ejecucion se envian los bloqueos de los 3 dias
-						publisher.publishEvent(new ActualizacionSimulacionEvent(this, false, fechaInicioParaNotificacion, fechaFinParaNotificacionString, rutas,bloqueosParaEnviar, llegoAlColapso, codigoPedidoColapso));
+						//En la primera ejecucion se envian todos los bloqueos
+						publisher.publishEvent(new ActualizacionSimulacionEvent(this, esFinalEjecucion, fechaInicioParaNotificacion, fechaFinParaNotificacionString, rutas,bloqueosParaEnviar, llegoAlColapso, codigoPedidoColapso));
 					} else {
-						publisher.publishEvent(new ActualizacionSimulacionEvent(this, false, fechaInicioParaNotificacion, fechaFinParaNotificacionString, rutas, llegoAlColapso, codigoPedidoColapso));
+						publisher.publishEvent(new ActualizacionSimulacionEvent(this, esFinalEjecucion, fechaInicioParaNotificacion, fechaFinParaNotificacionString, rutas, llegoAlColapso, codigoPedidoColapso));
 					}
 					
 				}
