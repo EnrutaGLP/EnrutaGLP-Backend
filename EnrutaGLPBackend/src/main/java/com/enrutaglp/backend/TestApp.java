@@ -83,7 +83,7 @@ public class TestApp {
 		
 		List<Pedido> pedidosHora = new ArrayList<Pedido>();
 		
-		LocalDateTime horaZero = LocalDateTime.of(2021,10,1,0,0);
+		LocalDateTime horaZero = LocalDateTime.of(2021,10,7,0,0);
 		LocalDateTime horaLim = horaZero.plusHours(1);
 		
 		int[] divisores = {15};
