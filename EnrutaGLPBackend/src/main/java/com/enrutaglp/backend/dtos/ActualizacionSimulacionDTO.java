@@ -18,9 +18,11 @@ public class ActualizacionSimulacionDTO {
 	private String fechaInicio; 
 	private String fechaFin;
 	private double porcentajePlazoOcupadoPromedio;
+	private boolean llegoAlColapso;
+	private String codigoPedidoColapso;
 	private List<CamionSimulacionDTO> averiados; 
 	private List<CamionSimulacionDTO> otros;
 	private List<Bloqueo> bloqueos;
 	private List<Averia> averias;
-	boolean esFinal; 
+	private boolean esFinal; 
 }

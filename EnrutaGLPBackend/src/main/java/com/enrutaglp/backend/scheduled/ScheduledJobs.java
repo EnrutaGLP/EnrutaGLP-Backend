@@ -126,8 +126,6 @@ public class ScheduledJobs {
 	@Autowired
 	private EjecucionRepository ejecucionRepository; 
 	
-	private Map<String,Future<?>> runningTasks = new HashMap<>();
-	
 	@Scheduled(fixedDelayString = "${algorithm.delay}")
 	public void ejecutarAlgoritmoDiaADia() {
 		
@@ -229,8 +227,7 @@ public class ScheduledJobs {
 		Map<String, Pedido> pedidosMapParaAlgoritmo;
 		List<Bloqueo> bloqueosParaAlgoritmo; 
 		Map<String, List<Mantenimiento>>mantenimientosParaAlgoritmo;
-		private Map<String, Camion>camiones; 
-		
+		private Map<String, Camion>camiones;
 	    public EjecucionSimulacion(byte modoEjecucion, String fechaInicio, String strFechaFin){
 	    	this.modoEjecucion = modoEjecucion;
 	    	this.fechaInicio = fechaInicio; 
@@ -312,13 +309,19 @@ public class ScheduledJobs {
 		public  Map<String, Camion> actualizarFlotaConMapaDisponibilidad(LocalDateTime horaZero){
 			
 			Map<String, Camion> flota = new HashMap<String, Camion>(); 
-			
-			for(Map.Entry<String, Camion> entry : camiones.entrySet()) {
-				if(mapaDisponibilidad.get(entry.getKey()).isBefore(horaZero) ||
-						mapaDisponibilidad.get(entry.getKey()).isEqual(horaZero)) {
+			try {
+				for(Map.Entry<String, Camion> entry : camiones.entrySet()) {
+					if(mapaDisponibilidad.get(entry.getKey()).isBefore(horaZero) ||
+							mapaDisponibilidad.get(entry.getKey()).isEqual(horaZero)) {
+						
+						flota.put(entry.getKey(), new Camion(entry.getValue())); 
 					
-					flota.put(entry.getKey(), entry.getValue()); 
+					}
+				}
 				
+			} catch (Exception e){
+				if(camiones == null) {
+					System.out.println("NO HAY FLOTA");
 				}
 			}
 				
@@ -395,7 +398,7 @@ public class ScheduledJobs {
 				Map<Integer,List<Ruta>> rutas = new HashMap<Integer, List<Ruta>>();
 				pedidosMapParaAlgoritmo = new HashMap<String, Pedido>(); 
 				Map<String, Camion> flota; 
-				
+				Individual solution = null; 
 				while(true) {	
 					
 					if(horaZero.plusHours(1).isAfter(nuevoCheckpoint)) {
@@ -405,10 +408,10 @@ public class ScheduledJobs {
 					}
 					flota = actualizarFlotaConMapaDisponibilidad(horaZero);
 					LocalDateTime fechaLimiteMax = filtrarPedidosDentroDeRango(horaZero, pedidos);
-					if(fechaLimiteMax != null) {
+					if(fechaLimiteMax != null && !flota.isEmpty()) {
 						filtrarBloqueosDentroDeRango(fechaLimiteMax, horaZero,bloqueos);
 						Genetic genetic = new Genetic(pedidosMapParaAlgoritmo, flota, bloqueosParaAlgoritmo, mantenimientos,plantas, horaZero);
-						Individual solution = genetic.run(maxIterNoImp, numChildrenToGenerate, wA, wB, wC, mu, epsilon, percentageGenesToMutate);
+						solution = genetic.run(maxIterNoImp, numChildrenToGenerate, wA, wB, wC, mu, epsilon, percentageGenesToMutate);
 						
 						Map<String, RutaCompleta>rutasCompletas =  solution.getRutas();			
 						
@@ -457,26 +460,42 @@ public class ScheduledJobs {
 				LocalDateTime horaFinEjecucion = Utils.obtenerFechaHoraActual();
 				ejecucionRepository.registrar(modoEjecucion, horaInicioEjecucion, horaFinEjecucion);
 				
+				boolean llegoAlColapso = false; 
+				String codigoPedidoColapso = "";
+				
+				if(modoEjecucion == ModoEjecucion.SIM_COLAPSO.getValue() && solution != null) {
+					if(solution.getCantidadPedidosNoEntregados() > 0) {
+						llegoAlColapso = true; 
+						codigoPedidoColapso = pedidos.get(0).getCodigo();
+					}
+				}
+				
 				//Finalizar en el caso de que ya se haya completado la ejecucion:
 				if(nuevoCheckpoint.isEqual(fechaFin) || nuevoCheckpoint.isAfter(fechaFin)) {
 					LocalDateTime fechaFinParaNotificacion = obtenerFechaLlegadaFinal(rutas); 
 					String fechaFinParaNotificacionString = (fechaFinParaNotificacion != null) ? fechaFinParaNotificacion.format(Utils.formatter1) :  nuevoValorUltimoCheck; 
 					//Enviar a traves de websocket:
-					publisher.publishEvent(new ActualizacionSimulacionEvent(this, true, fechaInicioParaNotificacion, fechaFinParaNotificacionString, rutas));
-					//Finalizar:
-					publisher.publishEvent(new SimulacionFinalizadaEvent(this, modoEjecucion));
+					publisher.publishEvent(new ActualizacionSimulacionEvent(this, true, fechaInicioParaNotificacion, fechaFinParaNotificacionString, rutas, llegoAlColapso, codigoPedidoColapso));
 				}else {
-	
+					String fechaFinParaNotificacionString;
+					if(llegoAlColapso) {
+						LocalDateTime fechaFinParaNotificacion = obtenerFechaLlegadaFinal(rutas); 
+						fechaFinParaNotificacionString = (fechaFinParaNotificacion != null) ? fechaFinParaNotificacion.format(Utils.formatter1) :  nuevoValorUltimoCheck; 
+					} else { 
+						fechaFinParaNotificacionString = nuevoValorUltimoCheck;
+					}
+					
 					//Enviar a traves de websocket:
 					if(strUltimaHora == null) {
 						//En la primera ejecucion se envian los bloqueos de los 3 dias
-						publisher.publishEvent(new ActualizacionSimulacionEvent(this, false, fechaInicioParaNotificacion, nuevoValorUltimoCheck, rutas,bloqueosParaEnviar));
+						publisher.publishEvent(new ActualizacionSimulacionEvent(this, false, fechaInicioParaNotificacion, fechaFinParaNotificacionString, rutas,bloqueosParaEnviar, llegoAlColapso, codigoPedidoColapso));
 					} else {
-						publisher.publishEvent(new ActualizacionSimulacionEvent(this, false, fechaInicioParaNotificacion, nuevoValorUltimoCheck, rutas));
+						publisher.publishEvent(new ActualizacionSimulacionEvent(this, false, fechaInicioParaNotificacion, fechaFinParaNotificacionString, rutas, llegoAlColapso, codigoPedidoColapso));
 					}
+					
 				}
 				
-				if(horaZero.isAfter(fechaFin) || horaZero.isEqual(fechaFin))break;
+				if(horaZero.isAfter(fechaFin) || horaZero.isEqual(fechaFin) || llegoAlColapso)break;
 	    	}
 
     		
@@ -486,23 +505,9 @@ public class ScheduledJobs {
 	@EventListener
 	@Async
 	public void iniciarSimulacion(SimulacionIniciadaEvent event) throws InterruptedException {
-		ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
 		Runnable tarea = new EjecucionSimulacion(event.getModoEjecucion(), event.getFechaInicio(), event.getFechaFin());
-		scheduler.initialize();
-		if(event.getModoEjecucion() == ModoEjecucion.SIM_TRES_DIAS.getValue()) {
-			runningTasks.put("3", scheduler.scheduleAtFixedRate(tarea, new Date(), 300000));
-		} else if(event.getModoEjecucion() == ModoEjecucion.SIM_COLAPSO.getValue()) {
-			runningTasks.put("inf", scheduler.scheduleAtFixedRate(tarea, new Date(), 300000));
-		}
+		tarea.run();
 	}
 	
-	@EventListener
-	public void finalizarSimulacion(SimulacionFinalizadaEvent event) {
-		if(event.getModoEjecucion() == ModoEjecucion.SIM_TRES_DIAS.getValue()) {
-			runningTasks.get("3").cancel(true);
-		} else if(event.getModoEjecucion() == ModoEjecucion.SIM_COLAPSO.getValue()) {
-			runningTasks.get("inf").cancel(true);
-		}
-	}
 	
 }
