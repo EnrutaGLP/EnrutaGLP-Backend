@@ -231,4 +231,15 @@ public class JDBCRutaRepository implements RutaRepository {
 		camionRepo.save(ct);
 	}
 
+
+	@Override
+	public void eliminarTodas() {
+		String sql = "DELETE FROM ruta;"; 
+		try {
+			template.update(sql);
+		}catch(Exception e) {
+			System.out.println(e.getMessage());
+		}
+	}
+
 }

@@ -130,10 +130,14 @@ public class Pedido implements Comparable<Pedido> {
 
 	@Override
 	public int compareTo(Pedido o) {
-		if(this.fechaPedido.isAfter(o.getFechaPedido())) {
+		if(o == null) {
 			return 1; 
+		} 
+		else if(this.fechaPedido.isAfter(o.getFechaPedido())) {
+			return 1; 
+		}else {
+			return -1;
 		}
-		return -1;
 	}
 	
 	public String to_string () {
