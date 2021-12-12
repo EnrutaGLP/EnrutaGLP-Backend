@@ -139,7 +139,7 @@ public class ScheduledJobs {
 		String strUltimaHora = configuracionCompleta.get(llaveUltimoCheck);
 		LocalDateTime nuevoCheckpoint = null;
 		LocalDateTime horaActual = Utils.obtenerFechaHoraActual();
-		LocalDateTime horaZero = horaActual.plusMinutes(tiempoEjecucionAproximado);
+		LocalDateTime horaZero = horaActual;
 		
 		if(strUltimaHora == null) {
 			nuevoCheckpoint = horaActual;
@@ -153,12 +153,13 @@ public class ScheduledJobs {
 		String nuevoValorUltimoCheck = nuevoCheckpoint.format(Utils.formatter1);
 		configuracionRepository.actualizarLlave(llaveUltimoCheck, nuevoValorUltimoCheck);
 		Map<String, Pedido>pedidos = pedidoRepository.listarPendientesMap(nuevoValorUltimoCheck); 
-
-		int[] divisores = {15};
-		pedidos = Utils.particionarPedidos(pedidos, 16, divisores);
+		List<Pedido> pedidosTodos = new ArrayList<>(pedidos.values().stream().collect(Collectors.toList()));
+		LocalDateTime fechaLimiteMax = Utils.obtenerFechaLimiteMax(pedidosTodos);
+		
+		pedidos = Utils.particionarPedidos(pedidos, 16, new int[] {10});;
 		Map<String, Camion>flota = camionRepository.listarDisponiblesParaEnrutamiento(horaZero.format(Utils.formatter1)); 
-		List<Bloqueo>bloqueos = bloqueoRepository.listarEnRango(horaZero, null); 
-		Map<String, List<Mantenimiento>>mantenimientos = mantenimientoRepository.obtenerMapaDeMantenimientos(horaZero,null); 
+		List<Bloqueo>bloqueos = bloqueoRepository.listarEnRango(horaZero, fechaLimiteMax); 
+		Map<String, List<Mantenimiento>>mantenimientos = mantenimientoRepository.obtenerMapaDeMantenimientos(horaZero,fechaLimiteMax); 
 		List<Planta> plantas = new ArrayList<Planta>();
 		Genetic genetic = new Genetic(pedidos, flota, bloqueos, mantenimientos,plantas, horaZero);
 		
@@ -166,7 +167,7 @@ public class ScheduledJobs {
 		
 		//Si en el tiempo que se ejecuto el algoritmo se ha cambiado a modo simulacion no se registran las rutas
 		configuracionCompleta = configuracionRepository.listarConfiguracionCompleta();
-		if(configuracionCompleta.get(llaveModoEjecucion) != String.valueOf(ModoEjecucion.DIA_A_DIA.getValue())) 
+		if(Integer.valueOf(configuracionCompleta.get(llaveModoEjecucion)) != ModoEjecucion.DIA_A_DIA.getValue()) 
 			return;
 		
 		Map<String, RutaCompleta>rutasCompletas =  solution.getRutas();
@@ -196,7 +197,12 @@ public class ScheduledJobs {
 				if(horaActual.isAfter(c.getSiguienteMovimiento()) || horaActual.isEqual(c.getSiguienteMovimiento())) {
 					if(c.getEstado() == EstadoCamion.EN_REPOSO.getValue()) {
 						c.setEstado(EstadoCamion.EN_RUTA.getValue());
-					} 
+					} else if(c.getEstado() == EstadoCamion.AVERIADO.getValue()) {
+						c.setEstado(EstadoCamion.EN_REPOSO.getValue());
+						c.setUbicacionActualX(12);
+						c.setUbicacionActualY(8);
+						c.setSiguienteMovimiento(null);
+					}
 					PuntoSiguienteDTO siguiente = puntoRepository.conseguirPuntoSiguienteEnrutado(c.getId());
 					
 					if(siguiente != null && siguiente.getId() != null) {
@@ -208,6 +214,9 @@ public class ScheduledJobs {
 						}else {
 							c.setSiguienteMovimiento(c.getSiguienteMovimiento().plusSeconds(segundosEntreMovimiento));
 						}
+					} else {
+						c.setEstado(EstadoCamion.EN_REPOSO.getValue());
+						c.setSiguienteMovimiento(null);
 					}
 				}
 			}
@@ -226,7 +235,6 @@ public class ScheduledJobs {
 		private Map<String, LocalDateTime> mapaDisponibilidad;
 		Map<String, Pedido> pedidosMapParaAlgoritmo;
 		List<Bloqueo> bloqueosParaAlgoritmo; 
-		Map<String, List<Mantenimiento>>mantenimientosParaAlgoritmo;
 		private Map<String, Camion>camiones;
 	    public EjecucionSimulacion(byte modoEjecucion, String fechaInicio, String strFechaFin){
 	    	this.modoEjecucion = modoEjecucion;
@@ -252,20 +260,6 @@ public class ScheduledJobs {
 		    		i++; 
 	    		}
 	    	}
-	    }
-	    
-	    public LocalDateTime obtenerFechaLimiteMax(List<Pedido> pedidos) {
-	    	LocalDateTime fechaLimiteMaximo = null;
-	    	
-	    	for(Pedido p: pedidos) {
-	    		if(fechaLimiteMaximo == null) {
-					fechaLimiteMaximo = p.getFechaLimite(); 
-				} else if(fechaLimiteMaximo.isBefore(p.getFechaLimite())) {
-					fechaLimiteMaximo = p.getFechaLimite(); 
-				}
-	    	}
-	    	
-	    	return fechaLimiteMaximo; 
 	    }
 	    
 	    public LocalDateTime obtenerFechaLlegadaFinal(Map<Integer,List<Ruta>> rutas) {
@@ -377,7 +371,7 @@ public class ScheduledJobs {
 					//Para obtener fechaLimiteMax de todos los pedidos y usarlo para obtener todos los bloqueos de los tres dias 
 					Map<String, Pedido> pedidosTodosMap = pedidoRepository.listarPedidosDesdeHastaMap(fechaInicio,strFechaFin);
 					List<Pedido> pedidosTodos = new ArrayList<>(pedidosTodosMap.values().stream().collect(Collectors.toList()));
-					LocalDateTime fechaLimiteMaxGeneralTodo = obtenerFechaLimiteMax(pedidosTodos);
+					LocalDateTime fechaLimiteMaxGeneralTodo = Utils.obtenerFechaLimiteMax(pedidosTodos);
 					bloqueosParaEnviar = bloqueoRepository.listarEnRango(horaZero, fechaLimiteMaxGeneralTodo); 
 				}
 				
@@ -385,7 +379,7 @@ public class ScheduledJobs {
 				pedidosMap = Utils.particionarPedidos(pedidosMap, 16, new int[] {10});
 				
 				List<Pedido> pedidos = new ArrayList<>(pedidosMap.values().stream().collect(Collectors.toList()));
-				LocalDateTime fechaLimiteMaxGeneral = obtenerFechaLimiteMax(pedidos);
+				LocalDateTime fechaLimiteMaxGeneral = Utils.obtenerFechaLimiteMax(pedidos);
 				
 				List<Integer> pedidosIds = pedidos.stream().map(p -> p.getId()).collect(Collectors.toList());
 				Collections.sort(pedidos);

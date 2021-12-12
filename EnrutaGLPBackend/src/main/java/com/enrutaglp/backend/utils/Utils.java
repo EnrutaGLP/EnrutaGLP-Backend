@@ -70,6 +70,20 @@ public class Utils {
 		return divisions; 
 	}
 	
+	public static LocalDateTime obtenerFechaLimiteMax(List<Pedido> pedidos) {
+    	LocalDateTime fechaLimiteMaximo = null;
+    	
+    	for(Pedido p: pedidos) {
+    		if(fechaLimiteMaximo == null) {
+				fechaLimiteMaximo = p.getFechaLimite(); 
+			} else if(fechaLimiteMaximo.isBefore(p.getFechaLimite())) {
+				fechaLimiteMaximo = p.getFechaLimite(); 
+			}
+    	}
+    	
+    	return fechaLimiteMaximo; 
+    }
+	
 	public static DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	
 	public static DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");

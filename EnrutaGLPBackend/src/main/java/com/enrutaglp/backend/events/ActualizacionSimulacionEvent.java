@@ -1,6 +1,7 @@
 package com.enrutaglp.backend.events;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +22,7 @@ public class ActualizacionSimulacionEvent extends ApplicationEvent{
 	private Map<Integer,List<Ruta>> rutas; 
 	private boolean llegoAlColapso;
 	private String codigoPedidoColapso;
+	
 	public ActualizacionSimulacionEvent(Object source, boolean esFinal, String fechaInicio, String fechaFin, Map<Integer,List<Ruta>> rutas, boolean llegoAlColapso,String codigoPedidoColapso) {
 		super(source);
 		this.esFinal = esFinal; 
@@ -29,6 +31,7 @@ public class ActualizacionSimulacionEvent extends ApplicationEvent{
 		this.rutas = rutas;
 		this.llegoAlColapso = llegoAlColapso; 
 		this.codigoPedidoColapso = codigoPedidoColapso; 
+		this.bloqueos = new ArrayList<Bloqueo>();
 	}
 	
 	public ActualizacionSimulacionEvent(Object source, boolean esFinal, String fechaInicio, String fechaFin, Map<Integer,List<Ruta>> rutas, List<Bloqueo>bloqueos, boolean llegoAlColapso,String codigoPedidoColapso) {
