@@ -155,7 +155,7 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 		
 		this.petroleoConsumido += consumoPetroleo;
 		this.distanciaRecorrida += distanciaPuntos;
-		this.fechaHoraTranscurrida = rutaNueva.getHoraLlegada();
+		this.fechaHoraTranscurrida = rutaNueva.getHoraLlegada().plusMinutes(10);
 		
 		this.rutas.add(rutaNueva);
 	}
@@ -276,7 +276,7 @@ public class RutaCompleta implements Comparable<RutaCompleta> {
 		long tiempo = (long) (distanciaPuntosActualPedido/this.camion.getTipo().getVelocidadPromedio() * 3600);
 		
 		LocalDateTime fechaHoraEntrega = this.fechaHoraTranscurrida.plusSeconds(tiempo);
-		List<Punto> puntosIntemediosBC = punto.getPuntosIntermedios(planta, fechaHoraEntrega, this.camion, this.bloqueos);
+		List<Punto> puntosIntemediosBC = punto.getPuntosIntermedios(planta, fechaHoraEntrega.plusMinutes(10), this.camion, this.bloqueos);
 		puntosIntemediosBC.add(0, punto);
 		puntosIntemediosBC.add(planta);
 		double distanciaPuntosPedidoPlanta = Utils.calcularDistanciaTodosPuntos(puntosIntemediosBC);
