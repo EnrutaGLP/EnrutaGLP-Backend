@@ -22,8 +22,9 @@ public class ActualizacionSimulacionEvent extends ApplicationEvent{
 	private Map<Integer,List<Ruta>> rutas; 
 	private boolean llegoAlColapso;
 	private String codigoPedidoColapso;
+	private LocalDateTime horaZero;
 	
-	public ActualizacionSimulacionEvent(Object source, boolean esFinal, String fechaInicio, String fechaFin, Map<Integer,List<Ruta>> rutas, boolean llegoAlColapso,String codigoPedidoColapso) {
+	public ActualizacionSimulacionEvent(Object source, LocalDateTime horaZero, boolean esFinal, String fechaInicio, String fechaFin, Map<Integer,List<Ruta>> rutas, boolean llegoAlColapso,String codigoPedidoColapso) {
 		super(source);
 		this.esFinal = esFinal; 
 		this.fechaInicio = fechaInicio; 
@@ -31,10 +32,11 @@ public class ActualizacionSimulacionEvent extends ApplicationEvent{
 		this.rutas = rutas;
 		this.llegoAlColapso = llegoAlColapso; 
 		this.codigoPedidoColapso = codigoPedidoColapso; 
+		this.horaZero = horaZero;
 		this.bloqueos = new ArrayList<Bloqueo>();
 	}
 	
-	public ActualizacionSimulacionEvent(Object source, boolean esFinal, String fechaInicio, String fechaFin, Map<Integer,List<Ruta>> rutas, List<Bloqueo>bloqueos, boolean llegoAlColapso,String codigoPedidoColapso) {
+	public ActualizacionSimulacionEvent(Object source, LocalDateTime horaZero, boolean esFinal, String fechaInicio, String fechaFin, Map<Integer,List<Ruta>> rutas, List<Bloqueo>bloqueos, boolean llegoAlColapso,String codigoPedidoColapso) {
 		super(source);
 		this.esFinal = esFinal; 
 		this.fechaInicio = fechaInicio; 
@@ -43,6 +45,7 @@ public class ActualizacionSimulacionEvent extends ApplicationEvent{
 		this.bloqueos = bloqueos; 
 		this.llegoAlColapso = llegoAlColapso; 
 		this.codigoPedidoColapso = codigoPedidoColapso; 
+		this.horaZero = horaZero; 
 	}
 	/**
 	 * 

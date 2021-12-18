@@ -37,6 +37,8 @@ public class RecargaTable implements Persistable<Integer>{
 		this.idRuta = idRuta; 
 		this.cantidadRecargada = r.getCantidadRecargada();
 		this.isNew = isNew;
+		//Ahorita todas las recargas son a planta principal
+		this.idPlanta = 1;
 	}
 
 	@Transient

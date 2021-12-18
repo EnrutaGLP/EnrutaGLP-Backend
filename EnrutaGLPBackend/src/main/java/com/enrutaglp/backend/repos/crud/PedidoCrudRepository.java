@@ -63,4 +63,14 @@ public interface PedidoCrudRepository extends CrudRepository<PedidoTable, Intege
 			+ "on pe.id = ep.id_pedido")
 	List<PedidoTable>listarEnRuta();
 	
+	@Query("SELECT distinct p.* "
+		    + "from pedido p "
+		    + "left join entrega_pedido ep "
+		    + "on ep.id_pedido = p.id "
+		    + "left join ruta r "
+		    + "on r.id = ep.id_ruta "
+		    + "where "
+		    + "r.hora_llegada >= :fechaActual "
+		    + "or ISNULL(p.fecha_completado)")
+	List<PedidoTable>listarNoCompletados(@Param("fechaActual") String fechaActual);
 }

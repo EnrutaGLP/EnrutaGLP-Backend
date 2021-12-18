@@ -1,5 +1,6 @@
 package com.enrutaglp.backend.repos.jdbc;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +18,8 @@ import com.enrutaglp.backend.dtos.ListaRutasActualesDTO;
 import com.enrutaglp.backend.dtos.CamionEstadoDTO;
 import com.enrutaglp.backend.dtos.CamionRutaDTO;
 import com.enrutaglp.backend.dtos.EntregaPedidoDTO;
+import com.enrutaglp.backend.dtos.HojaRutaItemDTO;
+import com.enrutaglp.backend.dtos.HojaRutaItemSinPuntosDTO;
 import com.enrutaglp.backend.enums.EstadoCamion;
 import com.enrutaglp.backend.enums.TipoRuta;
 import com.enrutaglp.backend.models.EntregaPedido;
@@ -179,29 +182,6 @@ public class JDBCRutaRepository implements RutaRepository {
 		camionCrudRepo.save(camion);
 	}
 
-
-	@Override
-	public ListaRutasActualesDTO listarActuales() {
-		ListaRutasActualesDTO dto = new ListaRutasActualesDTO();
-		List<CamionEstadoDTO> averiados = camionCrudRepo.listarCamionRutaDTOByEstado(EstadoCamion.AVERIADO.getValue());
-		List<CamionEstadoDTO> otros = camionCrudRepo.listarCamionRutaDTOByEstado(EstadoCamion.EN_RUTA.getValue());
-		List<CamionRutaDTO> otrosRuta = new ArrayList<CamionRutaDTO>();
-		
-		
-		for(CamionEstadoDTO ce : otros) {
-			CamionRutaDTO cr = new CamionRutaDTO(ce);
-			cr.setRuta(rutaRepo.listarPuntosDtoRutaActualCamion(cr.getCodigo()));
-			if(cr.getRuta()!=null && cr.getRuta().size()>0) {
-				otrosRuta.add(cr);	
-			}
-		}
-		
-		dto.setAveriados(averiados);
-		dto.setOtros(otrosRuta);
-		return dto;
-	}
-
-
 	@Override
 	public void actualizarRutaDespuesDeAveria(int idCamion) {
 		RutaTable rt = rutaRepo.listarRutaActualCamion(idCamion);
@@ -246,6 +226,39 @@ public class JDBCRutaRepository implements RutaRepository {
 		}
 		camionRepo.resetearValoresIniciales();
 		
+	}
+
+
+	@Override
+	public ListaRutasActualesDTO listarActuales() {
+		ListaRutasActualesDTO dto = new ListaRutasActualesDTO();
+		List<CamionEstadoDTO> averiados = camionCrudRepo.listarCamionRutaDTOByEstado(EstadoCamion.AVERIADO.getValue());
+		List<CamionEstadoDTO> otros = camionCrudRepo.listarCamionRutaDTOByEstado(EstadoCamion.EN_RUTA.getValue());
+		List<CamionRutaDTO> otrosRuta = new ArrayList<CamionRutaDTO>();
+		
+		
+		for(CamionEstadoDTO ce : otros) {
+			CamionRutaDTO cr = new CamionRutaDTO(ce);
+			cr.setRuta(rutaRepo.listarPuntosDtoRutaActualCamion(cr.getCodigo()));
+			if(cr.getRuta()!=null && cr.getRuta().size()>0) {
+				otrosRuta.add(cr);	
+			}
+		}
+		
+		dto.setAveriados(averiados);
+		dto.setOtros(otrosRuta);
+		return dto;
+	}
+	
+	@Override
+	public List<HojaRutaItemDTO> listarHojaDeRuta(LocalDateTime fechaInicio) {
+		String strFechaInicio = fechaInicio.format(Utils.formatter1);
+		List<HojaRutaItemSinPuntosDTO> hojasRutasSinPuntos = rutaRepo.listarHojasRutas(strFechaInicio);
+		List<HojaRutaItemDTO> hojaRuta = new ArrayList<HojaRutaItemDTO>(); 
+		for(HojaRutaItemSinPuntosDTO hr : hojasRutasSinPuntos) {
+			hojaRuta.add(new HojaRutaItemDTO(hr, puntoRepo.listarPuntosPorIdRuta(hr.getId())));
+		}
+		return hojaRuta;
 	}
 
 }

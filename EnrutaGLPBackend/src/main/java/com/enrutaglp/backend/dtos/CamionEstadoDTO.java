@@ -14,6 +14,7 @@ public class CamionEstadoDTO {
 	private String codigo; 
 	private int ubicacionActualX;
 	private int ubicacionActualY;	
+	private String color; 
 	private byte estadoId; 
 	private String estadoNombre;
 }

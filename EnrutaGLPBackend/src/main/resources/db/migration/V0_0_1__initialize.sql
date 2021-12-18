@@ -59,6 +59,7 @@ CREATE TABLE usuario (
 
 CREATE TABLE planta (
 	id INT NOT NULL AUTO_INCREMENT,
+    nombre VARCHAR(100) NOT NULL,
 	ubicacion_x INT NOT NULL,
 	ubicacion_y INT NOT NULL,
 	capacidad_petroleo DOUBLE,
@@ -293,9 +294,9 @@ VALUES
 (20,'TD10','ABC-119',12,8,5,25,1,4,null,null,'#94808e');
 
 INSERT INTO planta VALUES
-(1,12,8,null,null,null,null,true),
-(2,42,42,null,null,null,null,false),
-(3,63,3,null,null,null,null,false);
+(1,'Almacen central',12,8,null,null,null,null,true),
+(2,'Almacen intermedio norte',42,42,null,null,null,null,false),
+(3,'Almacen intermedio Este',63,3,null,null,null,null,false);
 
 -- Mantenimiento preventivos
 INSERT INTO mantenimiento VALUES

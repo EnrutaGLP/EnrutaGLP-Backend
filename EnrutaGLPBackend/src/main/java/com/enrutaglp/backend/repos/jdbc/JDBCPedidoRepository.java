@@ -85,6 +85,13 @@ public class JDBCPedidoRepository implements PedidoRepository {
 	public List<Pedido> listarFaltantesEnLista(List<Integer> ids) {
 		return repo.listarFaltantesEnLista(ids).stream().map(p -> p.toModel())
 				.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<Pedido> listarPedidosNoCompletados(String fechaActual) {
+		List<Pedido> pedidos = ((List<PedidoTable>)repo.listarNoCompletados(fechaActual)).stream()
+				.map(pedidoTable -> pedidoTable.toModel()).collect(Collectors.toList());
+		return pedidos;
 	}	
 
 }

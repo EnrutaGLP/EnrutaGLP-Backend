@@ -19,7 +19,7 @@ indicadores:
 datos-configuracion: 
   const-vol-consumo:
     llave: CTE_VOLUMEN_CONSUMO
-    sim-tres-dias: '288'
+    sim-tres-dias: '12'
     sim-colapso: '288' 
     #sim-colapso: '1080' 
     dia-a-dia: '1' 
@@ -40,11 +40,11 @@ helloWorld:
 actualizar-posiciones:
   delay: PT20S
 algorithm: 
-  delay: PT5M 
+  delay: PT3M 
   tiempo-aprox-ejecucion: 3
   params: 
     max-iter-no-imp: 5
-    num-children-to-generate: 4
+    num-children-to-generate: 2
     wA: 1
     wB: 1000
     wC: 1000

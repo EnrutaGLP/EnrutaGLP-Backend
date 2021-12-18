@@ -15,4 +15,5 @@ public class EstadoGeneralDTO {
 	ListaRutasActualesDTO rutas;
 	List<Pedido>pedidos;
 	double porcentajePlazoOcupadoPromedio;
+	List<HojaRutaItemDTO> hojaRuta;
 }
