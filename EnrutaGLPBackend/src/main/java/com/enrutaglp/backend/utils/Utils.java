@@ -16,6 +16,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 
 import com.enrutaglp.backend.algorithm.AstarFunciones;
 import com.enrutaglp.backend.algorithm.FuncionesBackend;
+import com.enrutaglp.backend.models.Camion;
 import com.enrutaglp.backend.models.Pedido;
 import com.enrutaglp.backend.models.Punto;
 public class Utils {
@@ -107,4 +108,19 @@ public class Utils {
 	    return bd.doubleValue();
 	}
 	
+	public static Map<String, Camion> actualizarFlotaConMapaDisponibilidad(LocalDateTime horaZero,Map<String, Camion>camiones, Map<String, LocalDateTime> mapaDisponibilidad){
+		
+		Map<String, Camion> flota = new HashMap<String, Camion>(); 
+
+		for(Map.Entry<String, Camion> entry : camiones.entrySet()) {
+			if(mapaDisponibilidad.get(entry.getKey()) == null || mapaDisponibilidad.get(entry.getKey()).isBefore(horaZero) ||
+					mapaDisponibilidad.get(entry.getKey()).isEqual(horaZero)) {
+				
+				flota.put(entry.getKey(), new Camion(entry.getValue())); 
+			
+			}
+		}
+			
+		return flota;   
+	}
 }

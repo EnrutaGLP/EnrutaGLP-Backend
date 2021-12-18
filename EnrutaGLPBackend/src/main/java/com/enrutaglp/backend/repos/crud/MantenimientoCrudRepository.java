@@ -27,7 +27,7 @@ public interface MantenimientoCrudRepository extends CrudRepository<Mantenimient
 	List<MantenimientoTable>listarMatenimientoDesde(@Param("desde") String desde);
 	
 	@Query(   "SELECT * "
-			+ "FROM bloqueo "
+			+ "FROM mantenimiento "
 			+ "where "
 			+ "fecha_inicio <= :hasta " 
 			)

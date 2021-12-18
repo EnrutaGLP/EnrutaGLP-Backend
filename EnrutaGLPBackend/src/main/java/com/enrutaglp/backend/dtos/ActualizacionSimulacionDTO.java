@@ -25,4 +25,5 @@ public class ActualizacionSimulacionDTO {
 	private List<Bloqueo> bloqueos;
 	private List<Averia> averias;
 	private boolean esFinal; 
+	private List<HojaRutaItemDTO> hojaRuta; 
 }

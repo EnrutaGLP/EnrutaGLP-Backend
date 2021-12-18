@@ -1,5 +1,6 @@
 package com.enrutaglp.backend.listeners;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +14,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import com.enrutaglp.backend.dtos.EstadoGeneralDTO;
+import com.enrutaglp.backend.dtos.HojaRutaItemDTO;
 import com.enrutaglp.backend.dtos.ListaRutasActualesDTO;
 import com.enrutaglp.backend.dtos.Response;
 import com.enrutaglp.backend.events.UbicacionesActualizadasEvent;
@@ -51,11 +53,14 @@ public class UbicacionesActualizadasListener {
 	@EventListener
 	@Async
 	public void onEvent(UbicacionesActualizadasEvent event) {
-		List<Bloqueo>bloqueos = bloqueoRepository.listarEnRango(Utils.obtenerFechaHoraActual(),Utils.obtenerFechaHoraActual());
+		LocalDateTime fechaActual = Utils.obtenerFechaHoraActual();
+		List<Bloqueo>bloqueos = bloqueoRepository.listarEnRango(fechaActual,fechaActual);
 		ListaRutasActualesDTO rutas = rutaRepository.listarActuales();
-		List<Pedido>pedidos = pedidoRepository.listarPedidosEnRuta();
+		List<Pedido>pedidos = pedidoRepository.listarPedidosNoCompletados(fechaActual.format(Utils.formatter1));
 		Map<String, Double>indicadoresMap =  indicadorRepository.listarIndicadores();
-		EstadoGeneralDTO dto = new EstadoGeneralDTO(bloqueos, rutas, pedidos, Utils.round(indicadoresMap.get(porcentajePlazoOcupadoPromedioNombre),2));
+		List<HojaRutaItemDTO> hojaRuta = rutaRepository.listarHojaDeRuta(fechaActual);
+		EstadoGeneralDTO dto = new EstadoGeneralDTO(bloqueos, rutas, pedidos, Utils.round(indicadoresMap.get(porcentajePlazoOcupadoPromedioNombre),2), 
+				hojaRuta);
 		template.convertAndSend(destino, dto);
 	}
 }

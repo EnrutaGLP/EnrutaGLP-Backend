@@ -28,15 +28,17 @@ public class PuntoTable {
 	private int ubicacionY;
 	@Column("id_ruta")
 	private Integer idRuta;
+	private Boolean intermedio; 
 	private int orden; 
 	
 	public PuntoTable(Punto punto) {
 		this.ubicacionX = punto.getUbicacionX(); 
 		this.ubicacionY = punto.getUbicacionY(); 
 		this.orden = punto.getOrden();
+		this.intermedio = punto.getIntermedio();
 	}
 	
 	public Punto toModel() {
-		return new Punto(id,ubicacionX,ubicacionY,orden,idBloqueo);
+		return new Punto(id,ubicacionX,ubicacionY,orden,idBloqueo, intermedio);
 	}
 }

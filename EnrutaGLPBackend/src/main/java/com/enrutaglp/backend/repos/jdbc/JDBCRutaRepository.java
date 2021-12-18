@@ -1,5 +1,6 @@
 package com.enrutaglp.backend.repos.jdbc;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +18,8 @@ import com.enrutaglp.backend.dtos.ListaRutasActualesDTO;
 import com.enrutaglp.backend.dtos.CamionEstadoDTO;
 import com.enrutaglp.backend.dtos.CamionRutaDTO;
 import com.enrutaglp.backend.dtos.EntregaPedidoDTO;
+import com.enrutaglp.backend.dtos.HojaRutaItemDTO;
+import com.enrutaglp.backend.dtos.HojaRutaItemSinPuntosDTO;
 import com.enrutaglp.backend.enums.EstadoCamion;
 import com.enrutaglp.backend.enums.TipoRuta;
 import com.enrutaglp.backend.models.EntregaPedido;
@@ -99,17 +102,46 @@ public class JDBCRutaRepository implements RutaRepository {
 	private String valorConstVCDiaAdia;
 	
 	@Override
-	public void registroMasivo(int camionId,List<Ruta> rutas, boolean llenarPuntos) {
-		int i = 0; 
+	public List<String> registroMasivo(int camionId,List<Ruta> rutas, boolean llenarPuntos) {
+		List<String> codigoPedidosRemovidos = new ArrayList<String>();
 		Integer x = rutaRepo.listarOrdenDeLaUltimaRuta(camionId);
 		if(x==null) {
 			x = 0;
 		}
-		
+		int minutosAreducir = 0; 
 		//Llenar ruta con todos los puntos:
-		for(Ruta r : rutas) {
+		for(int i =0;i<rutas.size();i++) {
+			Ruta r = rutas.get(i); 
+			
+			if(i>0 && r.getTipo() == TipoRuta.ENTREGA.getValue()) {
+				if(rutas.get(i-1).getTipo() == TipoRuta.ENTREGA.getValue()) {
+					Object o1 = rutas.get(i-1); 
+					EntregaPedido ep1 = (EntregaPedido)o1; 
+					Object o2 = rutas.get(i); 
+					EntregaPedido ep2 = (EntregaPedido)o2; 
+					if(ep1.getPedido().getId() == ep2.getPedido().getId() && ep2.getPuntos().size()==2) {
+						ep1.setCantidadEntregada(ep1.getCantidadEntregada() + ep2.getCantidadEntregada());
+						minutosAreducir += 10; 
+						rutas.remove(i); 
+						codigoPedidosRemovidos.add(ep2.getPedido().getCodigo());
+						i--; 
+						continue;
+					}
+				}
+			}
+			LocalDateTime horaSalidaReducida = r.getHoraSalida().minusMinutes(minutosAreducir); 
+			LocalDateTime horaLlegadaReducida = r.getHoraLlegada().minusMinutes(minutosAreducir); 
+			
+			r.setHoraSalida(horaSalidaReducida);
+			r.setHoraLlegada(horaLlegadaReducida);
 			r.setOrden(x+1);
 			x++;
+			
+			for(Punto p: r.getPuntos()) {
+				p.setIntermedio(true);
+			}
+			
+			
 			for(int j=0;j<r.getPuntos().size();j++) {
 				
 				if(llenarPuntos && j < (r.getPuntos().size()-1) && 
@@ -119,22 +151,22 @@ public class JDBCRutaRepository implements RutaRepository {
 					Punto nuevoPunto = null; 
 					if(r.getPuntos().get(j).getUbicacionY() -r.getPuntos().get(j+1).getUbicacionY() < - 1) {
 						
-						nuevoPunto = new Punto(r.getPuntos().get(j).getUbicacionX() ,r.getPuntos().get(j).getUbicacionY()+1);
+						nuevoPunto = new Punto(r.getPuntos().get(j).getUbicacionX() ,r.getPuntos().get(j).getUbicacionY()+1, false);
 						r.getPuntos().add(j+1, nuevoPunto);
 						
 					} else if(r.getPuntos().get(j).getUbicacionY() - r.getPuntos().get(j+1).getUbicacionY()  > 1) {
 						
-						nuevoPunto = new Punto(r.getPuntos().get(j).getUbicacionX() ,r.getPuntos().get(j).getUbicacionY()-1);
+						nuevoPunto = new Punto(r.getPuntos().get(j).getUbicacionX() ,r.getPuntos().get(j).getUbicacionY()-1, false);
 						r.getPuntos().add(j+1, nuevoPunto);
 						
 					} else if(r.getPuntos().get(j).getUbicacionX() - r.getPuntos().get(j+1).getUbicacionX()  < - 1) {
 						
-						nuevoPunto = new Punto(r.getPuntos().get(j).getUbicacionX()+1 ,r.getPuntos().get(j).getUbicacionY());
+						nuevoPunto = new Punto(r.getPuntos().get(j).getUbicacionX()+1 ,r.getPuntos().get(j).getUbicacionY(), false);
 						r.getPuntos().add(j+1, nuevoPunto);
 						
 					} else if(r.getPuntos().get(j).getUbicacionX() - r.getPuntos().get(j+1).getUbicacionX() > 1) {
 						
-						nuevoPunto = new Punto(r.getPuntos().get(j).getUbicacionX()-1 ,r.getPuntos().get(j).getUbicacionY());
+						nuevoPunto = new Punto(r.getPuntos().get(j).getUbicacionX()-1 ,r.getPuntos().get(j).getUbicacionY(), false);
 						r.getPuntos().add(j+1, nuevoPunto);
 						
 					}
@@ -143,7 +175,6 @@ public class JDBCRutaRepository implements RutaRepository {
 				}
 				r.getPuntos().get(j).setOrden(j+1);
 			}
-			i++; 
 		}
 		
 		
@@ -177,43 +208,13 @@ public class JDBCRutaRepository implements RutaRepository {
 			camion.setSiguienteMovimiento(rutas.get(0).getHoraSalida());
 		}
 		camionCrudRepo.save(camion);
+		return codigoPedidosRemovidos;
 	}
-
-
-	@Override
-	public ListaRutasActualesDTO listarActuales() {
-		ListaRutasActualesDTO dto = new ListaRutasActualesDTO();
-		List<CamionEstadoDTO> averiados = camionCrudRepo.listarCamionRutaDTOByEstado(EstadoCamion.AVERIADO.getValue());
-		List<CamionEstadoDTO> otros = camionCrudRepo.listarCamionRutaDTOByEstado(EstadoCamion.EN_RUTA.getValue());
-		List<CamionRutaDTO> otrosRuta = new ArrayList<CamionRutaDTO>();
-		
-		
-		for(CamionEstadoDTO ce : otros) {
-			CamionRutaDTO cr = new CamionRutaDTO(ce);
-			cr.setRuta(rutaRepo.listarPuntosDtoRutaActualCamion(cr.getCodigo()));
-			if(cr.getRuta()!=null && cr.getRuta().size()>0) {
-				otrosRuta.add(cr);	
-			}
-		}
-		
-		dto.setAveriados(averiados);
-		dto.setOtros(otrosRuta);
-		return dto;
-	}
-
 
 	@Override
 	public void actualizarRutaDespuesDeAveria(int idCamion) {
 		RutaTable rt = rutaRepo.listarRutaActualCamion(idCamion);
 		if(rt!=null) {
-			/*List<EntregaPedidoDTO> eps = entregaPedidoRepo.listarEntregasPedidosFuturos(idCamion, rt.getOrden());
-			List<PedidoTable> pedidos = new ArrayList<PedidoTable>();
-			for(EntregaPedidoDTO ep : eps) {
-				PedidoTable p = new PedidoTable(ep);
-				p.setCantidadGlpPorPlanificar(p.getCantidadGlpPorPlanificar()-ep.getCantidadEntregada());
-				pedidos.add(p);
-			}
-			pedidoRepo.saveAll(pedidos);*/
 			
 			String sql = "DELETE FROM ruta where"
 					+ " orden >= ? and"
@@ -246,6 +247,39 @@ public class JDBCRutaRepository implements RutaRepository {
 		}
 		camionRepo.resetearValoresIniciales();
 		
+	}
+
+
+	@Override
+	public ListaRutasActualesDTO listarActuales() {
+		ListaRutasActualesDTO dto = new ListaRutasActualesDTO();
+		List<CamionEstadoDTO> averiados = camionCrudRepo.listarCamionRutaDTOByEstado(EstadoCamion.AVERIADO.getValue());
+		List<CamionEstadoDTO> otros = camionCrudRepo.listarCamionRutaDTOByEstado(EstadoCamion.EN_RUTA.getValue());
+		List<CamionRutaDTO> otrosRuta = new ArrayList<CamionRutaDTO>();
+		
+		
+		for(CamionEstadoDTO ce : otros) {
+			CamionRutaDTO cr = new CamionRutaDTO(ce);
+			cr.setRuta(rutaRepo.listarPuntosDtoRutaActualCamion(cr.getCodigo()));
+			if(cr.getRuta()!=null && cr.getRuta().size()>0) {
+				otrosRuta.add(cr);	
+			}
+		}
+		
+		dto.setAveriados(averiados);
+		dto.setOtros(otrosRuta);
+		return dto;
+	}
+	
+	@Override
+	public List<HojaRutaItemDTO> listarHojaDeRuta(LocalDateTime fechaInicio) {
+		String strFechaInicio = fechaInicio.format(Utils.formatter1);
+		List<HojaRutaItemSinPuntosDTO> hojasRutasSinPuntos = rutaRepo.listarHojasRutas(strFechaInicio);
+		List<HojaRutaItemDTO> hojaRuta = new ArrayList<HojaRutaItemDTO>(); 
+		for(HojaRutaItemSinPuntosDTO hr : hojasRutasSinPuntos) {
+			hojaRuta.add(new HojaRutaItemDTO(hr, puntoRepo.listarPuntosIntermediosPorIdRuta(hr.getId())));
+		}
+		return hojaRuta;
 	}
 
 }

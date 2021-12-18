@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import com.enrutaglp.backend.dtos.ActualizacionSimulacionDTO;
 import com.enrutaglp.backend.dtos.CamionSimulacionDTO;
+import com.enrutaglp.backend.dtos.HojaRutaItemDTO;
 import com.enrutaglp.backend.dtos.PuntoDTO;
 import com.enrutaglp.backend.dtos.RutaSimulacionDTO;
 import com.enrutaglp.backend.enums.TipoRuta;
@@ -24,6 +25,7 @@ import com.enrutaglp.backend.models.Averia;
 import com.enrutaglp.backend.models.EntregaPedido;
 import com.enrutaglp.backend.models.Ruta;
 import com.enrutaglp.backend.repos.interfaces.IndicadorRepository;
+import com.enrutaglp.backend.repos.interfaces.RutaRepository;
 import com.enrutaglp.backend.utils.Utils;
 
 @Component
@@ -40,6 +42,9 @@ public class ActualizacionSimulacionListener {
 	
 	@Autowired
 	private IndicadorRepository indicadorRepository; 
+	
+	@Autowired
+	private RutaRepository rutaRepository; 
 	
 	@EventListener
 	@Async
@@ -78,10 +83,13 @@ public class ActualizacionSimulacionListener {
 		//Ordenar lista 
 		Collections.sort(otros);
 		Map<String, Double>indicadoresMap =  indicadorRepository.listarIndicadores();
-		
+		List<HojaRutaItemDTO> hojaRuta = new ArrayList<HojaRutaItemDTO>(); 
+		if(event.isEsFinal()) {
+			hojaRuta = rutaRepository.listarHojaDeRuta(event.getHoraZero());
+		}
 		ActualizacionSimulacionDTO dto = new ActualizacionSimulacionDTO(LocalDateTime.parse(event.getFechaInicio(), Utils.formatter1).format(Utils.formatter2),
 				LocalDateTime.parse(event.getFechaFin(), Utils.formatter1).format(Utils.formatter2), Utils.round(indicadoresMap.get(porcentajePlazoOcupadoPromedioNombre),2)
-				,event.isLlegoAlColapso(),event.getCodigoPedidoColapso(),averiados, otros, event.getBloqueos(), new ArrayList<Averia>() , event.isEsFinal());
+				,event.isLlegoAlColapso(),event.getCodigoPedidoColapso(),averiados, otros, event.getBloqueos(), new ArrayList<Averia>() , event.isEsFinal(), hojaRuta);
 		Object o = dto;
 		template.convertAndSend(destino, o);
 	}

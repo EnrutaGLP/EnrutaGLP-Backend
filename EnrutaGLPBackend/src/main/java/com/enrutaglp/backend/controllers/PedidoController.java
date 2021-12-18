@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.enrutaglp.backend.dtos.Response;
 import com.enrutaglp.backend.models.Pedido;
 import com.enrutaglp.backend.repos.interfaces.PedidoRepository;
+import com.enrutaglp.backend.utils.Utils;
 
 @RestController
 @RequestMapping("/pedidos")
@@ -40,7 +41,7 @@ public class PedidoController {
 	@GetMapping("/actuales")
 	@CrossOrigin
 	public ResponseEntity<Response> listarActuales(){
-		List<Pedido>pedidos = pedidoRepository.listarPedidosEnRuta();
+		List<Pedido>pedidos = pedidoRepository.listarPedidosNoCompletados(Utils.obtenerFechaHoraActual().format(Utils.formatter1));
 		return new ResponseEntity<Response>(new Response(pedidos),HttpStatus.OK);
 	}
 	

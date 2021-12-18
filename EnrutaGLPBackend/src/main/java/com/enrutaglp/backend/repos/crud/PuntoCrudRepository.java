@@ -7,6 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.enrutaglp.backend.dtos.PuntoDTO;
 import com.enrutaglp.backend.dtos.PuntoSiguienteDTO;
 import com.enrutaglp.backend.tables.BloqueoTable;
 import com.enrutaglp.backend.tables.PedidoTable;
@@ -22,7 +23,17 @@ public interface PuntoCrudRepository extends CrudRepository<PuntoTable, Integer>
 			+ "order by orden"
 			)
 	List<PuntoTable>listarPuntosPorIdBloqueo(@Param("idBloqueo")int idBloqueo);
-	
+
+	@Query("SELECT "
+			+ "ubicacion_x, "
+			+ "ubicacion_y, "
+			+ "orden "
+			+ "from punto "
+			+ "where "
+			+ "id_ruta = :idRuta "
+			+ "and intermedio = 1 "
+			+ "order by orden")
+	List<PuntoDTO> listarPuntosIntermediosPorIdRuta(@Param("idRuta")int idRuta); 
 	
 	@Query(	  "SELECT "
 			+ "IFNULL(p2.id,IFNULL(p3.id,p4.id)) as id, "

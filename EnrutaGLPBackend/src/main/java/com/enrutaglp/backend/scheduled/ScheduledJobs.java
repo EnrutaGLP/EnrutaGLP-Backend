@@ -135,47 +135,64 @@ public class ScheduledJobs {
 		if(Integer.valueOf(configuracionCompleta.get(llaveModoEjecucion)) != ModoEjecucion.DIA_A_DIA.getValue()) 
 			return;
 		
-		int k = Integer.valueOf(configuracionCompleta.get(llaveConstVC));
-		String strUltimaHora = configuracionCompleta.get(llaveUltimoCheck);
-		LocalDateTime nuevoCheckpoint = null;
 		LocalDateTime horaActual = Utils.obtenerFechaHoraActual();
+		LocalDateTime nuevoCheckpoint = horaActual;
 		LocalDateTime horaZero = horaActual;
-		
-		if(strUltimaHora == null) {
-			nuevoCheckpoint = horaActual;
-		}
-		else {
-			LocalDateTime ultimoCheckpoint = LocalDateTime.parse(strUltimaHora, Utils.formatter1);
-			int sk = saltoAlgoritmo * k;
-			nuevoCheckpoint = ultimoCheckpoint.plusMinutes(sk);
-		}
 		
 		String nuevoValorUltimoCheck = nuevoCheckpoint.format(Utils.formatter1);
 		configuracionRepository.actualizarLlave(llaveUltimoCheck, nuevoValorUltimoCheck);
+		Pair<Map<String,Camion>, Map<String,LocalDateTime>> duplaCamionDisponibilidad = camionRepository.listarParaEnrutamientoConDisponibilidad();
+		Map<String, Camion> camionesMap = duplaCamionDisponibilidad.getValor1();
+	    Map<String, LocalDateTime> mapaDisponibilidad = duplaCamionDisponibilidad.getValor2();
 		Map<String, Pedido>pedidos = pedidoRepository.listarPendientesMap(nuevoValorUltimoCheck); 
 		List<Pedido> pedidosTodos = new ArrayList<>(pedidos.values().stream().collect(Collectors.toList()));
 		LocalDateTime fechaLimiteMax = Utils.obtenerFechaLimiteMax(pedidosTodos);
-		
-		pedidos = Utils.particionarPedidos(pedidos, 16, new int[] {10});;
-		Map<String, Camion>flota = camionRepository.listarDisponiblesParaEnrutamiento(horaZero.format(Utils.formatter1)); 
 		List<Bloqueo>bloqueos = bloqueoRepository.listarEnRango(horaZero, fechaLimiteMax); 
 		Map<String, List<Mantenimiento>>mantenimientos = mantenimientoRepository.obtenerMapaDeMantenimientos(horaZero,fechaLimiteMax); 
-		List<Planta> plantas = new ArrayList<Planta>();
-		Genetic genetic = new Genetic(pedidos, flota, bloqueos, mantenimientos,plantas, horaZero);
+		if(pedidos != null && !pedidos.isEmpty()) {
+			pedidos = Utils.particionarPedidos(pedidos, 16, new int[] {5});
+		}
 		
-		Individual solution = genetic.run(maxIterNoImp, numChildrenToGenerate, wA, wB, wC, mu, epsilon, percentageGenesToMutate);
-		
-		//Si en el tiempo que se ejecuto el algoritmo se ha cambiado a modo simulacion no se registran las rutas
-		configuracionCompleta = configuracionRepository.listarConfiguracionCompleta();
-		if(Integer.valueOf(configuracionCompleta.get(llaveModoEjecucion)) != ModoEjecucion.DIA_A_DIA.getValue()) 
-			return;
-		
-		Map<String, RutaCompleta>rutasCompletas =  solution.getRutas();
-		
-		for(RutaCompleta rc : rutasCompletas.values()) {
-			if(rc.getRutas() != null && rc.getRutas().size()>0) {
-				rutaRepository.registroMasivo(rc.getCamion().getId(),rc.getRutas(),true);
+		while(true) {
+			
+			if(fechaLimiteMax == null || fechaLimiteMax.isBefore(horaZero)) break; 
+			Map<String, Camion>flota = Utils.actualizarFlotaConMapaDisponibilidad(horaZero, camionesMap, mapaDisponibilidad); 
+			List<Planta> plantas = new ArrayList<Planta>();
+			if(flota != null && !flota.isEmpty()) {
+				Genetic genetic = new Genetic(pedidos, flota, bloqueos, mantenimientos,plantas, horaZero);
+				
+				Individual solution = genetic.run(maxIterNoImp, numChildrenToGenerate, wA, wB, wC, mu, epsilon, percentageGenesToMutate);
+				
+				//Si en el tiempo que se ejecuto el algoritmo se ha cambiado a modo simulacion no se registran las rutas
+				configuracionCompleta = configuracionRepository.listarConfiguracionCompleta();
+				if(Integer.valueOf(configuracionCompleta.get(llaveModoEjecucion)) != ModoEjecucion.DIA_A_DIA.getValue()) 
+					return;
+				
+				Map<String, RutaCompleta>rutasCompletas =  solution.getRutas();
+				
+				for(RutaCompleta rc : rutasCompletas.values()) {
+					List<Ruta> rutas = rc.getRutas(); 
+
+					for(Ruta r: rutas) {
+						if(r.getTipo() == TipoRuta.ENTREGA.getValue()) {
+							Object o = r; 
+							EntregaPedido ep = (EntregaPedido) o; 
+							pedidos.remove(ep.getPedido().getCodigo());
+						}
+					}
+					
+					if(rutas != null && rutas.size()>0) {
+						rutaRepository.registroMasivo(rc.getCamion().getId(),rutas,true);
+						mapaDisponibilidad.put(rc.getCamion().getCodigo(), rutas.get(rutas.size()-1).getHoraLlegada());
+					}
+					
+					
+				}
+				if(solution.getCantidadPedidosNoEntregados()<=0) break;
 			}
+			horaZero = horaZero.plusMinutes(30); 
+			fechaLimiteMax = Utils.obtenerFechaLimiteMax(new ArrayList<>(pedidos.values().stream().collect(Collectors.toList())));
+			
 		}
 		LocalDateTime horaFinalizacionAlgoritmo = Utils.obtenerFechaHoraActual();
 		ejecucionRepository.registrar(Integer.valueOf(configuracionCompleta.get(llaveModoEjecucion)), horaActual, horaFinalizacionAlgoritmo);
@@ -300,27 +317,6 @@ public class ScheduledJobs {
 			}
 		}
 		
-		public  Map<String, Camion> actualizarFlotaConMapaDisponibilidad(LocalDateTime horaZero){
-			
-			Map<String, Camion> flota = new HashMap<String, Camion>(); 
-			try {
-				for(Map.Entry<String, Camion> entry : camiones.entrySet()) {
-					if(mapaDisponibilidad.get(entry.getKey()).isBefore(horaZero) ||
-							mapaDisponibilidad.get(entry.getKey()).isEqual(horaZero)) {
-						
-						flota.put(entry.getKey(), new Camion(entry.getValue())); 
-					
-					}
-				}
-				
-			} catch (Exception e){
-				if(camiones == null) {
-					System.out.println("NO HAY FLOTA");
-				}
-			}
-				
-			return flota;   
-		}
 		
 		public Map<String, LocalDateTime> inicializarMapaDisponibilidad(LocalDateTime horaZero){
 			Map<String, LocalDateTime> mapa = new HashMap<String, LocalDateTime>(); 
@@ -350,7 +346,7 @@ public class ScheduledJobs {
 				
 				if(strUltimaHora == null) {
 					//Primera ejecucion
-					camiones = camionRepository.listarDisponiblesParaEnrutamiento(horaZero.format(Utils.formatter1)); 
+					camiones = camionRepository.listarParaEnrutamiento(); 
 					mapaDisponibilidad = inicializarMapaDisponibilidad(horaZero);
 					nuevoCheckpoint = LocalDateTime.parse(fechaInicio, Utils.formatter1).plusMinutes(sk);
 				}
@@ -363,7 +359,8 @@ public class ScheduledJobs {
 						nuevoCheckpoint = ultimoCheckpointMasSalto;
 					}
 				}
-				
+				//Objeto copia de horaZero
+				LocalDateTime fechaInicioParaHojaDeRuta = horaZero.plusHours(0);
 				String nuevoValorUltimoCheck = nuevoCheckpoint.format(Utils.formatter1);
 				configuracionRepository.actualizarLlave(llaveUltimoCheck, nuevoValorUltimoCheck);
 				List<Bloqueo> bloqueosParaEnviar = null;
@@ -394,19 +391,17 @@ public class ScheduledJobs {
 				Map<String, Camion> flota; 
 				Individual solution = null; 
 				while(true) {	
-					
-					if(horaZero.plusHours(1).isAfter(nuevoCheckpoint)) {
+					if(horaZero.plusMinutes(5).isAfter(nuevoCheckpoint)) {
 						horaZero = nuevoCheckpoint; 
 					} else {
-						horaZero =  horaZero.plusHours(1);
+						horaZero = horaZero.plusMinutes(5);
 					}
-					flota = actualizarFlotaConMapaDisponibilidad(horaZero);
+					flota = Utils.actualizarFlotaConMapaDisponibilidad(horaZero,camiones,mapaDisponibilidad);
 					LocalDateTime fechaLimiteMax = filtrarPedidosDentroDeRango(horaZero, pedidos);
 					if(fechaLimiteMax != null && !flota.isEmpty()) {
 						filtrarBloqueosDentroDeRango(fechaLimiteMax, horaZero,bloqueos);
 						Genetic genetic = new Genetic(pedidosMapParaAlgoritmo, flota, bloqueosParaAlgoritmo, mantenimientos,plantas, horaZero);
 						solution = genetic.run(maxIterNoImp, numChildrenToGenerate, wA, wB, wC, mu, epsilon, percentageGenesToMutate);
-						
 						Map<String, RutaCompleta>rutasCompletas =  solution.getRutas();			
 						
 						for(RutaCompleta rc : rutasCompletas.values()) {
@@ -422,7 +417,6 @@ public class ScheduledJobs {
 										).collect(Collectors.toList());
 								rutas.put(rc.getCamion().getId(), rs);
 								mapaDisponibilidad.put(rc.getCamion().getCodigo(), rs.get(rs.size()-1).getHoraLlegada());
-								
 								for(Ruta r: rs) {
 									if(r.getTipo() == TipoRuta.ENTREGA.getValue()) {
 										Object o = r; 
@@ -448,7 +442,6 @@ public class ScheduledJobs {
 						rutaRepository.registroMasivo(entry.getKey(), entry.getValue(),false);
 					}
 				}
-				
 				indicadorRepository.actualizarIndicadoresConPedidos(pedidosIds);
 	
 				LocalDateTime horaFinEjecucion = Utils.obtenerFechaHoraActual();
@@ -460,16 +453,19 @@ public class ScheduledJobs {
 				if(modoEjecucion == ModoEjecucion.SIM_COLAPSO.getValue() && solution != null) {
 					if(solution.getCantidadPedidosNoEntregados() > 0) {
 						llegoAlColapso = true; 
-						codigoPedidoColapso = pedidos.get(0).getCodigo();
+						if(!pedidos.isEmpty()) {
+							codigoPedidoColapso = pedidos.get(0).getCodigo();
+						} else {
+							codigoPedidoColapso = "";
+						}
 					}
 				}
-				
 				//Finalizar en el caso de que ya se haya completado la ejecucion:
 				if(nuevoCheckpoint.isEqual(fechaFin) || nuevoCheckpoint.isAfter(fechaFin)) {
 					LocalDateTime fechaFinParaNotificacion = obtenerFechaLlegadaFinal(rutas); 
 					String fechaFinParaNotificacionString = (fechaFinParaNotificacion != null) ? fechaFinParaNotificacion.format(Utils.formatter1) :  nuevoValorUltimoCheck; 
 					//Enviar a traves de websocket:
-					publisher.publishEvent(new ActualizacionSimulacionEvent(this, true, fechaInicioParaNotificacion, fechaFinParaNotificacionString, rutas, llegoAlColapso, codigoPedidoColapso));
+					publisher.publishEvent(new ActualizacionSimulacionEvent(this, fechaInicioParaHojaDeRuta, true, fechaInicioParaNotificacion, fechaFinParaNotificacionString, rutas, llegoAlColapso, codigoPedidoColapso));
 				}else {
 					boolean esFinalEjecucion = false; 
 					String fechaFinParaNotificacionString;
@@ -484,13 +480,12 @@ public class ScheduledJobs {
 					//Enviar a traves de websocket:
 					if(strUltimaHora == null) {
 						//En la primera ejecucion se envian todos los bloqueos
-						publisher.publishEvent(new ActualizacionSimulacionEvent(this, esFinalEjecucion, fechaInicioParaNotificacion, fechaFinParaNotificacionString, rutas,bloqueosParaEnviar, llegoAlColapso, codigoPedidoColapso));
+						publisher.publishEvent(new ActualizacionSimulacionEvent(this, fechaInicioParaHojaDeRuta, esFinalEjecucion, fechaInicioParaNotificacion, fechaFinParaNotificacionString, rutas,bloqueosParaEnviar, llegoAlColapso, codigoPedidoColapso));
 					} else {
-						publisher.publishEvent(new ActualizacionSimulacionEvent(this, esFinalEjecucion, fechaInicioParaNotificacion, fechaFinParaNotificacionString, rutas, llegoAlColapso, codigoPedidoColapso));
+						publisher.publishEvent(new ActualizacionSimulacionEvent(this, fechaInicioParaHojaDeRuta, esFinalEjecucion, fechaInicioParaNotificacion, fechaFinParaNotificacionString, rutas, llegoAlColapso, codigoPedidoColapso));
 					}
 					
 				}
-				
 				if(horaZero.isAfter(fechaFin) || horaZero.isEqual(fechaFin) || llegoAlColapso)break;
 	    	}
 
