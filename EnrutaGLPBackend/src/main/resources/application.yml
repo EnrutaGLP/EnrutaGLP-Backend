@@ -19,7 +19,7 @@ indicadores:
 datos-configuracion: 
   const-vol-consumo:
     llave: CTE_VOLUMEN_CONSUMO
-    sim-tres-dias: '12'
+    sim-tres-dias: '288'
     sim-colapso: '288' 
     #sim-colapso: '1080' 
     dia-a-dia: '1' 

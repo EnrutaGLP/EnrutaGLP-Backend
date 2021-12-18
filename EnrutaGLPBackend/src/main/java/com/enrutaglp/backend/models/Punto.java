@@ -45,6 +45,8 @@ public class Punto {
 	@Setter
 	@JsonIgnore
 	private Punto antecesor;
+	@Setter
+	private Boolean intermedio; 
 	
 	public Punto() {
 		codigoPedido = null;
@@ -55,12 +57,19 @@ public class Punto {
 		this.ubicacionY = ubicacionY;
 	}
 	
-	public Punto(int id, int ubicacionX, int ubicacionY, int orden, int idBloqueo) {
+	public Punto(int ubicacionX, int ubicacionY, Boolean intermedio) {
+		this.ubicacionX = ubicacionX; 
+		this.ubicacionY = ubicacionY;
+		this.intermedio = intermedio; 
+	}
+	
+	public Punto(int id, int ubicacionX, int ubicacionY, int orden, int idBloqueo, Boolean intermedio) {
 		this.id = id;
 		this.ubicacionX = ubicacionX;
 		this.ubicacionY = ubicacionY;
 		this.orden = orden;
 		this.idBloqueo = idBloqueo;
+		this.intermedio = intermedio; 
 	}
 	
 	

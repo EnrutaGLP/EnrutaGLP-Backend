@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.enrutaglp.backend.dtos.HojaRutaItemDTO;
 import com.enrutaglp.backend.dtos.ListaRutasActualesDTO;
+import com.enrutaglp.backend.dtos.ListaRutasActualesHojaDTO;
 import com.enrutaglp.backend.dtos.RegistroAveriaDTO;
 import com.enrutaglp.backend.dtos.Response;
 import com.enrutaglp.backend.models.Averia;
@@ -21,6 +23,7 @@ import com.enrutaglp.backend.models.Pedido;
 import com.enrutaglp.backend.repos.interfaces.AveriaRepository;
 import com.enrutaglp.backend.repos.interfaces.CamionRepository;
 import com.enrutaglp.backend.repos.interfaces.RutaRepository;
+import com.enrutaglp.backend.utils.Utils;
 
 
 @RestController
@@ -33,7 +36,8 @@ public class RutaController {
 	@CrossOrigin
 	public ResponseEntity<Response> listarActuales(){
 		ListaRutasActualesDTO rutas = rutaRepository.listarActuales();
-		return new ResponseEntity<Response>(new Response(rutas),HttpStatus.OK);
+		List<HojaRutaItemDTO> hojaRuta = rutaRepository.listarHojaDeRuta(Utils.obtenerFechaHoraActual());
+		return new ResponseEntity<Response>(new Response(new ListaRutasActualesHojaDTO(rutas.getAveriados(), rutas.getOtros(), hojaRuta)),HttpStatus.OK);
 	}
 	@PutMapping("/eliminar")
 	public ResponseEntity<Response>eliminarTodas(){

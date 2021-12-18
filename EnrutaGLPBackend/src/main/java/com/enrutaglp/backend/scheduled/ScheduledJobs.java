@@ -172,11 +172,7 @@ public class ScheduledJobs {
 				
 				for(RutaCompleta rc : rutasCompletas.values()) {
 					List<Ruta> rutas = rc.getRutas(); 
-					if(rutas != null && rutas.size()>0) {
-						rutaRepository.registroMasivo(rc.getCamion().getId(),rutas,true);
-						mapaDisponibilidad.put(rc.getCamion().getCodigo(), rutas.get(rutas.size()-1).getHoraLlegada());
-					}
-					
+
 					for(Ruta r: rutas) {
 						if(r.getTipo() == TipoRuta.ENTREGA.getValue()) {
 							Object o = r; 
@@ -184,6 +180,12 @@ public class ScheduledJobs {
 							pedidos.remove(ep.getPedido().getCodigo());
 						}
 					}
+					
+					if(rutas != null && rutas.size()>0) {
+						rutaRepository.registroMasivo(rc.getCamion().getId(),rutas,true);
+						mapaDisponibilidad.put(rc.getCamion().getCodigo(), rutas.get(rutas.size()-1).getHoraLlegada());
+					}
+					
 					
 				}
 				if(solution.getCantidadPedidosNoEntregados()<=0) break;

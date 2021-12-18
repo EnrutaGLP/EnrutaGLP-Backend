@@ -3,6 +3,8 @@ package com.enrutaglp.backend.dtos;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.enrutaglp.backend.utils.Utils;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,7 +32,7 @@ public class HojaRutaItemDTO {
 		this.codigoCamion = hr.getCodigoCamion(); 
 		this.horaSalida = hr.getHoraSalida(); 
 		this.horaLlegada = hr.getHoraLlegada(); 
-		this.consumoPetroleo = hr.getConsumoPetroleo(); 
+		this.consumoPetroleo = Utils.round(hr.getConsumoPetroleo(), 2); 
 		this.puntos = puntos; 
 		this.tipo = hr.getTipo(); 
 		this.codigoPedido = hr.getCodigoPedido(); 

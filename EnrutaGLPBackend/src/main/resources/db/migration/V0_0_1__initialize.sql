@@ -183,7 +183,8 @@ CREATE TABLE punto (
     orden INT,
     id_bloqueo INT,
     id_ruta INT,
-	PRIMARY KEY (id),
+    intermedio TINYINT,
+	PRIMARY KEY (id) ,
     FOREIGN KEY (id_bloqueo) REFERENCES bloqueo(id),
     FOREIGN KEY (id_ruta) REFERENCES ruta(id) ON DELETE CASCADE 
 );

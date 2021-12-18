@@ -31,8 +31,9 @@ public interface PuntoCrudRepository extends CrudRepository<PuntoTable, Integer>
 			+ "from punto "
 			+ "where "
 			+ "id_ruta = :idRuta "
+			+ "and intermedio = 1 "
 			+ "order by orden")
-	List<PuntoDTO> listarPuntosPorIdRuta(@Param("idRuta")int idRuta); 
+	List<PuntoDTO> listarPuntosIntermediosPorIdRuta(@Param("idRuta")int idRuta); 
 	
 	@Query(	  "SELECT "
 			+ "IFNULL(p2.id,IFNULL(p3.id,p4.id)) as id, "

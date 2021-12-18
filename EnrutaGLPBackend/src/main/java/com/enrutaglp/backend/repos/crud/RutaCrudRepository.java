@@ -81,7 +81,8 @@ public interface RutaCrudRepository extends CrudRepository<RutaTable, Integer>{
 			+ "planta pl "
 			+ "on pl.id = re.id_planta "
 			+ "WHERE "
-			+ "r.hora_llegada >= :fechaInicio"
+			+ "r.hora_llegada >= :fechaInicio "
+			+ "ORDER BY r.orden"
 			)
 	List<HojaRutaItemSinPuntosDTO> listarHojasRutas(@Param("fechaInicio") String fechaInicio); 
 }
