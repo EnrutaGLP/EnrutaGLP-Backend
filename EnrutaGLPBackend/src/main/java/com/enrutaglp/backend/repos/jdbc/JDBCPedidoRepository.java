@@ -1,6 +1,8 @@
 package com.enrutaglp.backend.repos.jdbc;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -25,11 +27,12 @@ public class JDBCPedidoRepository implements PedidoRepository {
 	@Override
 	public void registrar(Pedido pedido) {
 		PedidoTable pedidoTable = new PedidoTable(pedido, true);
-		String sql = "INSERT INTO pedido(codigo,cliente,cantidad_glp,cantidad_glp_atendida,ubicacion_x,ubicacion_y,"
-				+ "fecha_pedido,fecha_limite,estado) VALUES(?,?,?,?,?,?,?,?,?);";
+		String sql = "INSERT INTO pedido(codigo,cliente,cantidad_glp,cantidad_glp_atendida,cantidad_glp_por_planificar,ubicacion_x,ubicacion_y,"
+				+ "fecha_pedido,fecha_limite,estado) VALUES(?,?,?,?,?,?,?,?,?,?);";
 		try {
 			template.update(sql,pedidoTable.getCodigo(),pedidoTable.getCliente(),pedidoTable.getCantidadGlp(),pedidoTable.getCantidadGlpAtendida(),
-					pedidoTable.getUbicacionX(),pedidoTable.getUbicacionY(),pedidoTable.getFechaPedido(),pedidoTable.getFechaLimite(),pedidoTable.getEstado());
+					pedidoTable.getCantidadGlpPorPlanificar(),pedidoTable.getUbicacionX(),pedidoTable.getUbicacionY(),pedidoTable.getFechaPedido(),
+					pedidoTable.getFechaLimite(),pedidoTable.getEstado());
 		}catch(Exception e) {
 			System.out.println(e.getMessage());
 		}
@@ -47,6 +50,48 @@ public class JDBCPedidoRepository implements PedidoRepository {
 		List<PedidoTable>pedidosTable = pedidos.stream().map(p -> new PedidoTable(p,true))
 				.collect(Collectors.toList());
 		repo.saveAll(pedidosTable);
+	}
+
+	@Override
+	public Map<String, Pedido> listarPendientesMap(String hasta) {
+		List<Pedido> pedidos = ((List<PedidoTable>)repo.listarPendientesPlanificacion(hasta)).stream()
+				.map(pedidoTable -> pedidoTable.toAlgorithmModel()).collect(Collectors.toList());
+		Map<String,Pedido> pedidosMapa = new HashMap<String, Pedido>();
+		for(Pedido p : pedidos) {
+			pedidosMapa.put(p.getCodigo(), p);
+		}
+		return pedidosMapa;
+	}
+
+	@Override
+	public List<Pedido> listarPedidosEnRuta() {
+		List<Pedido> pedidos = ((List<PedidoTable>)repo.listarEnRuta()).stream()
+				.map(pedidoTable -> pedidoTable.toModel()).collect(Collectors.toList());
+		return pedidos;
+	}
+
+	@Override
+	public Map<String, Pedido> listarPedidosDesdeHastaMap (String desde, String hasta) {
+		List<Pedido> pedidos = ((List<PedidoTable>)repo.listarPedidosDesdeHasta(desde,hasta)).stream()
+				.map(pedidoTable -> pedidoTable.toAlgorithmModel()).collect(Collectors.toList());
+		Map<String,Pedido> pedidosMapa = new HashMap<String, Pedido>();
+		for(Pedido p : pedidos) {
+			pedidosMapa.put(p.getCodigo(), p);
+		}
+		return pedidosMapa;
+	}
+
+	@Override
+	public List<Pedido> listarFaltantesEnLista(List<Integer> ids) {
+		return repo.listarFaltantesEnLista(ids).stream().map(p -> p.toModel())
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<Pedido> listarPedidosNoCompletados(String fechaActual) {
+		List<Pedido> pedidos = ((List<PedidoTable>)repo.listarNoCompletados(fechaActual)).stream()
+				.map(pedidoTable -> pedidoTable.toModel()).collect(Collectors.toList());
+		return pedidos;
 	}	
 
 }

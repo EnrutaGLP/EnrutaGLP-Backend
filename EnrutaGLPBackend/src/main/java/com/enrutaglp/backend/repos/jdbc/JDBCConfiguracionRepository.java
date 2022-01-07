@@ -1,5 +1,6 @@
 package com.enrutaglp.backend.repos.jdbc;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,15 @@ public class JDBCConfiguracionRepository implements ConfiguracionRepository{
 			configuracionMapa.put(c.getLlave(),c.getValor());
 		}
 		return configuracionMapa;
+	}
+
+	@Override
+	public void actualizarLlaves(Map<String, String> mapaConfiguracion) {
+		List<ConfiguracionTable> configuraciones = new ArrayList<ConfiguracionTable>();
+		for (Map.Entry<String,String> entry : mapaConfiguracion.entrySet()) {
+			configuraciones.add(new ConfiguracionTable(entry.getKey(),entry.getValue())); 
+		}
+        repo.saveAll(configuraciones);
 	} 
 	
 	

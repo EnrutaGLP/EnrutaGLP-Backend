@@ -7,5 +7,6 @@ import com.enrutaglp.backend.tables.ConfiguracionTable;
 
 public interface ConfiguracionRepository {
 	void actualizarLlave(String llave,String valor);
+	void actualizarLlaves(Map<String,String>mapaConfiguracion);
 	Map<String, String>listarConfiguracionCompleta();
 }

@@ -29,7 +29,7 @@ public class CamionController {
 		return new ResponseEntity<Response>(new Response(true),HttpStatus.OK);
 	}
 	
-	@GetMapping("/ubicaciones-actuales")
+	@GetMapping("/listar")
 	public ResponseEntity<Response> listarUbicaciones(){
 		List<Camion>camiones = camionRepository.listar();
 		return new ResponseEntity<Response>(new Response(camiones),HttpStatus.OK);

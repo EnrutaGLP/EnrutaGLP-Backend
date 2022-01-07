@@ -1,5 +1,6 @@
 package com.enrutaglp.backend.dtos;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -15,5 +16,5 @@ public class RegistroAveriaDTO {
 	private String codigo;
 	@JsonFormat(
 			  shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss", timezone="America/Lima")
-	private Date fecha;
+	private LocalDateTime fecha;
 }
